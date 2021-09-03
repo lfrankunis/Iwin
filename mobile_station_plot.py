@@ -23,15 +23,20 @@ import pymannkendall as mk
 
 timer_start = timeit.default_timer()
 
-path_map_data, path_ocean_data, path_carra= map_classes.get_paths()
+
+start_time = "202108192200"
+end_time = "202108202200"
+
+
+path_map_data = "C:/Svalbard_map_data/"
 
 plt.rcParams.update({'font.size': 12, "timezone": "Europe/Paris"})
 
 # load boat data
 boat = mobile_AWS_class.mobile_AWS(station=1, resolution="1min",
-                                    starttime="202108192200", endtime="202108202200",
+                                    starttime=start_time, endtime=end_time,
                                     variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'latitude', 'longitude'],
-                                    file_type="raw")
+                                    file_type="raw", path="C:/Data/")
 
 boat.filter_GPScoverage()
 boat.masks_for_harbors()
@@ -45,9 +50,9 @@ if status == "live":
 
     # load lighthouse data --> here only for live plots
     bohemanneset = lighthouse_AWS_class.lighthouse_AWS(station=1885, resolution="1min",
-                                        starttime="202108192200", endtime="202108202200",
+                                        starttime=start_time, endtime=end_time,
                                         variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
-                                        file_type="raw")
+                                        file_type="raw", path="C:/Data/")
 
     bohemanneset.calculate_windvector_components()
     bohemanneset.calculate_wind_sector()

@@ -14,18 +14,14 @@ import math
 import sys
 import os
 import copy
-import datetime
-from scipy import interpolate
 import pandas as pd
-from gsw import freezing, density, conversions
-import utm
-import sqlite3
 import geopandas as gpd
 import cartopy.crs as ccrs
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-from geopy.distance import geodesic
 import rioxarray as rxr
 from scalebar import scale_bar
+from shapely.geometry import LineString
+
 
 ocean = copy.copy(mpl.cm.get_cmap('ocean'))
 ocean.set_bad('grey')
@@ -54,13 +50,6 @@ labelsize= 16
 
 
 
-def read_all_stations_and_sections(path):
-
-    all_stations = pd.read_excel(path + 'ctd_stations_sections.ods', sheet_name='Stations', index_col=0)
-    all_sections = pd.read_excel(path + 'ctd_stations_sections.ods', sheet_name='Sections')
-
-    return [all_stations, all_sections]
-
 
 
 def get_paths():
@@ -83,69 +72,6 @@ def get_paths():
 
 
 
-
-
-def unis_hd_stations_time_query(starttime, endtime, section, path):
-    """
-    Function to extract those measurements, which were made at the given stations in the specified time period.
-    """
-
-    accuracy_m = 100.
-    delta_lat = accuracy_m / 111000.
-    delta_lon = accuracy_m / (111000.*np.cos(78.*(np.pi/180.)))
-
-    input_path = path + 'unis_hd_Isfjorden.db'
-
-    start = datetime.datetime.strptime(starttime, '%Y%m%d').timestamp()
-    end = datetime.datetime.strptime(endtime, '%Y%m%d').timestamp()
-
-    stations = {}
-    with sqlite3.connect(input_path) as conn:
-        cur = conn.cursor()
-        for i in section.index.values:
-            exec_statement = "SELECT * FROM ctd_attributes WHERE date BETWEEN ? AND ? \
-                                                             AND latitude BETWEEN ? AND ? \
-                                                             AND longitude BETWEEN ? AND ?"
-            cur.execute(exec_statement, (start, end, \
-                                         section.loc[i]['latitude'] - delta_lat, section.loc[i]['latitude'] + delta_lat,
-                                         section.loc[i]['longitude'] - delta_lon, section.loc[i]['longitude'] + delta_lon))
-            rows = cur.fetchall()
-
-            df = pd.DataFrame(rows, columns=['id','station','latitude','longitude','date','depth'])
-            df['station'].str.strip()
-
-            stations[i] = df
-
-
-    keys_to_remove = []
-    for key, item in stations.items():
-        if item.empty:
-            keys_to_remove.append(key)
-    for i in keys_to_remove:
-        del stations[i]
-        section.drop(i, inplace=True)
-
-    return [stations, section]
-
-
-
-
-
-
-def unis_hd_extract_profile(id, path):
-    """
-    Method to extract the data from one profile from the UNIS HD database
-    Takes the ID of the profile within the database as input
-    """
-
-
-    input_path = path + 'unis_hd_Isfjorden.db'
-
-    exec_statement = "SELECT P,T,S FROM measurements_{a}".format(a=id)
-    with sqlite3.connect(input_path) as conn:
-        df = pd.read_sql_query(exec_statement, conn)
-
-    return df
 
 
 
@@ -293,10 +219,10 @@ class Shared_Methods:
         gdf = gdf.to_crs(self.crs_proj4)
 
         try:
-            q = self.ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], zorder=zorder, length=length, linewidth=lw)
+            self.ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], zorder=zorder, length=length, linewidth=lw)
         except AttributeError:
             for i in range(len(self.ax)):
-                q = self.ax[i].barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], zorder=zorder, length=length, lw=lw)
+                self.ax[i].barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], zorder=zorder, length=length, lw=lw)
 
         return
 
@@ -404,7 +330,6 @@ class elevation_map(Shared_Methods):
         i = limits["area"] == self.area
         list_limits = [float(limits["lon_min"][i]), float(limits["lon_max"][i]), float(limits["lat_min"][i]), float(limits["lat_max"][i])]
 
-        limits_utm_x, limits_utm_y, _, _ = utm.from_latlon(np.array(list_limits[2:]), np.array(list_limits[:2]))
 
         # read elevation data
         dem = rxr.open_rasterio(input_path, masked=True).squeeze()
@@ -579,257 +504,3 @@ class topo_map(Shared_Methods):
 
         # scale bar
         scale_bar(self.ax, (0.9, 0.02), scale_length_km)
-
-
-
-
-
-
-
-
-
-
-
-
-class crosssection(Shared_Methods):
-    """
-    Contains a figure with a crosssection along the given coordinates.
-    """
-
-    def __init__(self, area, lat, lon, mappath, oceanpath, plotting=False, ocean_only=True, atm_only=False):
-
-        self.area = area
-        self.lat = lat
-        self.lon = lon
-        self.plotting = plotting
-
-        self.path_map_data = mappath
-        self.path_ocean_data = oceanpath
-
-        self.resolution = 200.
-
-
-        input_path = self.path_map_data + 'IBCAO/IBCAO_v4_1_200m_t4x1y0.tif'
-
-        # limits from file
-        limits = pd.read_csv(self.path_map_data + 'area_latlon_limits.txt', delim_whitespace=True, dtype=str)
-        i = limits["area"] == self.area
-        list_limits = [float(limits["lon_min"][i]), float(limits["lon_max"][i]), float(limits["lat_min"][i]), float(limits["lat_max"][i])]
-
-        # read elevation data
-        dbm = rxr.open_rasterio(input_path, masked=True).squeeze()
-        dbm.rio.set_crs(3996)
-        dbm = dbm.rio.reproject("EPSG:4326")
-
-        dbm = dbm.rio.clip_box(minx=list_limits[0], miny=list_limits[2], maxx=list_limits[1], maxy=list_limits[3])
-
-        LON, LAT = np.meshgrid(dbm.x, dbm.y)
-
-        # determine coordinates of base points of crosssection
-        cross_lat = np.array([self.lat[0]])
-        cross_lon = np.array([self.lon[0]])
-        stations_dist = np.array([0])
-        for i in range(len(self.lat)-1):
-            delta = geodesic((self.lat[i], self.lon[i]), (self.lat[i+1], self.lon[i+1])).m
-            stations_dist = np.append(stations_dist, delta)
-            number_of_points = int(np.ceil(delta/self.resolution)+1.)
-            new_lat = np.linspace(self.lat[i], self.lat[i+1], number_of_points)[1:]
-            new_lon = np.linspace(self.lon[i], self.lon[i+1], number_of_points)[1:]
-            cross_lat = np.append(cross_lat, new_lat)
-            cross_lon = np.append(cross_lon, new_lon)
-
-
-        cross_dist = np.array([0.])
-        for i in range(len(cross_lat)-1):
-            cross_dist = np.append(cross_dist, geodesic((cross_lat[i], cross_lon[i]), (cross_lat[i+1], cross_lon[i+1])).m)
-
-        cross_dist = np.cumsum(cross_dist) / 1.e3
-        stations_dist = np.cumsum(stations_dist) / 1.e3
-
-        # interpolate height at points defining the crossection
-        z = interpolate.griddata((LON.flatten(), LAT.flatten()), np.array(dbm).flatten(), (cross_lon, cross_lat), method='linear')
-
-        if ocean_only:
-            self.top = 0.
-            self.bottom = np.nanmin(z)-0.1*abs(np.nanmin(z))
-        elif atm_only:
-            self.top = np.nanmax(z)+0.1*abs(np.nanmax(z))
-            self.bottom = -0.1*abs(np.nanmax(z))
-        else:
-            self.top = np.nanmax(z)+0.1*abs(np.nanmax(z)-np.nanmin(z))
-            self.bottom = np.nanmin(z)-0.1*abs(np.nanmax(z)-np.nanmin(z))
-
-        if self.plotting:
-            # plot the crosssection
-            fig, ax = plt.subplots(1,1,figsize=(18,12))
-            ax.fill_between(cross_dist, z, self.bottom, color='grey', zorder=4)
-            if atm_only:
-                ax.fill_between(cross_dist, 0., self.bottom, color='grey', zorder=4)
-            if ((ocean_only == False) & (atm_only == False)):
-                ax.axhline(y=0., color='k', linestyle='--', zorder=3)
-            ax.set_xlabel("Distance [km]", fontsize=labelsize)
-            ax.set_ylabel("Depth [m]", fontsize=labelsize)
-            ax.tick_params('both', labelsize=labelsize)
-            ax.set_xlim((cross_dist[0], cross_dist[-1]))
-            ax.set_ylim((self.bottom, self.top))
-            ax.set_yticklabels(ax.get_yticks())
-            labels = [str(int(abs(item.get_position()[1]))) for item in ax.get_yticklabels()]
-            ax.set_yticklabels(labels)
-            plt.tight_layout()
-
-            self.fig = fig
-            self.ax = ax
-
-        self.basepoints_dist = cross_dist
-        self.basepoints_z = z
-        self.stations_dist = stations_dist
-
-
-
-
-    def grid_unishd(self, stations):
-        """
-        Grid the measurement data from the UNIS HD according to the bathymetry crosssection.
-        Adding it afterwards with add_unishd_in_figure
-        stations: List with the station numbers of the section
-        time_start, time_end: strings in format YYYYmmdd
-        """
-
-        self.stations = stations
-
-        d = int(-self.bottom)
-
-        measurements = {}
-        temperature = np.ones((d, len(self.stations))) * np.nan
-        salinity = np.ones((d,len(self.stations))) * np.nan
-        self.depth = -1.*np.arange(d)
-        stat_ind = 0
-        for station, attributes in self.stations.items():
-            list_of_measurements = [unis_hd_extract_profile(i, self.path_ocean_data) for i in attributes['id'].tolist()]
-            measurements[station] = np.ones((d,3,len(list_of_measurements))) * np.nan
-            for count, m in enumerate(list_of_measurements):
-                ind = [int(i) for i in m['P']]
-                values = list_of_measurements[count].to_numpy()
-                measurements[station][ind,:,count] = values
-
-            measurements[station] = np.nanmean(measurements[station], axis=2)
-            temperature[:,stat_ind] = measurements[station][:,1]
-            salinity[:,stat_ind] = measurements[station][:,2]
-            stat_ind += 1
-
-        SD, PR = np.meshgrid(self.stations_dist, self.depth)
-        BD, PR2 = np.meshgrid(self.basepoints_dist, self.depth)
-
-        temperature = temperature.flatten()
-        salinity = salinity.flatten()
-        ind = ~np.isnan(temperature)
-        temperature = temperature[ind]
-        salinity = salinity[ind]
-        SD = SD.flatten()[ind]
-        PR = PR.flatten()[ind]
-
-#        self.temperature = interpolate.griddata((SD, PR), temperature, (BD, PR2), method='linear')
-#        self.salinity = interpolate.griddata((SD, PR), salinity, (BD, PR2), method='linear')
-
-
-        rbf_mode = 'linear'
-        rbf_temperature = interpolate.Rbf(SD, PR, temperature, function=rbf_mode, smooth=0)
-        rbf_salinity = interpolate.Rbf(SD, PR, salinity, function=rbf_mode, smooth=0)
-        self.temperature = rbf_temperature(BD, PR2)
-        self.salinity = rbf_salinity(BD, PR2)
-
-        self.pressure = -1.*PR2
-
-        for i in range(len(self.basepoints_dist)):
-            ind = np.where(self.depth < self.basepoints_z[i])[0]
-            ind = ind[np.min([len(ind)-1, 40])]
-            self.temperature[ind:,i] = np.nan
-            self.salinity[ind:,i] = np.nan
-            self.pressure[ind:,i] = np.nan
-
-        T_f = freezing.t_freezing(self.salinity, self.pressure, 0.5)
-        self.temperature[self.temperature < T_f] = T_f[self.temperature < T_f]
-
-        self.absolute_salinity = conversions.SA_from_SP(self.salinity, self.pressure, 13., 78.)
-        self.conservative_temperature = conversions.CT_from_t(self.absolute_salinity, self.temperature, self.pressure)
-
-        self.density = density.rho(self.absolute_salinity, self.conservative_temperature, self.pressure)
-        self.sigma0 = density.sigma0(self.absolute_salinity, self.conservative_temperature)
-
-        return
-
-
-    def water_mass_identification(self):
-        """
-        Function to identify the water masses along the crosssection
-        """
-
-        water_mass_def = pd.read_excel(self.path_ocean_data + 'water_masses.ods', sheet_name='Watermasses')
-
-        self.water_masses = np.ones_like(self.temperature) * np.nan
-        for index, row in water_mass_def.iterrows():
-            ind = np.all(np.array([self.temperature > row['T_min'],
-                                    self.temperature <= row['T_max'],
-                                    self.salinity > row['S_psu_min'],
-                                    self.salinity <= row['S_psu_max']]), axis=0)
-            self.water_masses[ind] = index
-
-        return
-
-
-
-
-
-
-
-    def add_unishd_in_figure(self, vari):
-        """
-        Function to add the gridded temperature or salinity data into a prepared bathymetry crosssection
-        """
-
-
-        water_mass_def = pd.read_excel(self.path_ocean_data + 'water_masses.ods', sheet_name='Watermasses')
-
-
-        if vari == 'T':
-            pic = self.ax.contourf(self.basepoints_dist, self.depth, self.temperature,
-                                    cmap=coolwarm, levels=np.linspace(-2.,7.,19))
-            cbar = plt.colorbar(pic, fraction= 0.1)
-            cbar.ax.tick_params('y', labelsize=16)
-            cbar.ax.set_ylabel('Temperature [°C]', fontsize=16)
-            cs = self.ax.contour(self.basepoints_dist, self.depth, self.temperature,
-                                 colors='w', linewidths=0.8, levels=np.linspace(-1.,6.,8))
-            self.ax.clabel(cs, fontsize=labelsize-6, fmt='%1.1f', zorder=3)
-        elif vari == 'S':
-            pic = self.ax.contourf(self.basepoints_dist, self.depth, self.salinity,
-                                    cmap=sali, levels=np.linspace(28., 36., 17))
-            cbar = plt.colorbar(pic, fraction= 0.1)
-            cbar.ax.tick_params('y', labelsize=16)
-            cbar.ax.set_ylabel('Salinity [PSU]', fontsize=16)
-            cs = self.ax.contour(self.basepoints_dist, self.depth, self.salinity,
-                                    colors='k', linewidths=0.8, levels=np.linspace(29.,35.,7))
-            self.ax.clabel(cs, fontsize=labelsize-6, fmt='%1.1f', zorder=3)
-        elif vari == 'sigma0':
-            pic = self.ax.contourf(self.basepoints_dist, self.depth, self.sigma0,
-                                    cmap=dens, levels=np.linspace(25., 29., 17))
-            cbar = plt.colorbar(pic, fraction= 0.1)
-            cbar.ax.tick_params('y', labelsize=16)
-            cbar.ax.set_ylabel('Sigma0 [kg/m³]', fontsize=16)
-            cs = self.ax.contour(self.basepoints_dist, self.depth, self.sigma0,
-                                    colors='w', linewidths=0.8, levels=np.linspace(25.5,28.5,7))
-            self.ax.clabel(cs, fontsize=labelsize-6, fmt='%1.1f', zorder=3)
-        elif vari == 'WM':
-            pic = self.ax.contourf(self.basepoints_dist, self.depth, self.water_masses,
-                                    colors=water_mass_def['color'].tolist(), levels=np.linspace(-0.5, 6.5, 8))
-            legend_elements = [mpl.patches.Patch(facecolor=water_mass_def['color'][i], edgecolor=water_mass_def['color'][i],
-                                     label=water_mass_def['Abbr'][i]) for i in water_mass_def.index.values if i != 3]
-            self.ax.legend(handles=legend_elements, loc='lower right', fontsize=labelsize)
-
-
-        ax2 = plt.twiny(self.ax)
-        ax2.tick_params('x', labelsize=labelsize, labelrotation=90.)
-        ax2.set_xlabel('Station', fontsize=labelsize)
-        ax2.set_xticks(self.stations_dist)
-        ax2.set_xticklabels(list(self.stations.keys()))
-
-        plt.tight_layout()

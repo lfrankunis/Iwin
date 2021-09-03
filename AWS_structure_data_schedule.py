@@ -37,7 +37,7 @@ AWS_2 = True
 Bohemanneset = True
 
 # define path to the data folder
-path = "C:/DATA/"
+path = "C:/Data/"
 
 
 # define resolution of output files (daily files/hourly files/minute files)
@@ -92,7 +92,7 @@ while True:                 # always true, to keep the script running forever
             pass
 
         shutil.copytree(path + "mobile_AWS_1/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
-                        "E:/DATA/mobile_AWS_1/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+                        "E:/Data/mobile_AWS_1/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
 
     if AWS_2:
@@ -124,7 +124,7 @@ while True:                 # always true, to keep the script running forever
             pass
 
         shutil.copytree(path + "mobile_AWS_2/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
-                        "E:/DATA/mobile_AWS_2/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+                        "E:/Data/mobile_AWS_2/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
 
     if Bohemanneset:
@@ -148,7 +148,7 @@ while True:                 # always true, to keep the script running forever
             pass
 
         shutil.copytree(path + "lighthouse_AWS_1885/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
-                        "E:/DATA/lighthouse_AWS_1885/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+                        "E:/Data/lighthouse_AWS_1885/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
 
     next_wakeup()           # don't forget to update the next wakeup time!!!
