@@ -20,21 +20,32 @@ import timeit
 import pymannkendall as mk
 
 
-
 timer_start = timeit.default_timer()
 
 
-start_time = "202108192200"
-end_time = "202108202200"
+plt.rcParams.update({'font.size': 12, "timezone": "Europe/Paris"})
+plt.rcParams['hatch.linewidth'] = 2.
+
+
+
+status = 'overview'
+
+
+latest_update_time = "202109031112"
+latest_update_time = "202109022200"
+period_to_show = datetime.timedelta(days=1)
+
+start_time = (datetime.datetime.strptime(latest_update_time, "%Y%m%d%H%M") - period_to_show).strftime("%Y%m%d%H%M")
+
 
 
 path_map_data = "C:/Svalbard_map_data/"
 
-plt.rcParams.update({'font.size': 12, "timezone": "Europe/Paris"})
+
 
 # load boat data
 boat = mobile_AWS_class.mobile_AWS(station=1, resolution="1min",
-                                    starttime=start_time, endtime=end_time,
+                                    starttime=start_time, endtime=latest_update_time,
                                     variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'latitude', 'longitude'],
                                     file_type="raw", path="C:/Data/")
 
@@ -44,15 +55,16 @@ boat.calculate_windvector_components(corrected=True)
 boat.calculate_wind_sector(corrected=True)
 boat.calculate_wind_in_knots(corrected=True)
 
-status = 'live'
+
 if status == "live":
     boat.only_latest_data(datetime.timedelta(hours=12))
 
     # load lighthouse data --> here only for live plots
     bohemanneset = lighthouse_AWS_class.lighthouse_AWS(station=1885, resolution="1min",
-                                        starttime=start_time, endtime=end_time,
+                                        starttime=start_time, endtime=latest_update_time,
                                         variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
                                         file_type="raw", path="C:/Data/")
+
 
     bohemanneset.calculate_windvector_components()
     bohemanneset.calculate_wind_sector()
@@ -62,6 +74,13 @@ if status == "live":
     lighthouses = {"Bohemanneset": {'lat': 78.38166, 'lon': 14.75300}}
 
 wdir_classes = {1:['N', 0.], 2:['NE', 45.], 3:['E', 90.], 4:['SE', 135.], 5:['S', 180.], 6:['SW', 225.], 7:['W', 270.], 8:['NW', 315.]}
+
+
+
+
+
+#%% plotting
+plt.close("all")
 
 # create figure and subplot grid
 fig = plt.figure(figsize=(19,6), constrained_layout=True)
@@ -101,19 +120,19 @@ except IndexError:
 
 # latest harbour winds from each harbor, only last two, to not overload the map
 try:
-    sc_map.add_grid_points_meteo_arrows(boat.data['latitude'][boat.data["mask_LYR"]][-2:], boat.data['longitude'][boat.data["mask_LYR"]][-2:],
-                                        boat.data['u_knts'][boat.data["mask_LYR"]][-2:], boat.data['v_knts'][boat.data["mask_LYR"]][-2:], length=7, lw=.8)
+    sc_map.add_grid_points_meteo_arrows([boat.data['latitude'][boat.data["mask_LYR"]][-1]], [boat.data['longitude'][boat.data["mask_LYR"]][-1]],
+                                        [boat.data['u_knts'][boat.data["mask_LYR"]][-1]], [boat.data['v_knts'][boat.data["mask_LYR"]][-1]], length=7, lw=.8)
 except IndexError:
     pass
 
 try:
-    sc_map.add_grid_points_meteo_arrows(boat.data['latitude'][boat.data["mask_PYR"]][-2:], boat.data['longitude'][boat.data["mask_PYR"]][-2:],
-                                        boat.data['u_knts'][boat.data["mask_PYR"]][-2:], boat.data['v_knts'][boat.data["mask_PYR"]][-2:], length=7, lw=.8)
+    sc_map.add_grid_points_meteo_arrows([boat.data['latitude'][boat.data["mask_PYR"]][-1]], [boat.data['longitude'][boat.data["mask_PYR"]][-1]],
+                                        [boat.data['u_knts'][boat.data["mask_PYR"]][-1]], [boat.data['v_knts'][boat.data["mask_PYR"]][-1]], length=7, lw=.8)
 except IndexError:
     pass
 try:
-    sc_map.add_grid_points_meteo_arrows(boat.data['latitude'][boat.data["mask_BB"]][-2:], boat.data['longitude'][boat.data["mask_BB"]][-2:],
-                                        boat.data['u_knts'][boat.data["mask_BB"]][-2:], boat.data['v_knts'][boat.data["mask_BB"]][-2:], length=7, lw=.8)
+    sc_map.add_grid_points_meteo_arrows([boat.data['latitude'][boat.data["mask_BB"]][-1]], [boat.data['longitude'][boat.data["mask_BB"]][-1]],
+                                        [boat.data['u_knts'][boat.data["mask_BB"]][-1]], [boat.data['v_knts'][boat.data["mask_BB"]][-1]], length=7, lw=.8)
 except IndexError:
     pass
 
@@ -150,11 +169,20 @@ if status == "live":
                                                                                              c=bohemanneset.data['wind_speed'][-1],
                                                                                              d=wdir_classes[bohemanneset.data['wind_sector'][-1]][0])
 
+    x_shift = -1.03
+    y_shift = 0.02
+    if wdir_classes[bohemanneset.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
+        x_shift = -1.25
+        y_shift = 0.06
     ax_map.annotate(data_str, xy=(lighthouses['Bohemanneset']['lon'], lighthouses['Bohemanneset']['lat']), bbox=props, ha="left", va="bottom",
-                    xytext=(lighthouses['Bohemanneset']['lon']-1.2, lighthouses['Bohemanneset']['lat']+0.05), xycoords=transform, zorder=21)
+                    xytext=(lighthouses['Bohemanneset']['lon']+x_shift, lighthouses['Bohemanneset']['lat']+y_shift), xycoords=transform, zorder=21)
 
-    sc_map.add_grid_points_meteo_arrows(np.array([lighthouses['Bohemanneset']['lat'], lighthouses['Bohemanneset']['lat']]), np.array([lighthouses['Bohemanneset']['lon'], lighthouses['Bohemanneset']['lon']]),
-                                        np.array([-8., -15.]), np.array([15., 8.]), length=7, lw=.8, zorder=40)
+    sc_map.add_grid_points_meteo_arrows([lighthouses['Bohemanneset']['lat']], [lighthouses['Bohemanneset']['lon']],
+                                        [bohemanneset.data['u_knts'][-1]], [bohemanneset.data['v_knts'][-1]], length=7, lw=.8, zorder=40)
+
+
+
+
 
 
 # plot time series
@@ -169,18 +197,20 @@ plot_colors = {'temperature': '#377eb8',
           'wind_direction': '#e41a1c'}
 
 plot_labels = {'temperature': 'Temp. [°C]',
-          'relative_humidity': 'Rel. Humidity [%]',
+          'relative_humidity': 'Rel. Humi. [%]',
           'wind_speed': 'Wind Speed [m/s]',
-          'wind_direction': 'Wind Direction [°]'}
+          'wind_direction': 'Wind Dir. [°]'}
 
 plot_units = {'temperature': '°C',
           'relative_humidity': '%',
           'wind_speed': 'm/s',
           'wind_direction': '°'}
 
+
+
 # initialize complete wind direction plot, to get the x axis for the following subplots
 ax_4 = fig.add_subplot(gs[3,0])
-ax_4.scatter(boat.data['local_time'], boat.data["wind_direction"], s=10, color=plot_colors['wind_direction'])
+ax_4.scatter(boat.data['local_time'], boat.data["wind_direction"], s=3, color=plot_colors['wind_direction'])
 
 
 
@@ -206,6 +236,10 @@ for i, ax in enumerate(axes):
             ymax = 0.1
         ax.set_ylim((ymin, ymax))
         ax.fill_between(boat.data['local_time'], ymin, ymax, where = boat.data['mask_LYR'] == True, facecolor=plot_colors[plot_variables[i]], alpha=0.2)
+        
+        ax.fill_between(boat.data['local_time'], ymin, ymax, where = boat.data['mask_BB'] == True, facecolor="none", linewidth=2.0, edgecolor=plot_colors[plot_variables[i]], hatch="/", alpha=0.5)
+        ax.fill_between(boat.data['local_time'], ymin, ymax, where = boat.data['mask_PYR'] == True, facecolor="none", linewidth=2.0, edgecolor=plot_colors[plot_variables[i]], hatch='\\', alpha=0.5)
+        
         ax.yaxis.set_major_locator(plt.MaxNLocator(5))
     # everything that goes only into the last subplot (wind direction)
     else:
@@ -213,6 +247,10 @@ for i, ax in enumerate(axes):
         ax.set_xlim((boat.data['local_time'][0], boat.data['local_time'][-1]+datetime.timedelta(hours=future_time_plot[status])))
         ax.set_ylim((0., 360.))
         ax.fill_between(boat.data['local_time'], 0., 360., where = boat.data['mask_LYR'] == True, facecolor=plot_colors[plot_variables[i]], alpha=0.2)
+        
+        ax.fill_between(boat.data['local_time'], 0., 360., where = boat.data['mask_BB'] == True, facecolor="none", linewidth=2.0, edgecolor=plot_colors[plot_variables[i]], hatch="/", alpha=0.5)
+        ax.fill_between(boat.data['local_time'], 0., 360., where = boat.data['mask_PYR'] == True, facecolor="none", linewidth=2.0, edgecolor=plot_colors[plot_variables[i]], hatch='\\', alpha=0.5)
+
         ax.set_yticks([0., 90., 180., 270., 360.])
         ax.set_yticklabels(["N", "E", "S", "W", "N"])
         ax.xaxis.set_major_locator(HourLocator(interval=2))
@@ -232,22 +270,20 @@ for i, ax in enumerate(axes):
 
     # plot markers for BB and PYR (if possible)
     try:
-        ax.scatter([boat.data['local_time'][boat.data['mask_BB']][0], boat.data['local_time'][boat.data['mask_BB']][-1]],
-                    [boat.data[plot_variables[i]][boat.data['mask_BB']][0], boat.data[plot_variables[i]][boat.data['mask_BB']][-1]],
+        ax.scatter(boat.data['local_time'][boat.data['mask_BB']][np.sum(boat.data['mask_BB'])//2], boat.data[plot_variables[i]][boat.data['mask_BB']][np.sum(boat.data['mask_BB'])//2],
                     color=plot_colors[plot_variables[i]], marker='d', s=250)
     except IndexError:
         pass
     try:
-        ax.scatter([boat.data['local_time'][boat.data['mask_PYR']][0], boat.data['local_time'][boat.data['mask_PYR']][-1]],
-                    [boat.data[plot_variables[i]][boat.data['mask_PYR']][0], boat.data[plot_variables[i]][boat.data['mask_PYR']][-1]],
+        ax.scatter(boat.data['local_time'][boat.data['mask_PYR']][np.sum(boat.data['mask_PYR'])//2], boat.data[plot_variables[i]][boat.data['mask_PYR']][np.sum(boat.data['mask_PYR'])//2],
                     color=plot_colors[plot_variables[i]], marker='^', s=250)
     except IndexError:
         pass
 
     ax.grid()
 
-timer_stop = timeit.default_timer()
-print('Time: {a}s'.format(a=timer_stop - timer_start))
+
+print('Time: {a}s'.format(a=timeit.default_timer() - timer_start))
 
 # fig.savefig("C:/Users/lukasf/Desktop/iwin_mobile_3.png" )
 plt.show()
