@@ -142,7 +142,7 @@ class Shared_Methods:
 
 
 
-    def add_grid_points_scalar(self, lat, lon, data, normalize_midpoint=False, min_cbar_range=False, cbar_switch=True, cbar_label="Temperature [°C]", markersize=50, marker="o", cmap=coolwarm):
+    def add_grid_points_scalar(self, lat, lon, data, normalize_midpoint=False, fixed_cbar_range=[3., 6.], cbar_switch=True, cbar_label="Temperature [°C]", markersize=50, marker="o", cmap=coolwarm):
         """
         Method to add dots at the locations, colored according to a scalar.
         data, lat and lon 1D-arrays
@@ -155,14 +155,8 @@ class Shared_Methods:
         try:
             if normalize_midpoint:
                 gdf.plot(column='data', ax=self.ax, norm=MidpointNormalize(midpoint=normalize_midpoint), legend=cbar_switch, legend_kwds={'label': cbar_label}, marker=marker, markersize=markersize, zorder=10, cmap=cmap)
-            elif min_cbar_range:
-                if len(data) > 0:
-                    cmin = np.nanmin(data) - (min_cbar_range - np.abs(np.nanmax(data)-np.nanmin(data)))/2
-                    cmax = np.nanmax(data) + (min_cbar_range - np.abs(np.nanmax(data)-np.nanmin(data)))/2
-                else:
-                    cmin = 5.
-                    cmax = cmin + min_cbar_range
-                norm = mpl.colors.Normalize(vmin=cmin, vmax=cmax)
+            elif fixed_cbar_range:
+                norm = mpl.colors.Normalize(vmin=fixed_cbar_range[0], vmax=fixed_cbar_range[1])
                 gdf.plot(column='data', ax=self.ax, norm=norm, legend=cbar_switch, legend_kwds={'label': cbar_label}, marker=marker, markersize=markersize, zorder=10, cmap=cmap)
             else:
                 gdf.plot(column='data', ax=self.ax, legend=cbar_switch, legend_kwds={'label': cbar_label}, marker=marker, markersize=markersize, zorder=10, cmap=cmap)
@@ -170,14 +164,8 @@ class Shared_Methods:
             for i in range(len(self.ax)):
                 if normalize_midpoint:
                     gdf.plot(column='data', ax=self.ax[i], norm=MidpointNormalize(midpoint=normalize_midpoint), legend=cbar_switch, legend_kwds={'label': cbar_label, 'orientation': 'horizontal'}, marker=marker, markersize=markersize, zorder=10, cmap=cmap)
-                elif min_cbar_range:
-                    if len(data) > 0:
-                        cmin = np.nanmin(data) - (min_cbar_range - np.abs(np.nanmax(data)-np.nanmin(data)))/2
-                        cmax = np.nanmax(data) + (min_cbar_range - np.abs(np.nanmax(data)-np.nanmin(data)))/2
-                    else:
-                        cmin = 5.
-                        cmax = cmin + min_cbar_range
-                    norm = mpl.colors.Normalize(vmin=cmin, vmax=cmax)
+                elif fixed_cbar_range:
+                    norm = mpl.colors.Normalize(vmin=fixed_cbar_range[0], vmax=fixed_cbar_range[1])
                     gdf.plot(column='data', ax=self.ax[i], norm=norm, legend=cbar_switch, legend_kwds={'label': cbar_label}, marker=marker, markersize=markersize, zorder=10, cmap=cmap)
                 else:
                     gdf.plot(column='data', ax=self.ax[i], legend=cbar_switch, legend_kwds={'label': cbar_label, 'orientation': 'horizontal'}, marker=marker, markersize=markersize, zorder=10, cmap=cmap)

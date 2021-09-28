@@ -390,9 +390,12 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
 #can be used for manual processing:
 # for res in ["hour", "10min", "5min", "1min", "20sec"]:
 #     for stat in ["1", "2"]:
-#         restructure_mobile_AWS(datetime.datetime(2021,6,8,0,0,0), datetime.datetime(2021,6,9,0,0,0), resolution=res, station=stat, path="C:/Data/")
+#         restructure_mobile_AWS(datetime.datetime(2021,9,22,0,0,0), datetime.datetime(2021,9,23,0,0,0), resolution=res, station=stat, path="C:/Data/")
 
 
 # for res in ["hour", "10min", "1min"]:
 #     for stat in ["1885"]:
-#         restructure_lighthouse_AWS(datetime.datetime(2021,8,19,0,0,0), datetime.datetime(2021,8,20,0,0,0), resolution=res, station=stat, path="C:/Data/")
+#         restructure_lighthouse_AWS(datetime.datetime(2021,9,22,0,0,0), datetime.datetime(2021,9,23,0,0,0), resolution=res, station=stat, path="C:/Data/")
+
+
+

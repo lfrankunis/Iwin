@@ -12,6 +12,8 @@ from netCDF4 import Dataset
 import sys
 import os
 import pandas as pd
+from collections import deque
+from io import StringIO
 
 
 class lighthouse_AWS():
@@ -93,8 +95,11 @@ class lighthouse_AWS():
             print('reading {a}'.format(a=os.path.basename(data_file)))
 
             col_names = pd.read_csv(data_file, header=1, sep=",", nrows=1).to_dict('records')[0]
-
-            df_data = pd.read_csv(data_file, header=4, sep=",", na_values="NAN", names=list(col_names.keys()))
+            
+            with open(data_file, 'r') as f:
+                q = deque(f, 5000)
+                
+            df_data = pd.read_csv(StringIO(''.join(q)), header=None, sep=",", na_values="NAN", names=list(col_names.keys()))
 
             # transfer timestamps into Python datetime objects
             df_data["time"] = pd.to_datetime(df_data["TIMESTAMP"]).dt.to_pydatetime()
