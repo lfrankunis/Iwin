@@ -29,7 +29,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1", resolution="10min", 
     -------
     In case the restructured interval is not one day, remember to change the output file names
     """
-
+    ## data path for before september
+    # infile = "{p}mobile_AWS_{s}/raw_backups/mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution)
+    
     infile = "{p}mobile_AWS_{s}/mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution)
     outfile_ascii = "{p}mobile_AWS_{s}/{a}{b:02d}{c:02d}/ascii/{a}{b:02d}{c:02d}_mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution, a=from_time.year, b=from_time.month, c=from_time.day)
     outfile_nc = "{p}mobile_AWS_{s}/{a}{b:02d}{c:02d}/nc/{a}{b:02d}{c:02d}_mobile_AWS_{s}_Table_{r}.nc".format(p=path, s=station, r=resolution, a=from_time.year, b=from_time.month, c=from_time.day)
@@ -389,8 +391,8 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
 
 #can be used for manual processing:
 # for res in ["hour", "10min", "5min", "1min", "20sec"]:
-#     for stat in ["1", "2"]:
-#         restructure_mobile_AWS(datetime.datetime(2021,9,22,0,0,0), datetime.datetime(2021,9,23,0,0,0), resolution=res, station=stat, path="C:/Data/")
+#     for stat in ["1"]:#, "2"]:
+#         restructure_mobile_AWS(datetime.datetime(2021,6,22,0,0,0), datetime.datetime(2021,6,23,0,0,0), resolution=res, station=stat, path="C:/Data/")
 
 
 # for res in ["hour", "10min", "1min"]:
