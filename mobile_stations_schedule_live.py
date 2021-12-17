@@ -20,8 +20,9 @@ import multiprocessing as mp
 def next_wakeup():
     
     # refresh period
-    dt_minutes = 1
-    time_delta=datetime.timedelta(minutes=dt_minutes)
+    dt_minutes = 0
+    dt_hours = 6
+    time_delta=datetime.timedelta(hours=dt_hours, minutes=dt_minutes)
     round_to = time_delta.total_seconds()                   # 60s
 
     dt = datetime.datetime.now()
@@ -32,7 +33,7 @@ def next_wakeup():
     else:
         rounding = (seconds + dt.microsecond/1000000 + round_to) // round_to * round_to
 
-    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond)
+    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond) + datetime.timedelta(minutes=5)
     print("The next wakeup is scheduled for: {a}".format(a=next_wakeup_time))
 
     return next_wakeup_time
@@ -49,7 +50,7 @@ def update_all_plots(update_time):
     lighthouses_to_plot = [1885]
 
     boat_names = {1: "MS_Bard", 2: "Polargirl"}
-    boats_to_plot = [1, 2]
+    boats_to_plot = []
 
     status = "live"
 
@@ -130,10 +131,15 @@ def update_all_plots(update_time):
         
     fig, gs, ax_map, sc_map = initialize_fullpage_map()
     cbar_range = get_cbar_range([boat[i].data[map_vari] for i in boats_to_plot], min_cbar_range)
-    plot_boat_on_map(ax_map, sc_map, boat[1], variable=map_vari, position_switch=False, legend_switch=False, cbar_switch=True, fixed_cbar_range=cbar_range)
-    plot_boat_on_map(ax_map, sc_map, boat[2], variable=map_vari, position_switch=False, legend_switch=False, cbar_switch=False, fixed_cbar_range=cbar_range)
-    plot_lighthouse_on_map(lighthouse[1885], ax_map, sc_map)    
-    combined_legend_positions(ax_map, boat, boat_names) # combined legend
+    for i, b in enumerate(boats_to_plot):
+        if i == 0:
+            plot_boat_on_map(ax_map, sc_map, boat[b], variable=map_vari, position_switch=False, legend_switch=False, cbar_switch=True, fixed_cbar_range=cbar_range)
+        else:
+            plot_boat_on_map(ax_map, sc_map, boat[b], variable=map_vari, position_switch=False, legend_switch=False, cbar_switch=False, fixed_cbar_range=cbar_range)
+    for l in lighthouses_to_plot:
+        plot_lighthouse_on_map(lighthouse[l], ax_map, sc_map)
+    if len(boats_to_plot) > 0:
+        combined_legend_positions(ax_map, boat, boat_names) # combined legend
     
     local_output_path = "C:/Users/unismet/Desktop/liveplot_overview_map.png"
     

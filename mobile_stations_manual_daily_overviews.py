@@ -6,11 +6,12 @@ Created on Tue Oct 12 18:19:30 2021
 """
 
 import datetime
+import sys
 from mobile_stations_schedule_daily_overviews import update_overview_plot
 
 
 
-day = "20211011"
+day = str(sys.argv[1])
 
 
 

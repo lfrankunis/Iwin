@@ -206,6 +206,8 @@ def combined_legend_positions(ax_map, boat, boat_names):
     ax_map.legend(handles=handles, loc="upper left")
     
     return
+    
+    
 
 
 

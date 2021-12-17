@@ -54,7 +54,7 @@ def update_overview_plot(update_time):
     lighthouses_to_plot = [1885]
     
     boat_names = {1: "MS_Bard", 2: "Polargirl"}
-    boats_to_plot = [1, 2]
+    boats_to_plot = []
     
     status = "overview"
     
