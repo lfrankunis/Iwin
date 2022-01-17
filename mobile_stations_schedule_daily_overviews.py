@@ -43,7 +43,7 @@ def next_wakeup():
 
 
 
-def update_overview_plot(update_time):
+def update_overview_plot(update_time, file_type="raw", for_website=True):
     
 
     # define constants
@@ -78,7 +78,7 @@ def update_overview_plot(update_time):
         boat[b] = mobile_AWS_class.mobile_AWS(station=b, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
                                             variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'latitude', 'longitude'],
-                                            file_type="raw", path=path_data)
+                                            file_type=file_type, path=path_data)
     
         boat[b].filter_GPScoverage()
         boat[b].masks_for_harbors()
@@ -100,13 +100,20 @@ def update_overview_plot(update_time):
         plot_boat_on_map(ax_map, sc_map, boat[b], variable=map_vari, position_switch=False, legend_switch=False, cbar_switch=True, fixed_cbar_range=cbar_range)
         plot_boat_timeseries(boat[b], fig, gs, status)
         
-        local_output_path = "C:/Users/unismet/Desktop/daily_overview_plot_{b}.png".format(b=boat[b].boat_name)
+        if for_website:
+            local_output_path = "C:/Users/unismet/Desktop/daily_overview_plot_{b}.png".format(b=boat[b].boat_name)
         
-        plt.savefig(local_output_path)
-        plt.close("all")
+            plt.savefig(local_output_path)
+            plt.close("all")
+            
+            upload_picture(local_output_path, os.path.basename(local_output_path))
+            
+        else:
+            local_output_path = "C:/Users/unismet/Desktop/{b}_{d}.png".format(b=boat[b].boat_name, d=update_time.strftime("%Y%m%d"))
         
-        upload_picture(local_output_path, os.path.basename(local_output_path))
-        
+            plt.savefig(local_output_path)
+            plt.close("all")
+            
 
     
     return

@@ -56,6 +56,7 @@ class mobile_AWS():
                 for vari in self.variables:
                     self.data[vari] = np.concatenate((self.data[vari], new_data[vari]), axis=0)
                 self.data['time'] = np.append(self.data['time'], new_data['time'])
+                self.data['local_time'] = np.append(self.data['local_time'], new_data['local_time'])
 
         self.resolution_min = (self.data['time'][-1] - self.data['time'][-2]).seconds / 60.
 
@@ -86,7 +87,7 @@ class mobile_AWS():
                 for vari in self.variables:
                     data[vari] = np.array(f.variables[vari][:])
 
-                data['time'] = np.array([datetime.datetime.utcfromtimestamp(int(i)) for i in f.variables['time'][:]], dtype=datetime.datetime)
+                data['time'] = np.array([datetime.datetime.utcfromtimestamp(int(i)).replace(tzinfo=datetime.timezone.utc) for i in f.variables['time'][:]], dtype=datetime.datetime)
                 data['local_time'] = np.array([datetime.datetime.fromtimestamp(int(i)) for i in f.variables['time'][:]], dtype=datetime.datetime)
 
         elif self.file_type == 'raw':
