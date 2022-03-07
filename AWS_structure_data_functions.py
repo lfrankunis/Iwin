@@ -10,7 +10,7 @@ import datetime
 from netCDF4 import Dataset
 
 
-def restructure_mobile_AWS(from_time, to_time, station="1", resolution="10min", path="C:/Data/"):
+def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min", path="C:/Data/"):
     """
     Function to restructure the mobile AWS data into e.g. daily files
     Parameters
@@ -18,7 +18,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1", resolution="10min", 
     path : str
         string defining the path where to find the input data and save the output data
     station : str
-        string specifying the station ("1" or "2")
+        string specifying the station ("1883" or "1872" or "1924")
     resolution : str
         string specifying the resolution of the data ("20sec", "1min", "5min", "10min" or "hour")
     from_time : datetime object
@@ -228,6 +228,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1", resolution="10min", 
             var.Unit = col_names["Sensor_Supply_volt_TMn"]
             var[:] = data["Sensor_Supply_volt_TMn"]
 
+    return
 
 
 
@@ -388,5 +389,4 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         var.Unit = col_names["MetSENS_Status"]
         var[:] = data["MetSENS_Status"]
 
-
-
+    return 

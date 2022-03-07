@@ -18,7 +18,7 @@ from io import StringIO
 
 class lighthouse_AWS():
 
-    def __init__(self,  station=1885,                        # station number: 1 or 2
+    def __init__(self,  station=1885,                        # station number: 1885
                         resolution="1min",                # temporal resolution of the data
                         starttime="202104090800",         # INPUT Define start- and end-points in time for retrieving the data
                         endtime="202104091800",           # Format: YYYYmmddHHMM
@@ -99,7 +99,7 @@ class lighthouse_AWS():
             with open(data_file, 'r') as f:
                 q = deque(f, 5000)
                 
-            df_data = pd.read_csv(StringIO(''.join(q)), header=None, sep=",", na_values="NAN", names=list(col_names.keys()))
+            df_data = pd.read_csv(StringIO(''.join(q)), header=4, sep=",", na_values="NAN", names=list(col_names.keys()))
 
             # transfer timestamps into Python datetime objects
             df_data["time"] = pd.to_datetime(df_data["TIMESTAMP"]).dt.to_pydatetime()

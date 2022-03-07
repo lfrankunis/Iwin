@@ -17,7 +17,7 @@ from io import StringIO
 
 class mobile_AWS():
 
-    def __init__(self,  station=1,                        # station number: 1 or 2
+    def __init__(self,  station=1883,                        # station number: 1883 or 1872 or 1924
                         resolution="1min",                # temporal resolution of the data
                         starttime="202104090800",         # INPUT Define start- and end-points in time for retrieving the data
                         endtime="202104091800",           # Format: YYYYmmddHHMM

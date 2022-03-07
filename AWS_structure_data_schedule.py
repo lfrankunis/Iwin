@@ -32,14 +32,14 @@ def next_wakeup():
     return
 
 # define for which stations the program should run
-AWS_1 = True
-AWS_2 = True
-AWS_3 = True 
+AWS_1883 = False
+AWS_1872 = False
+AWS_1924 = False
 Bohemanneset = True
 
 # define path to the data folder
 path = "C:/Data/"
-path_rooftest = "C:/Data/UNIS_roof_test_winter/"
+path_agf350 = "C:/Data/AGF350/"
 
 # define resolution of output files (daily files/hourly files/minute files)
 dt_days = 1
@@ -64,98 +64,98 @@ while True:                 # always true, to keep the script running forever
     from_time -= datetime.timedelta(minutes=dt_minutes_offset)
     to_time -= datetime.timedelta(minutes=dt_minutes_offset)
 
-    if AWS_1:
+    if AWS_1883:
         # create directories
-        os.mkdir(path_rooftest + "mobile_AWS_1/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
-        os.mkdir(path_rooftest + "mobile_AWS_1/{a}{b:02d}{c:02d}/ascii".format(a=from_time.year, b=from_time.month, c=from_time.day))
-        os.mkdir(path_rooftest + "mobile_AWS_1/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1883/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1883/{a}{b:02d}{c:02d}/ascii".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1883/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
         # call the function to restructure
         try:
-            restructure_mobile_AWS(from_time, to_time, station="1", resolution="hour", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1883", resolution="hour", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="1", resolution="10min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="1", resolution="5min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1883", resolution="5min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="1", resolution="1min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1883", resolution="1min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="1", resolution="20sec", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1883", resolution="20sec", path=path_agf350)
         except FileNotFoundError:
             pass
 
-        shutil.copytree(path_rooftest + "mobile_AWS_1/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
-                        "D:/DATA/UNIS_roof_test_winter/mobile_AWS_1/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        shutil.copytree(path_agf350 + "mobile_AWS_1883/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
+                        "D:/DATA/AGF350/mobile_AWS_1883/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
 
-    if AWS_2:
+    if AWS_1872:
         # create directories
-        os.mkdir(path_rooftest + "mobile_AWS_2/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
-        os.mkdir(path_rooftest + "mobile_AWS_2/{a}{b:02d}{c:02d}/ascii".format(a=from_time.year, b=from_time.month, c=from_time.day))
-        os.mkdir(path_rooftest + "mobile_AWS_2/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1872/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1872/{a}{b:02d}{c:02d}/ascii".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1872/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
         # call the function to restructure
         try:
-            restructure_mobile_AWS(from_time, to_time, station="2", resolution="hour", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1872", resolution="hour", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="2", resolution="10min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1872", resolution="10min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="2", resolution="5min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1872", resolution="5min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="2", resolution="1min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1872", resolution="1min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="2", resolution="20sec", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1872", resolution="20sec", path=path_agf350)
         except FileNotFoundError:
             pass
 
-        shutil.copytree(path_rooftest + "mobile_AWS_2/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
-                        "D:/DATA/UNIS_roof_test_winter/mobile_AWS_2/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
-    if AWS_3:
+        shutil.copytree(path_agf350 + "mobile_AWS_1872/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
+                        "D:/DATA/AGF350/mobile_AWS_1872/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+    if AWS_1924:
         # create directories
-        os.mkdir(path_rooftest + "mobile_AWS_3/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
-        os.mkdir(path_rooftest + "mobile_AWS_3/{a}{b:02d}{c:02d}/ascii".format(a=from_time.year, b=from_time.month, c=from_time.day))
-        os.mkdir(path_rooftest + "mobile_AWS_3/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1924/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1924/{a}{b:02d}{c:02d}/ascii".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        os.mkdir(path_agf350 + "mobile_AWS_1924/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
         # call the function to restructure
         try:
-            restructure_mobile_AWS(from_time, to_time, station="3", resolution="hour", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1924", resolution="hour", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="3", resolution="10min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1924", resolution="10min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="3", resolution="5min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1924", resolution="5min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="3", resolution="1min", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1924", resolution="1min", path=path_agf350)
         except FileNotFoundError:
             pass
         try:
-            restructure_mobile_AWS(from_time, to_time, station="3", resolution="20sec", path=path_rooftest)
+            restructure_mobile_AWS(from_time, to_time, station="1924", resolution="20sec", path=path_agf350)
         except FileNotFoundError:
             pass
 
-        shutil.copytree(path_rooftest + "mobile_AWS_3/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
-                        "D:/DATA/UNIS_roof_test_winter/mobile_AWS_3/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+        shutil.copytree(path_agf350 + "mobile_AWS_1924/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
+                        "D:/DATA/AGF350/mobile_AWS_1924/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
 
     if Bohemanneset:
@@ -165,14 +165,14 @@ while True:                 # always true, to keep the script running forever
         os.mkdir(path + "lighthouse_AWS_1885/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
 
         # call the function to restructure
-        # try:
-        #     restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="hour", path=path)
-        # except FileNotFoundError:
-        #     pass
-        # try:
-        #     restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="10min", path=path)
-        # except FileNotFoundError:
-        #     pass
+        try:
+            restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="hour", path=path)
+        except FileNotFoundError:
+            pass
+        try:
+            restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="10min", path=path)
+        except FileNotFoundError:
+            pass
         try:
             restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1min", path=path)
         except FileNotFoundError:

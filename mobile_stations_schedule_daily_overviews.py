@@ -53,12 +53,12 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300}}
     lighthouses_to_plot = [1885]
     
-    boat_names = {1: "MS_Bard", 2: "Polargirl"}
+    boat_names = {1883: "MS_Bard", 1872: "Polargirl", 1924 : "UNIS"}
     boats_to_plot = []
     
     status = "overview"
     
-    map_vari = "temperature"
+    map_vari = "wind_speed"
     min_cbar_range = 3.
     
     dt_minutes_offset = 15      # to shift the python precessing until the Loggernet data downloading is completed 
@@ -109,7 +109,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
             upload_picture(local_output_path, os.path.basename(local_output_path))
             
         else:
-            local_output_path = "C:/Users/unismet/Desktop/{b}_{d}.png".format(b=boat[b].boat_name, d=update_time.strftime("%Y%m%d"))
+            local_output_path = "C:/Users/unismet/Desktop/{b}_{d}.png".format(b=boat[b].boat_name, d=(update_time-datetime.timedelta(days=1)).strftime("%Y%m%d"))
         
             plt.savefig(local_output_path)
             plt.close("all")

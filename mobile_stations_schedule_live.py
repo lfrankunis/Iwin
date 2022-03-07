@@ -20,8 +20,8 @@ import multiprocessing as mp
 def next_wakeup():
     
     # refresh period
-    dt_minutes = 0
-    dt_hours = 6
+    dt_minutes = 30
+    dt_hours = 0
     time_delta=datetime.timedelta(hours=dt_hours, minutes=dt_minutes)
     round_to = time_delta.total_seconds()                   # 60s
 
@@ -33,7 +33,7 @@ def next_wakeup():
     else:
         rounding = (seconds + dt.microsecond/1000000 + round_to) // round_to * round_to
 
-    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond) + datetime.timedelta(minutes=5)
+    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond) + datetime.timedelta(minutes=2)
     print("The next wakeup is scheduled for: {a}".format(a=next_wakeup_time))
 
     return next_wakeup_time
@@ -49,7 +49,7 @@ def update_all_plots(update_time):
     lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300}}
     lighthouses_to_plot = [1885]
 
-    boat_names = {1: "MS_Bard", 2: "Polargirl"}
+    boat_names = {1883: "MS_Bard", 1872: "Polargirl", 1924: "UNIS"}
     boats_to_plot = []
 
     status = "live"
