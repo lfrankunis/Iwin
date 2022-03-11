@@ -10,6 +10,8 @@ import datetime
 from netCDF4 import Dataset
 import sys
 import os
+import utm
+import copy
 import pandas as pd
 from collections import deque
 from io import StringIO
@@ -246,6 +248,40 @@ class mobile_AWS():
 
         self.variables.extend(['mask_LYR', 'mask_PYR', 'mask_BB', 'mask_sailing'])
 
+        return
+    
+    
+    
+    def correct_winds(self, threshold=0.25):
+        """
+        Method to correct the wind speed and correction for the motion of the boats.
+        """
+        
+        x, y, _, _ = utm.from_latlon(self.data["latitude"], self.data["longitude"])
+        boat_u = np.gradient(x)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
+        boat_v = np.gradient(y)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
+        boat_speed = np.sqrt(boat_u**2. + boat_v**2.)
+        boat_heading = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
+        
+        u = -np.abs(self.data["wind_speed"]) * np.sin(np.deg2rad(self.data["wind_direction"]))
+        v = -np.abs(self.data["wind_speed"]) * np.cos(np.deg2rad(self.data["wind_direction"]))
+        u_raw = -np.abs(self.data["wind_speed_raw"]) * np.sin(np.deg2rad(self.data["wind_direction_raw"]))
+        v_raw = -np.abs(self.data["wind_speed_raw"]) * np.cos(np.deg2rad(self.data["wind_direction_raw"]))
+        
+        u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
+        v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
+        
+        u_shipcorrected = u_georef + boat_u
+        v_shipcorrected = v_georef + boat_v
+        
+        u_true = copy.deepcopy(u)
+        v_true = copy.deepcopy(v)
+        u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
+        v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
+        
+        self.data["wind_speed"] = np.sqrt(u_true**2. + v_true**2.)
+        self.data["wind_direction"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
+        
         return
 
 

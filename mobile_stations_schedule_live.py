@@ -49,7 +49,7 @@ def update_all_plots(update_time):
     lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300}}
     lighthouses_to_plot = [1885]
 
-    boat_names = {1883: "MS_Bard", 1872: "Polargirl", 1924: "UNIS"}
+    boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
     boats_to_plot = []
 
     status = "live"
@@ -80,6 +80,7 @@ def update_all_plots(update_time):
     
         boat[b].filter_GPScoverage()
         boat[b].masks_for_harbors()
+        boat[b].correct_winds()
         boat[b].calculate_windvector_components(corrected=True)
         boat[b].calculate_wind_sector(corrected=True)
         boat[b].calculate_wind_in_knots(corrected=True)
