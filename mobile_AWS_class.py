@@ -282,6 +282,9 @@ class mobile_AWS():
         self.data["wind_speed"] = np.sqrt(u_true**2. + v_true**2.)
         self.data["wind_direction"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
         
+        self.data["wind_speed"][~np.isfinite(self.data["wind_speed"])] = np.nan
+        self.data["wind_direction"][~np.isfinite(self.data["wind_direction"])] = np.nan
+        
         return
 
 

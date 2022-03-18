@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import datetime
 from netCDF4 import Dataset
-import utm
+from pyproj import Proj
 import copy
 
 
@@ -31,12 +31,12 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     -------
     In case the restructured interval is not one day, remember to change the output file names
     """
-    
+
     threshold = 0.25
-    
+
     ## data path for before september
     # infile = "{p}mobile_AWS_{s}/raw_backups/mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution)
-    
+
     infile = "{p}mobile_AWS_{s}/mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution)
     outfile_ascii = "{p}mobile_AWS_{s}/{a}{b:02d}{c:02d}/ascii/{a}{b:02d}{c:02d}_mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution, a=from_time.year, b=from_time.month, c=from_time.day)
     outfile_nc = "{p}mobile_AWS_{s}/{a}{b:02d}{c:02d}/nc/{a}{b:02d}{c:02d}_mobile_AWS_{s}_Table_{r}.nc".format(p=path, s=station, r=resolution, a=from_time.year, b=from_time.month, c=from_time.day)
@@ -74,34 +74,57 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                 latitude[c] = np.nan
                 longitude[c] = np.nan
                 altitude[c] = np.nan
-      
-                
+
+
     # correct wind data for motion of the boat
-    x, y, _, _ = utm.from_latlon(latitude, longitude)
+    myProj = Proj("+proj=utm +zone=33 +north +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+    x, y = myProj(longitude, latitude)
     boat_u = np.gradient(x)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
     boat_v = np.gradient(y)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
     boat_speed = np.sqrt(boat_u**2. + boat_v**2.)
     boat_heading = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
-    
+
     u = -np.abs(data["Wind_Speed_Corrected_S_WVT"]) * np.sin(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))
     v = -np.abs(data["Wind_Speed_Corrected_S_WVT"]) * np.cos(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))
     u_raw = -np.abs(data["Wind_Speed_S_WVT"]) * np.sin(np.deg2rad(data["Wind_Direction_D1_WVT"]))
     v_raw = -np.abs(data["Wind_Speed_S_WVT"]) * np.cos(np.deg2rad(data["Wind_Direction_D1_WVT"]))
-    
+
     u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
     v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
-    
+
     u_shipcorrected = u_georef + boat_u
     v_shipcorrected = v_georef + boat_v
-    
+
     u_true = copy.deepcopy(u)
     v_true = copy.deepcopy(v)
     u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
     v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
-    
+
     data["Wind_Speed_Corrected_S_WVT"] = np.sqrt(u_true**2. + v_true**2.)
     data["Wind_Direction_Corrected_D1_WVT"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
     
+    data.loc[~np.isfinite(data["Wind_Speed_Corrected_S_WVT"]), "Wind_Speed_Corrected_S_WVT"] = np.nan
+    data.loc[~np.isfinite(data["Wind_Direction_Corrected_D1_WVT"]), "Wind_Direction_Corrected_D1_WVT"] = np.nan
+
+    u = -np.abs(data["Wind_Speed_corrected_Max"]) * np.sin(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))
+    v = -np.abs(data["Wind_Speed_corrected_Max"]) * np.cos(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))
+    u_raw = -np.abs(data["Wind_Speed_raw_Max"]) * np.sin(np.deg2rad(data["Wind_Direction_D1_WVT"]))
+    v_raw = -np.abs(data["Wind_Speed_raw_Max"]) * np.cos(np.deg2rad(data["Wind_Direction_D1_WVT"]))
+
+    u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
+    v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
+
+    u_shipcorrected = u_georef + boat_u
+    v_shipcorrected = v_georef + boat_v
+
+    u_true = copy.deepcopy(u)
+    v_true = copy.deepcopy(v)
+    u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
+    v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
+
+    data["Wind_Speed_corrected_Max"] = np.sqrt(u_true**2. + v_true**2.)
+    
+    data.loc[~np.isfinite(data["Wind_Speed_corrected_Max"]), "Wind_Speed_corrected_Max"] = np.nan
 
     # write data to new text file containing only that one day
     # read header lines from complete data file
@@ -420,4 +443,4 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         var.units = col_names["MetSENS_Status"]
         var[:] = data["MetSENS_Status"]
 
-    return 
+    return
