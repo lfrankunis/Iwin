@@ -105,6 +105,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     data.loc[~np.isfinite(data["Wind_Speed_Corrected_S_WVT"]), "Wind_Speed_Corrected_S_WVT"] = np.nan
     data.loc[~np.isfinite(data["Wind_Direction_Corrected_D1_WVT"]), "Wind_Direction_Corrected_D1_WVT"] = np.nan
+    data.loc[boat_speed <= threshold, "Wind_Direction_Corrected_D1_WVT"] = np.nan
 
     u = -np.abs(data["Wind_Speed_corrected_Max"]) * np.sin(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))
     v = -np.abs(data["Wind_Speed_corrected_Max"]) * np.cos(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))
@@ -440,7 +441,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
 
         var = f.createVariable('sensor_status', 'S1', ('time',))
         var.long_name = "Sensor_Status_Code"
-        var.units = col_names["MetSENS_Status"]
+        var.units = "1"
         var[:] = data["MetSENS_Status"]
 
     return

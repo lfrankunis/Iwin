@@ -16,7 +16,7 @@ import shutil
 # define for which stations the program should run
 AWS_1883 = False
 AWS_1872 = False
-AWS_1924 = False
+AWS_1924 = True
 Bohemanneset = True
 
 
@@ -102,7 +102,7 @@ for day in days_to_process:
             pass
     
         shutil.copytree(path + "mobile_AWS_1872/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day),
-                        "D:/DATA/mobile_AWS_1872/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
+                        "D:/DATA/test/mobile_AWS_1872/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
     if AWS_1924:
         # create directories
         os.mkdir(path + "mobile_AWS_1924/{a}{b:02d}{c:02d}".format(a=from_time.year, b=from_time.month, c=from_time.day))
@@ -142,14 +142,14 @@ for day in days_to_process:
         os.mkdir(path + "lighthouse_AWS_1885/{a}{b:02d}{c:02d}/nc".format(a=from_time.year, b=from_time.month, c=from_time.day))
     
         # call the function to restructure
-        # try:
-        #     restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="hour", path=path)
-        # except FileNotFoundError:
-        #     pass
-        # try:
-        #     restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="10min", path=path)
-        # except FileNotFoundError:
-        #     pass
+        try:
+            restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="hour", path=path)
+        except FileNotFoundError:
+            pass
+        try:
+            restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="10min", path=path)
+        except FileNotFoundError:
+            pass
         try:
             restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1min", path=path)
         except FileNotFoundError:

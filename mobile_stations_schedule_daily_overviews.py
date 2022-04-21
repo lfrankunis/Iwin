@@ -8,7 +8,7 @@ Created on Sat Mar 27 14:37:44 2021
 import os
 import time
 import datetime
-from plot_functions import initialize_halfpage_map, plot_boat_on_map, plot_lighthouse_on_map, plot_boat_timeseries, get_cbar_range
+from plot_functions import initialize_halfpage_map, plot_boat_on_map, plot_lighthouse_on_map, plot_boat_timeseries, get_cbar_range, plot_lighthouse_timeseries
 import matplotlib.pyplot as plt
 import numpy as np
 import mobile_AWS_class
@@ -50,15 +50,19 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     path_data = "C:/Data/"
     
     
-    lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300}}
+    lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
+                   1884: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
+                   #1884: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
+                   1886: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
     lighthouses_to_plot = [1885]
     
     boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924 : "MS_Billefjord"}
-    boats_to_plot = []
+    boats_to_plot = [1924]
     
     status = "overview"
     
-    map_vari = "wind_speed"
+    map_vari = "temperature"
     min_cbar_range = 3.
     
     dt_minutes_offset = 15      # to shift the python precessing until the Loggernet data downloading is completed 
@@ -77,7 +81,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     for b in boats_to_plot:
         boat[b] = mobile_AWS_class.mobile_AWS(station=b, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
-                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'latitude', 'longitude'],
+                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_speed_raw', 'wind_direction_raw', 'latitude', 'longitude'],
                                             file_type=file_type, path=path_data)
     
         boat[b].filter_GPScoverage()
@@ -89,6 +93,25 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
         
         # add info to the class instance
         boat[b].boat_name = boat_names[b]
+        
+     ####################################################################################
+     
+    # load lighthouse data
+    lighthouse = {}
+    for l in lighthouses_to_plot:
+        lighthouse[l] = lighthouse_AWS_class.lighthouse_AWS(station=l, resolution="1min",
+                                            starttime=start_time, endtime=latest_update_time,
+                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
+                                            file_type="raw", path=path_data)
+        
+        lighthouse[l].calculate_windvector_components()
+        lighthouse[l].calculate_wind_sector()
+        lighthouse[l].calculate_wind_in_knots()
+        
+        # add info to the class instance
+        lighthouse[l].station_name = lighthouses[l]["name"]
+        lighthouse[l].latitude = lighthouses[l]["lat"]
+        lighthouse[l].longitude = lighthouses[l]["lon"]
         
         
     ####################################################################################    
@@ -115,7 +138,22 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
             plt.savefig(local_output_path)
             plt.close("all")
             
-
+        
+    plot_lighthouse_timeseries(lighthouse, status)
+    
+    if for_website:
+        local_output_path = "C:/Users/unismet/Desktop/daily_overview_plot_lighthouses.png"
+    
+        plt.savefig(local_output_path)
+        plt.close("all")
+        
+        upload_picture(local_output_path, os.path.basename(local_output_path))
+        
+    else:
+        local_output_path = "C:/Users/unismet/Desktop/lighthouses_{d}.png".format(d=(update_time-datetime.timedelta(days=1)).strftime("%Y%m%d"))
+    
+        plt.savefig(local_output_path)
+        plt.close("all")
     
     return
 

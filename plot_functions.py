@@ -172,9 +172,9 @@ def plot_boat_on_map(ax_map, sc_map, boat, variable="temperature", position_swit
 
 def combined_legend_positions(ax_map, boat, boat_names):
     
-    markers = {1: "X", 2: "*"}
-    colors = {1: "m", 2: "g"}
-    sizes = {1: 150, 2: 200}
+    markers = {1883: "X", 1872: "*", 1924: "P"}
+    colors = {1883: "m", 1872: "g", 1924: "purple"}
+    sizes = {1883: 150, 1872: 200, 1924: 150}
     
     i = list(boat.keys())[0]
     ind = np.where((boat[i].data['time'] >= boat[i].data['time'][-1]-datetime.timedelta(hours=3)))[0]
@@ -198,7 +198,7 @@ def combined_legend_positions(ax_map, boat, boat_names):
         lc = boat[i].data["local_time"][-1].strftime("%H:%M")
         text_legend = mpl.lines.Line2D([],[], marker="None", linestyle="None", color=colors[i], label=f"(upd. {lc} [local time])")
     
-        ship_legend = mpl.lines.Line2D([],[], marker=markers[i], markersize=11+2*i, linestyle="None", color=colors[i], label=boat_names[i])
+        ship_legend = mpl.lines.Line2D([],[], marker=markers[i], markersize=sizes[i]/10., linestyle="None", color=colors[i], label=boat_names[i])
         
         handles.append(ship_legend)
         handles.append(text_legend)
@@ -223,10 +223,28 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
                                                                                              c=lighthouse.data['wind_speed'][-1],
                                                                                              d=wdir_classes[lighthouse.data['wind_sector'][-1]][0])
 
-    x_shift = -0.08
-    y_shift = 0.02
-    
+
     if lighthouse.station_name == "Bohemanneset":
+        x_shift = -0.08
+        y_shift = 0.02
+        if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
+            x_shift = -0.3
+            y_shift = 0.06
+    elif lighthouse.station_name == "Gasoyane":#"Kapp Thordsen"
+        x_shift = -0.08
+        y_shift = 0.02
+        if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
+            x_shift = -0.3
+            y_shift = 0.06
+    elif lighthouse.station_name == "Narveneset":
+        x_shift = -0.08
+        y_shift = 0.02
+        if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
+            x_shift = -0.3
+            y_shift = 0.06
+    elif lighthouse.station_name == "Daudmannsodden":
+        x_shift = -0.08
+        y_shift = 0.02
         if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
             x_shift = -0.3
             y_shift = 0.06
@@ -339,3 +357,68 @@ def plot_boat_timeseries(boat, fig, gs, status):
         ax.grid()
         
     return
+
+
+
+def plot_lighthouse_timeseries(lighthouse, status):
+    
+    plt.rcParams.update({"font.size": 12, "timezone": "Europe/Paris"})
+    
+    future_time_plot = {'live': 4, 'overview': 0}
+
+    plot_variables = {0: 'temperature', 1: 'relative_humidity', 2: 'wind_speed', 3: 'wind_direction'}
+
+    plot_colors = {'temperature': '#377eb8',
+              'relative_humidity': '#4daf4a',
+              'wind_speed': '#984ea3',
+              'wind_direction': '#e41a1c'}
+
+    plot_labels = {'temperature': 'Temp.\n[°C]',
+              'relative_humidity': 'Rel. Humi.\n[%]',
+              'wind_speed': 'Wind Speed\n[m/s]',
+              'wind_direction': 'Wind Dir.\n[°]'}
+
+    plot_units = {'temperature': '°C',
+              'relative_humidity': '%',
+              'wind_speed': 'm/s',
+              'wind_direction': '°'}
+    
+
+    fig, axes = plt.subplots(nrows=4, ncols=len(lighthouse.keys()), sharex=True, sharey="row", constrained_layout=True)
+    for l_ind, l in enumerate(lighthouse.keys()):
+        if len(lighthouse.keys()) > 1:
+            axes_lighthouse = axes[:,l_ind]
+        else:
+            axes_lighthouse = axes
+            
+        axes_lighthouse[0].set_title(lighthouse[l].station_name)
+            
+        for i, ax in enumerate(axes_lighthouse):
+            if plot_variables[i] == "wind_direction":
+                ax.scatter(lighthouse[l].data['local_time'], lighthouse[l].data["wind_direction"], s=3, color=plot_colors['wind_direction'])
+                ax.set_xlim((lighthouse[l].data['local_time'][0], lighthouse[l].data['local_time'][-1]+datetime.timedelta(hours=future_time_plot[status])))
+                ax.set_ylim((0., 360.))
+                ax.set_yticks([0., 90., 180., 270., 360.])
+                ax.set_yticklabels(["N", "E", "S", "W", "N"])
+                ax.xaxis.set_major_locator(HourLocator(interval=2))
+                ax.xaxis.set_major_formatter(DateFormatter('%H'))
+                ax.set_ylabel(plot_labels['wind_direction'])
+                ax.set_xlabel("Local time")
+            else:
+                ax.plot(lighthouse[l].data['local_time'], lighthouse[l].data[plot_variables[i]], color=plot_colors[plot_variables[i]])
+                ax.set_ylabel(plot_labels[plot_variables[i]])
+                
+            if status == "live":
+                if i < len(axes_lighthouse)-1:
+                    latest_value_label = "{a:.1f} {p}".format(a=lighthouse[l].data[plot_variables[i]][-1], p=plot_units[plot_variables[i]])
+                else:
+                    latest_value_label = wdir_classes[lighthouse[l].data['wind_sector'][-1]][0]
+                ax.scatter(lighthouse[l].data['local_time'][-1], lighthouse[l].data[plot_variables[i]][-1], s=50, color=plot_colors[plot_variables[i]])
+                ax.annotate(latest_value_label, (lighthouse[l].data['local_time'][-1], lighthouse[l].data[plot_variables[i]][-1]),
+                            xytext=(10,0), textcoords="offset points", va="center", bbox=dict(boxstyle="round", alpha=0.1))
+            ax.grid()
+
+            
+    return
+                    
+    

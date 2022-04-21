@@ -16,6 +16,7 @@ import pandas as pd
 from collections import deque
 from io import StringIO
 
+import matplotlib.pyplot as plt
 
 class mobile_AWS():
 
@@ -72,7 +73,6 @@ class mobile_AWS():
 
 
 
-
     def read_mobile_AWS(self, day, file_type='nc'):
         """
         Method to read CARRA data for the given day
@@ -101,7 +101,7 @@ class mobile_AWS():
             with open(data_file, 'r') as f:
                 q = deque(f, 5000)
                 
-            df_data = pd.read_csv(StringIO(''.join(q)), header=None, sep=",", na_values="NAN", names=list(col_names.keys()))
+            df_data = pd.read_csv(StringIO(''.join(q)), header=0, skiprows=4, sep=",", na_values="NAN", names=list(col_names.keys()))
 
             # transfer timestamps into Python datetime objects
             df_data["time"] = pd.to_datetime(df_data["TIMESTAMP"]).dt.to_pydatetime()
@@ -263,6 +263,17 @@ class mobile_AWS():
         boat_speed = np.sqrt(boat_u**2. + boat_v**2.)
         boat_heading = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
         
+        # compass_heading = ((self.data["wind_direction"] - self.data["wind_direction_raw"] + 360.) % 360.)
+        
+        # plt.figure()
+        # plt.plot(self.data["time"], compass_heading, 'b.')
+        # # plt.plot(self.data["time"], self.data["wind_direction_raw"], 'r.')
+        # plt.grid()
+        # plt.savefig("C:/Users/unismet/Desktop/compass.png")
+        # plt.close("all")
+        
+        # boat_heading[boat_speed <= threshold] = compass_heading[boat_speed <= threshold]
+        
         u = -np.abs(self.data["wind_speed"]) * np.sin(np.deg2rad(self.data["wind_direction"]))
         v = -np.abs(self.data["wind_speed"]) * np.cos(np.deg2rad(self.data["wind_direction"]))
         u_raw = -np.abs(self.data["wind_speed_raw"]) * np.sin(np.deg2rad(self.data["wind_direction_raw"]))
@@ -274,6 +285,9 @@ class mobile_AWS():
         u_shipcorrected = u_georef + boat_u
         v_shipcorrected = v_georef + boat_v
         
+        # u_true = u_georef + boat_u
+        # v_true = v_georef + boat_v
+        
         u_true = copy.deepcopy(u)
         v_true = copy.deepcopy(v)
         u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
@@ -284,6 +298,7 @@ class mobile_AWS():
         
         self.data["wind_speed"][~np.isfinite(self.data["wind_speed"])] = np.nan
         self.data["wind_direction"][~np.isfinite(self.data["wind_direction"])] = np.nan
+        self.data["wind_direction"][boat_speed <= threshold] = np.nan
         
         return
 
