@@ -75,7 +75,7 @@ while True:                 # always true, to keep the script running forever
             os.mkdir(f"{path}mobile_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}/nc")
     
             # call the function to restructure
-            for res in ["hour", "10min", "5min", "1min", "20sec"]:
+            for res in ["10min", "1min", "20sec"]:              # for data prior to 20220507, add "5min", "hour" 
                 try:
                     restructure_mobile_AWS(from_time, to_time, station=str(station), resolution=res, path=path)
                 except FileNotFoundError:
@@ -94,16 +94,15 @@ while True:                 # always true, to keep the script running forever
             os.mkdir(f"{path}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}/ascii")
             os.mkdir(f"{path}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}/nc")
 
-        # call the function to restructure
-        for res in ["hour", "10min", "1min"]:
-            try:
-                restructure_lighthouse_AWS(from_time, to_time, station=str(station), resolution=res, path=path)
-            except FileNotFoundError:
-                pass
+            # call the function to restructure
+            for res in ["10min", "1min"]:                           # for data prior to 20220507, add "hour" 
+                try:
+                    restructure_lighthouse_AWS(from_time, to_time, station=str(station), resolution=res, path=path)
+                except FileNotFoundError:
+                    pass
 
-
-        shutil.copytree(f"{path}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}",
-                        f"D:/DATA/lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}")
+            shutil.copytree(f"{path}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}",
+                            f"D:/DATA/lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}")
 
 
     next_wakeup()           # don't forget to update the next wakeup time!!!

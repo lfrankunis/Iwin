@@ -104,14 +104,17 @@ class lighthouse_AWS():
             # transfer timestamps into Python datetime objects
             df_data["time"] = pd.to_datetime(df_data["TIMESTAMP"]).dt.to_pydatetime()
 
-            df_data = df_data.rename({"temperature_Avg": 'temperature',
-                                "air_pressure_Avg": 'pressure',
-                                "relative_humidity_Avg": 'relative_humidity',
-                                "dewpoint_temperature_Avg": 'dewpoint',
-                                "wind_speed_Avg": 'wind_speed',
-                                "wind_speed_Max": 'wind_speed_max',
-                                "wind_direction_Avg": 'wind_direction',
-                                "wind_direction_Std": 'wind_direction_std'}, axis='columns')
+            df_data = df_data.rename({"AirT_C": 'temperature',
+                                "AirT_C_Max": 'temperature_max',
+                                "AirT_C_Min": 'temperature_min',
+                                "BP_mbar_Avg": 'pressure',
+                                "RH_Avg": 'relative_humidity',
+                                "DP_C": 'dewpoint',
+                                "WS_ms_Avg": 'wind_speed',
+                                "WS_ms_Min": 'wind_speed_min',
+                                "WS_ms_Max": 'wind_speed_max',
+                                "WindDir": 'wind_direction',
+                                "WindDir_SD1_WVT": 'wind_direction_std'}, axis='columns')
 
             df_data = df_data.dropna()
 

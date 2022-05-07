@@ -147,29 +147,6 @@ class mobile_AWS():
                                 "Wind_Direction_Corrected_SDI_WVT": 'wind_direction_std',
                                 "Wind_Direction_D1_WVT": 'wind_direction_raw',
                                 "Wind_Direction_SDI_WVT": 'wind_direction_std_raw'}, axis='columns')
-            
-            # to be replaced with:
-            # df_data = df_data.rename({"temperature": 'temperature',
-            #                     "temperature_Avg": 'temperature_Avg',
-            #                     "air_pressure_Avg": 'pressure',
-            #                     "relative_humidity": 'relative_humidity',
-            #                     "relative_humidity_Avg": 'relative_humidity_Avg',
-            #                     "dewpoint_temperature_Avg": 'dewpoint',
-            #                     "wind_speed_corrected_Avg": 'wind_speed',
-            #                     "wind_speed_corrected": 'wind_speed_smp',
-            #                     "wind_speed_corrected_Max": 'wind_speed_Max',
-            #                     "wind_speed_raw_Avg": 'wind_speed_raw',
-            #                     "wind_speed_raw": 'wind_speed_raw_Smp',
-            #                     "wind_speed_raw_Max": 'wind_speed_max_raw',
-            #                     "wind_direction_corrected_Avg": 'wind_direction',
-            #                     "wind_direction_corrected": 'wind_direction_Smp',
-            #                     "wind_direction_corrected_Std": 'wind_direction_std',
-            #                     "wind_direction_raw_Avg": 'wind_direction_raw',
-            #                     "wind_direction_raw": 'wind_direction_raw_Smp',
-            #                     "wind_direction_raw_Std": 'wind_direction_std_raw',
-            #                     "GPS_heading": "GPS_heading",
-            #                     "GSP_speed": "GPS_speed",
-            #                     "compass_heading": "compass_heading"}, axis='columns')
 
             df_data = df_data.dropna()
 
@@ -283,8 +260,19 @@ class mobile_AWS():
         x, y, _, _ = utm.from_latlon(self.data["latitude"], self.data["longitude"])
         boat_u = np.gradient(x)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
         boat_v = np.gradient(y)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
-        boat_speed = np.sqrt(boat_u**2. + boat_v**2.)                                                                           # boat_speed = self.data["GPS_speed"] 
-        boat_heading = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.                               # boat_heading = self.data["GPS_heading"] OR boat_heading = self.data["compass_heading"]
+        boat_speed = np.sqrt(boat_u**2. + boat_v**2.)
+        boat_heading = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
+        
+        # compass_heading = ((self.data["wind_direction"] - self.data["wind_direction_raw"] + 360.) % 360.)
+        
+        # plt.figure()
+        # plt.plot(self.data["time"], compass_heading, 'b.')
+        # # plt.plot(self.data["time"], self.data["wind_direction_raw"], 'r.')
+        # plt.grid()
+        # plt.savefig("C:/Users/unismet/Desktop/compass.png")
+        # plt.close("all")
+        
+        # boat_heading[boat_speed <= threshold] = compass_heading[boat_speed <= threshold]
         
         u = -np.abs(self.data["wind_speed"]) * np.sin(np.deg2rad(self.data["wind_direction"]))
         v = -np.abs(self.data["wind_speed"]) * np.cos(np.deg2rad(self.data["wind_direction"]))
