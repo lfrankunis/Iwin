@@ -81,13 +81,13 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     x, y = myProj(longitude, latitude)
     boat_u = np.gradient(x)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
     boat_v = np.gradient(y)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
-    boat_speed = np.sqrt(boat_u**2. + boat_v**2.)                                                                       # boat_speed = data["GPS_speed"] 
-    boat_heading = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.                           # boat_heading = data["GPS_heading"] OR boat_heading = data["compass_heading"]
+    boat_speed = data["GPS_speed"] 
+    boat_heading = data["GPS_heading"] # OR boat_heading = data["compass_heading"]
 
-    u = -np.abs(data["Wind_Speed_Corrected_S_WVT"]) * np.sin(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))       # u = -np.abs(data["wind_speed_corrected_Avg"]) * np.sin(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    v = -np.abs(data["Wind_Speed_Corrected_S_WVT"]) * np.cos(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))       # v = -np.abs(data["wind_speed_corrected_Avg"]) * np.cos(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    u_raw = -np.abs(data["Wind_Speed_S_WVT"]) * np.sin(np.deg2rad(data["Wind_Direction_D1_WVT"]))                       # u_raw = -np.abs(data["wind_speed_raw_Avg"]) * np.sin(np.deg2rad(data["wind_direction_raw_Avg"]))
-    v_raw = -np.abs(data["Wind_Speed_S_WVT"]) * np.cos(np.deg2rad(data["Wind_Direction_D1_WVT"]))                       # v_raw = -np.abs(data["wind_speed_raw_Avg"]) * np.cos(np.deg2rad(data["wind_direction_raw_Avg"]))
+    u = -np.abs(data["wind_speed_corrected_Avg"]) * np.sin(np.deg2rad(data["wind_direction_corrected_Avg"]))
+    v = -np.abs(data["wind_speed_corrected_Avg"]) * np.cos(np.deg2rad(data["wind_direction_corrected_Avg"]))
+    u_raw = -np.abs(data["wind_speed_raw_Avg"]) * np.sin(np.deg2rad(data["wind_direction_raw_Avg"]))
+    v_raw = -np.abs(data["wind_speed_raw_Avg"]) * np.cos(np.deg2rad(data["wind_direction_raw_Avg"]))
 
     u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
     v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
@@ -100,20 +100,20 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
     v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
 
-    data["Wind_Speed_Corrected_S_WVT"] = np.sqrt(u_true**2. + v_true**2.)                                               # data["wind_speed_corrected_Avg"] = np.sqrt(u_true**2. + v_true**2.)
-    data["Wind_Direction_Corrected_D1_WVT"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.                  # data["wind_direction_corrected_Avg"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
+    data["wind_speed_corrected_Avg"] = np.sqrt(u_true**2. + v_true**2.)
+    data["wind_direction_corrected_Avg"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
     
-    data.loc[~np.isfinite(data["Wind_Speed_Corrected_S_WVT"]), "Wind_Speed_Corrected_S_WVT"] = np.nan                   # data.loc[~np.isfinite(data["wind_speed_corrected_Avg"]), "wind_speed_corrected_Avg"] = np.nan
-    data.loc[~np.isfinite(data["Wind_Direction_Corrected_D1_WVT"]), "Wind_Direction_Corrected_D1_WVT"] = np.nan         # data.loc[~np.isfinite(data["wind_direction_corrected_Avg"]), "wind_direction_corrected_Avg"] = np.nan
+    data.loc[~np.isfinite(data["wind_speed_corrected_Avg"]), "wind_speed_corrected_Avg"] = np.nan
+    data.loc[~np.isfinite(data["wind_direction_corrected_Avg"]), "wind_direction_corrected_Avg"] = np.nan
     
     
     if station == "1924":
-        data.loc[boat_speed <= threshold, "Wind_Direction_Corrected_D1_WVT"] = np.nan                                   # data.loc[boat_speed <= threshold, "wind_direction_corrected_Avg"] = np.nan
+        data.loc[boat_speed <= threshold, "wind_direction_corrected_Avg"] = np.nan
     
-    u = -np.abs(data["Wind_Speed_corrected_Max"]) * np.sin(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))         # u = -np.abs(data["wind_speed_corrected_Max"]) * np.sin(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    v = -np.abs(data["Wind_Speed_corrected_Max"]) * np.cos(np.deg2rad(data["Wind_Direction_Corrected_D1_WVT"]))         # v = -np.abs(data["wind_speed_corrected_Max"]) * np.cos(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    u_raw = -np.abs(data["Wind_Speed_raw_Max"]) * np.sin(np.deg2rad(data["Wind_Direction_D1_WVT"]))                     # u_raw = -np.abs(data["wind_speed_raw_Max"]) * np.sin(np.deg2rad(data["wind_direction_raw_Avg"])) 
-    v_raw = -np.abs(data["Wind_Speed_raw_Max"]) * np.cos(np.deg2rad(data["Wind_Direction_D1_WVT"]))                     # v_raw = -np.abs(data["wind_speed_raw_Max"]) * np.cos(np.deg2rad(data["wind_direction_raw_Avg"]))
+    u = -np.abs(data["wind_speed_corrected_Max"]) * np.sin(np.deg2rad(data["wind_direction_corrected_Avg"]))
+    v = -np.abs(data["wind_speed_corrected_Max"]) * np.cos(np.deg2rad(data["wind_direction_corrected_Avg"]))
+    u_raw = -np.abs(data["wind_speed_raw_Max"]) * np.sin(np.deg2rad(data["wind_direction_raw_Avg"])) 
+    v_raw = -np.abs(data["wind_speed_raw_Max"]) * np.cos(np.deg2rad(data["wind_direction_raw_Avg"]))
 
     u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
     v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
@@ -126,9 +126,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
     v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
 
-    data["Wind_Speed_corrected_Max"] = np.sqrt(u_true**2. + v_true**2.)                                                 # data["wind_speed_corrected_Max"] = np.sqrt(u_true**2. + v_true**2.)
+    data["wind_speed_corrected_Max"] = np.sqrt(u_true**2. + v_true**2.)
     
-    data.loc[~np.isfinite(data["Wind_Speed_corrected_Max"]), "Wind_Speed_corrected_Max"] = np.nan                       # data.loc[~np.isfinite(data["wind_speed_corrected_Max"]), "wind_speed_corrected_Max"] = np.nan
+    data.loc[~np.isfinite(data["wind_speed_corrected_Max"]), "wind_speed_corrected_Max"] = np.nan
 
     # write data to new text file containing only that one day
     # read header lines from complete data file
@@ -148,95 +148,85 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         f.Comments = "UNIS {r} mobile AWS {s} data from {a} until {b}.".format(r=resolution, s=station, a=from_time, b=to_time)
         f.createDimension('time', len(ind))
 
-        var = f.createVariable('temperature', 'f8', ('time',))                                                          # var = f.createVariable('temperature_Avg', 'f8', ('time',))
-        var.long_name = "Ambient_Temperature"                                                                           # var.long_name = "Average_Air_Temperature"
-        var.units = col_names["Ambient_Temperature"]                                                                    # var.units = col_names["temperature_Avg"]
-        var[:] = data["Ambient_Temperature"]                                                                            # var[:] = data["temperature_Avg"]
+        var = f.createVariable('temperature_Avg', 'f8', ('time',))
+        var.long_name = "Average_Air_Temperature"
+        var.units = col_names["temperature_Avg"]
+        var[:] = data["temperature_Avg"]
 
-        var = f.createVariable('temperature_max', 'f8', ('time',))                                                      # var = f.createVariable('temperature', 'f8', ('time',))
-        var.long_name = "Ambient_Temperature_Max"                                                                       # var.long_name = "Sample_Air_Temperature"
-        var.units = col_names["Ambient_Temperature_Max"]                                                                # var.units = col_names["temperature"]
-        var[:] = data["Ambient_Temperature_Max"]                                                                        # var[:] = data["temperature"]
+        var = f.createVariable('temperature', 'f8', ('time',))
+        var.long_name = "Sample_Air_Temperature"
+        var.units = col_names["temperature"]
+        var[:] = data["temperature"]
 
-        var = f.createVariable('temperature_min', 'f8', ('time',))                                                      # delete when changing system
-        var.long_name = "Ambient_Temperature_Min"
-        var.units = col_names["Ambient_Temperature_Min"]
-        var[:] = data["Ambient_Temperature_Min"]
+        var = f.createVariable('air_pressure', 'f8', ('time',))
+        var.long_name = "Air_Pressure"
+        var.units = col_names["air_pressure_Avg"]
+        var[:] = data["air_pressure_Avg"]
 
-        var = f.createVariable('pressure', 'f8', ('time',))                                                             # var = f.createVariable('air_pressure', 'f8', ('time',))
-        var.long_name = "Barometric_Pressure"                                                                           # var.long_name = "Air_Pressure"
-        var.units = col_names["Barometric_Pressure"]                                                                    # var.units = col_names["air_pressure_Avg"]
-        var[:] = data["Barometric_Pressure"]                                                                            # var[:] = data["air_pressure_Avg"]
+        var = f.createVariable('relative_humidity', 'f8', ('time',))
+        var.long_name = "Sample_Relative_Humidity"
+        var.units = col_names["relative_humidity"]
+        var[:] = data["relative_humidity"]            
 
-        var = f.createVariable('relative_humidity', 'f8', ('time',))                                                    # var = f.createVariable('relative_humidity', 'f8', ('time',))
-        var.long_name = "Relative_Humidity"                                                                             # var.long_name = "Sample_Relative_Humidity"
-        var.units = col_names["Relative_Humidity"]                                                                      # var.units = col_names["relative_humidity"]
-        var[:] = data["Relative_Humidity"]                                                                              # var[:] = data["relative_humidity"]            
+        var = f.createVariable('relative_humidity_Avg', 'f8', ('time',))        
+        var.long_name = "Average_Relative_Humidity"
+        var.units = col_names["relative_humidity_Avg"]
+        var[:] = data["relative_humidity_Avg"]
 
-        var = f.createVariable('relative_humidity_max', 'f8', ('time',))                                                # var = f.createVariable('relative_humidity_Avg', 'f8', ('time',))        
-        var.long_name = "Relative_Humidity_Max"                                                                         # var.long_name = "Average_Relative_Humidity"
-        var.units = col_names["Relative_Humidity_Max"]                                                                  # var.units = col_names["relative_humidity_Avg"]
-        var[:] = data["Relative_Humidity_Max"]                                                                          # var[:] = data["relative_humidity_Avg"]
+        var = f.createVariable('dewpoint_temperature', 'f8', ('time',))
+        var.long_name = "Dewpoint_Temperature"        
+        var.units = col_names["dewpoint_temperature_Avg"]
+        var[:] = data["dewpoint_temperature_Avg"]
 
-        var = f.createVariable('relative_humidity_min', 'f8', ('time',))                                                # delete when changing system
-        var.long_name = "Relative_Humidity_Min"
-        var.units = col_names["Relative_Humidity_Min"]
-        var[:] = data["Relative_Humidity_Min"]
+        var = f.createVariable('wind_speed', 'f8', ('time',))   
+        var.long_name = "corrected Average Wind Speed using GPS data"
+        var.units = col_names["wind_speed_corrected_Avg"]
+        var[:] = data["wind_speed_corrected_Avg"]
 
-        var = f.createVariable('dewpoint', 'f8', ('time',))                                                             # var = f.createVariable('dewpoint_temperature', 'f8', ('time',))
-        var.long_name = "Sensor_Dewpoint"                                                                               # var.long_name = "Dewpoint_Temperature"        
-        var.units = col_names["Sensor_Dewpoint"]                                                                        # var.units = col_names["dewpoint_temperature_Avg"]
-        var[:] = data["Sensor_Dewpoint"]                                                                                # var[:] = data["dewpoint_temperature_Avg"]
+        var = f.createVariable('wind_speed_Max', 'f8', ('time',))   
+        var.long_name = "corrected Gust Speed using GPS data"
+        var.units = col_names["wind_speed_corrected_Max"]
+        var[:] = data["wind_speed_corrected_Max"]
 
-        var = f.createVariable('wind_speed', 'f8', ('time',))                                                           # var = f.createVariable('wind_speed', 'f8', ('time',))   
-        var.long_name = "corrected Wind Speed using GPS data"                                                           # var.long_name = "corrected Average Wind Speed using GPS data"
-        var.units = col_names["Wind_Speed_Corrected_S_WVT"]                                                             # var.units = col_names["wind_speed_corrected_Avg"]
-        var[:] = data["Wind_Speed_Corrected_S_WVT"]                                                                     # var[:] = data["wind_speed_corrected_Avg"]
+        var = f.createVariable('wind_speed_Smp', 'f8', ('time',))   
+        var.long_name = "corrected Sample Wind Speed using GPS data"        
+        var.units = col_names["wind_speed_corrected"]
+        var[:] = data["wind_speed_corrected"]
 
-        var = f.createVariable('wind_speed_max', 'f8', ('time',))                                                       # var = f.createVariable('wind_speed_Max', 'f8', ('time',))   
-        var.long_name = "corrected Wind Speed Maximum using GPS data"                                                   # var.long_name = "corrected Gust Speed using GPS data"
-        var.units = col_names["Wind_Speed_corrected_Max"]                                                               # var.units = col_names["wind_speed_corrected_Max"]
-        var[:] = data["Wind_Speed_corrected_Max"]                                                                       # var[:] = data["wind_speed_corrected_Max"]
+        var = f.createVariable('wind_speed_raw', 'f8', ('time',))   
+        var.long_name = "raw Average Wind Speed"
+        var.units = col_names["wind_speed_raw_Avg"]
+        var[:] = data["wind_speed_raw_Avg"]
 
-        var = f.createVariable('wind_speed_max_timestamp', 'f8', ('time',))                                                         # var = f.createVariable('wind_speed_Smp', 'f8', ('time',))   
-        var.long_name = "timestamp of occurrence of the corrected Wind Speed Maximum"                                               # var.long_name = "corrected Sample Wind Speed using GPS data"        
-        var.units = "seconds since 1970-01-01 00:00:00"                                                                             # var.units = col_names["wind_speed_corrected"]
-        var[:] = np.array([dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in data["Wind_Speed_corrected_TMx"]])        # var[:] = data["wind_speed_corrected"]
+        var = f.createVariable('wind_speed_raw_Max', 'f8', ('time',))                   
+        var.long_name = "raw Gust Speed"    
+        var.units = col_names["wind_speed_raw_Max"]    
+        var[:] = data["wind_speed_raw_Max"]
 
-        var = f.createVariable('wind_speed_raw', 'f8', ('time',))                                                       # var = f.createVariable('wind_speed_raw', 'f8', ('time',))   
-        var.long_name = "uncorrected Wind Speed"                                                                        # var.long_name = "raw Average Wind Speed"
-        var.units = col_names["Wind_Speed_S_WVT"]                                                                       # var.units = col_names["wind_speed_raw_Avg"]
-        var[:] = data["Wind_Speed_S_WVT"]                                                                               # var[:] = data["wind_speed_raw_Avg"]
+        var = f.createVariable('wind_speed_raw_Smp', 'f8', ('time',))   
+        var.long_name = "raw Sample Wind Speed"     
+        var.units = col_names["wind_speed_raw"]    
+        var[:] = data["wind_speed_raw"]
 
-        var = f.createVariable('wind_speed_max_raw', 'f8', ('time',))                                                   # var = f.createVariable('wind_speed_raw_Max', 'f8', ('time',))                   
-        var.long_name = "uncorrected Wind Speed Maximum"                                                                # var.long_name = "raw Gust Speed"    
-        var.units = col_names["Wind_Speed_raw_Max"]                                                                     # var.units = col_names["wind_speed_raw_Max"]    
-        var[:] = data["Wind_Speed_raw_Max"]                                                                             # var[:] = data["wind_speed_raw_Max"]
+        var = f.createVariable('wind_direction', 'f8', ('time',))
+        var.long_name = "corrected Average Wind Direction using compass & GPS data"    
+        var.units = col_names["wind_direction_corrected_Avg"]
+        var[:] = data["wind_direction_corrected_Avg"]
 
-        var = f.createVariable('wind_speed_max_raw_timestamp', 'f8', ('time',))                                                     # var = f.createVariable('wind_speed_raw_Smp', 'f8', ('time',))   
-        var.long_name = "timestamp of occurrence of the uncorrected Wind Speed Maximum"                                             # var.long_name = "raw Sample Wind Speed"     
-        var.units = "seconds since 1970-01-01 00:00:00"                                                                             # var.units = col_names["wind_speed_raw"]    
-        var[:] = np.array([dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in data["Wind_Speed_raw_TMx"]])              # var[:] = data["wind_speed_raw"]
+        var = f.createVariable('wind_direction_std', 'f8', ('time',))
+        var.long_name = "corrected Wind Direction Standard Deviation"
+        var.units = col_names["wind_direction_corrected_Std"]
+        var[:] = data["wind_direction_corrected_Std"]
 
-        var = f.createVariable('wind_direction', 'f8', ('time',))                                                       # var = f.createVariable('wind_direction', 'f8', ('time',))
-        var.long_name = "corrected Wind Direction using compass data"                                                   # var.long_name = "corrected Average Wind Direction using compass & GPS data"    
-        var.units = col_names["Wind_Direction_Corrected_D1_WVT"]                                                        # var.units = col_names["wind_direction_corrected_Avg"]
-        var[:] = data["Wind_Direction_Corrected_D1_WVT"]                                                                # var[:] = data["wind_direction_corrected_Avg"]
+        var = f.createVariable('wind_direction_raw', 'f8', ('time',))
+        var.long_name = "raw Average Wind Direction"        
+        var.units = col_names["wind_direction_raw_Avg"]
+        var[:] = data["wind_direction_raw_Avg"]    
 
-        var = f.createVariable('wind_direction_std', 'f8', ('time',))                                                   # var = f.createVariable('wind_direction_std', 'f8', ('time',))
-        var.long_name = "corrected Wind Direction Standard Deviation"                                                   # var.long_name = "corrected Wind Direction Standard Deviation"
-        var.units = col_names["Wind_Direction_Corrected_SDI_WVT"]                                                       # var.units = col_names["wind_direction_corrected_Std"]
-        var[:] = data["Wind_Direction_Corrected_SDI_WVT"]                                                               # var[:] = data["wind_direction_corrected_Std"]
-
-        var = f.createVariable('wind_direction_raw', 'f8', ('time',))                                                   # var = f.createVariable('wind_direction_raw', 'f8', ('time',))
-        var.long_name = "uncorrected Wind Direction"                                                                    # var.long_name = "raw Average Wind Direction"        
-        var.units = col_names["Wind_Direction_D1_WVT"]                                                                  # var.units = col_names["wind_direction_raw_Avg"]
-        var[:] = data["Wind_Direction_D1_WVT"]                                                                          # var[:] = data["wind_direction_raw_Avg"]    
-
-        var = f.createVariable('wind_direction_std_raw', 'f8', ('time',))                                               # var = f.createVariable('wind_direction_std_raw', 'f8', ('time',))
-        var.long_name = "uncorrected Wind Direction Standard Deviation"                                                 # var.long_name = "raw Wind Direction Standard Deviation"
-        var.units = col_names["Wind_Direction_SDI_WVT"]                                                                 # var.units = col_names["wind_direction_raw_Std"]
-        var[:] = data["Wind_Direction_SDI_WVT"]                                                                         # var[:] = data["wind_direction_raw_Std"]
+        var = f.createVariable('wind_direction_std_raw', 'f8', ('time',))
+        var.long_name = "raw Wind Direction Standard Deviation"
+        var.units = col_names["wind_direction_raw_Std"]
+        var[:] = data["wind_direction_raw_Std"]
 
         var = f.createVariable('latitude', 'f8', ('time',))
         var.long_name = "GPS Latitude"
@@ -257,43 +247,39 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         var.long_name = "time"
         var.units = "seconds since 1970-01-01 00:00:00"
         var[:] = np.array([dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in data["TIMESTAMP"]])
+
+        var = f.createVariable('wind_direction_Smp', 'f8', ('time',))
+        var.long_name = "corrected Sample Wind Direction using compass & GPS data"    
+        var.units = col_names["wind_direction_corrected"]
+        var[:] = data["wind_direction_corrected"]
         
-        # additionally to be added:
+        var = f.createVariable('wind_direction_raw_Smp', 'f8', ('time',))
+        var.long_name = "raw Sample Wind Direction"        
+        var.units = col_names["wind_direction_raw"]
+        var[:] = data["wind_direction_raw"]
         
-        # var = f.createVariable('wind_direction_Smp', 'f8', ('time',))
-        # var.long_name = "corrected Sample Wind Direction using compass & GPS data"    
-        # var.units = col_names["wind_direction_corrected"]
-        # var[:] = data["wind_direction_corrected"]
+        var = f.createVariable('GPS_heading', 'f8', ('time',))
+        var.long_name = "GPS heading"    
+        var.units = col_names["GPS_heading"]
+        var[:] = data["GPS_heading"]
         
-        # var = f.createVariable('wind_direction_raw_Smp', 'f8', ('time',))
-        # var.long_name = "raw Sample Wind Direction"        
-        # var.units = col_names["wind_direction_raw"]
-        # var[:] = data["wind_direction_raw"]
+        var = f.createVariable('GPS_speed', 'f8', ('time',))
+        var.long_name = "GPS speed"    
+        var.units = col_names["GPS_speed"]
+        var[:] = data["GPS_speed"]
         
-        # var = f.createVariable('GPS_heading', 'f8', ('time',))
-        # var.long_name = "GPS heading"    
-        # var.units = col_names["GPS_heading"]
-        # var[:] = data["GPS_heading"]
-        
-        # var = f.createVariable('GPS_speed', 'f8', ('time',))
-        # var.long_name = "GPS speed"    
-        # var.units = col_names["GPS_speed"]
-        # var[:] = data["GPS_speed"]
-        
-        # var = f.createVariable('compass_heading', 'f8', ('time',))
-        # var.long_name = "compass heading"    
-        # var.units = col_names["compass_heading"]
-        # var[:] = data["compass_heading"]
+        var = f.createVariable('compass_heading', 'f8', ('time',))
+        var.long_name = "compass heading"    
+        var.units = col_names["compass_heading"]
+        var[:] = data["compass_heading"]
         
 
-        if resolution == "hour":                                                                                    # if resolution == "10min":
-
-            data["Sensor_Supply_volt_TMn"] = pd.to_datetime(data["Sensor_Supply_volt_TMn"]).dt.to_pydatetime()      # delete
+        if resolution == "10min":
 
             var = f.createVariable('BattV', 'f8', ('time',))                                                        
             var.long_name = "Battery_Voltage"
-            var.units = col_names["BattV"]                                                                          # var.units = col_names["BattV_Min"]
-            var[:] = data["BattV"]                                                                                  # var[:] = data["BattV_Min"]
+            var.units = col_names["BattV_Min"]
+            var[:] = data["BattV_Min"]
 
             var = f.createVariable('PTemp_C', 'f8', ('time',))
             var.long_name = "Internal Logger_Panel_Temperature"
@@ -302,18 +288,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
 
             var = f.createVariable('sonic_status', 'i4', ('time',))
             var.long_name = "Sonic_Status_Code"
-            var.units = col_names["Sensor_status"]                                                                  # var.units = col_names["sensor_status"]
-            var[:] = data["Sensor_status"]                                                                          # var[:] = data["sensor_status"]        
-
-            var = f.createVariable('SonicV_min', 'f8', ('time',))                                                   # delete
-            var.long_name = "minimal_Sonic_Supply_Voltage"
-            var.units = col_names["Sensor_Supply_volt_Min"]
-            var[:] = data["Sensor_Supply_volt_Min"]
-
-            var = f.createVariable('SonicV_min_timestamp', 'f8', ('time',))                                                             # delete
-            var.long_name = "timestamp_of_minimal_Sonic_Supply_Voltage"
-            var.units = "seconds since 1970-01-01 00:00:00"
-            var[:] = np.array([dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in data["Sensor_Supply_volt_TMn"]])
+            var.units = col_names["sensor_status"]                                                                  
+            var[:] = data["sensor_status"]                                                                         
 
     return
 

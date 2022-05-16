@@ -16,10 +16,10 @@ import shutil
 # define for which stations the program should run
 mobile_switches = {1883: False, 
                    1872: False,
-                   1924: True}
+                   1924: False}
 
-lighthouse_switches = {1885: True,
-                       1884: False,
+lighthouse_switches = {1885: False,
+                       1884: True,
                        1886: False,
                        1887: False}
 
