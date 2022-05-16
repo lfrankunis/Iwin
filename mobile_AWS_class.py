@@ -105,8 +105,6 @@ class mobile_AWS():
 
             # transfer timestamps into Python datetime objects
             df_data["time"] = pd.to_datetime(df_data["TIMESTAMP"]).dt.to_pydatetime()
-            df_data['wind_speed_max_timestamp'] = pd.to_datetime(df_data["Wind_Speed_corrected_TMx"]).dt.to_pydatetime()
-            df_data['wind_speed_max_raw_timestamp'] = pd.to_datetime(df_data["Wind_Speed_raw_TMx"]).dt.to_pydatetime()
 
             # extract lat, lon and lat from GPS Location
             latitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan

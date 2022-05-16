@@ -53,8 +53,6 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
 
     # transfer timestamps into Python datetime objects
     data["TIMESTAMP"] = pd.to_datetime(data["TIMESTAMP"]).dt.to_pydatetime()
-    data["Wind_Speed_corrected_TMx"] = pd.to_datetime(data["Wind_Speed_corrected_TMx"]).dt.to_pydatetime()      # delete when changing system
-    data["Wind_Speed_raw_TMx"] = pd.to_datetime(data["Wind_Speed_raw_TMx"]).dt.to_pydatetime()                  # delete when changing system
 
     # extract lat, lon and lat from GPS Location
     latitude = np.ones((len(data["TIMESTAMP"]))) * np.nan
