@@ -51,14 +51,14 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     
     
     lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
-                   1884: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
-                   #1884: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
-                   1886: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1886: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
+                   #1886: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
+                   1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
                    1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
-    lighthouses_to_plot = [1885]
+    lighthouses_to_plot = [1884, 1885]
     
     boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924 : "MS_Billefjord"}
-    boats_to_plot = [1924]
+    boats_to_plot = [1883, 1924, 1872]
     
     status = "overview"
     
@@ -81,7 +81,8 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     for b in boats_to_plot:
         boat[b] = mobile_AWS_class.mobile_AWS(station=b, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
-                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_speed_raw', 'wind_direction_raw', 'latitude', 'longitude'],
+                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_speed_raw',
+                                                       'wind_direction_raw', 'latitude', 'longitude', "GPS_speed", "GPS_heading", "compass_heading"],
                                             file_type=file_type, path=path_data)
     
         boat[b].filter_GPScoverage()

@@ -46,7 +46,7 @@ def initialize_halfpage_map():
     # name annotations for settlements
     transform = ccrs.PlateCarree()._as_mpl_transform(ax_map)
     ax_map.annotate("Longyearbyen", (settlements['LYR']['lon'], settlements['LYR']['lat']), xytext=(settlements['LYR']['lon'], settlements['LYR']['lat']-0.04), ha="left", xycoords=transform, zorder=21)
-    ax_map.annotate("Pyramiden", (settlements['PYR']['lon'], settlements['PYR']['lat']), xytext=(settlements['PYR']['lon']-0.08, settlements['PYR']['lat']+0.01), ha="right", xycoords=transform, zorder=21)
+    ax_map.annotate("Pyramiden", (settlements['PYR']['lon'], settlements['PYR']['lat']), xytext=(settlements['PYR']['lon']+0.06, settlements['PYR']['lat']+0.02), ha="left", xycoords=transform, zorder=21)
     ax_map.annotate("Barentsburg", (settlements['BB']['lon'], settlements['BB']['lat']), xytext=(settlements['BB']['lon']+0.1, settlements['BB']['lat']-0.02),  ha="left", xycoords=transform, zorder=21)
 
 
@@ -77,7 +77,7 @@ def initialize_fullpage_map():
     # name annotations for settlements
     transform = ccrs.PlateCarree()._as_mpl_transform(ax_map)
     ax_map.annotate("Longyearbyen", (settlements['LYR']['lon'], settlements['LYR']['lat']), xytext=(settlements['LYR']['lon'], settlements['LYR']['lat']-0.04), ha="left", xycoords=transform, zorder=21)
-    ax_map.annotate("Pyramiden", (settlements['PYR']['lon'], settlements['PYR']['lat']), xytext=(settlements['PYR']['lon']-0.08, settlements['PYR']['lat']+0.01), ha="right", xycoords=transform, zorder=21)
+    ax_map.annotate("Pyramiden", (settlements['PYR']['lon'], settlements['PYR']['lat']), xytext=(settlements['PYR']['lon']+0.06, settlements['PYR']['lat']+0.02), ha="left", xycoords=transform, zorder=21)
     ax_map.annotate("Barentsburg", (settlements['BB']['lon'], settlements['BB']['lat']), xytext=(settlements['BB']['lon']+0.1, settlements['BB']['lat']-0.02),  ha="left", xycoords=transform, zorder=21)
 
 
@@ -230,33 +230,98 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
         if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
             x_shift = -0.3
             y_shift = 0.06
+        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
+                        xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
     elif lighthouse.station_name == "Gasoyane":#"Kapp Thordsen"
         x_shift = -0.08
-        y_shift = 0.02
+        y_shift = 0.00
         if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
-            x_shift = -0.3
-            y_shift = 0.06
+            x_shift = -0.2
+            y_shift = 0.00
+        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="center",
+                        xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
     elif lighthouse.station_name == "Narveneset":
-        x_shift = -0.08
-        y_shift = 0.02
-        if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
-            x_shift = -0.3
-            y_shift = 0.06
+        x_shift = -0.35
+        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="center",
+                        xytext=(lighthouse.longitude+x_shift, lighthouse.latitude), xycoords=transform, zorder=21)
     elif lighthouse.station_name == "Daudmannsodden":
         x_shift = -0.08
         y_shift = 0.02
         if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
             x_shift = -0.3
             y_shift = 0.06
+        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
+                        xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
             
             
-    ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
-                    xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
 
     sc_map.add_grid_points_meteo_arrows([lighthouse.latitude], [lighthouse.longitude],
                                         [lighthouse.data['u_knts'][-1]], [lighthouse.data['v_knts'][-1]], length=7, lw=.8, zorder=40)
 
     return
+
+
+def plot_MET_station_on_map(station, data, ax_map, sc_map):
+    
+    station_names = {"IR": {"ID": "SN99790", "height": 7., "lat": 78.0625, "lon": 13.6192},
+                     "LYR": {"ID": "SN99840", "height": 28., "lat": 78.2453, "lon": 15.5015},
+                     "PYR": {"ID": "SN99880", "height": 20., "lat": 78.6557, "lon": 16.3603},
+                     "NS": {"ID": "SN99882", "height": 13., "lat": 78.3313, "lon": 16.6818}}
+    
+    transform = ccrs.PlateCarree()._as_mpl_transform(ax_map)
+    
+    if station not in ["LYR", "PYR"]:
+        ax_map.annotate("\u265C", (station_names[station]["lon"], station_names[station]["lat"]), xytext=(station_names[station]["lon"], station_names[station]["lat"]), ha="center", va="center", xycoords=transform, zorder=21)
+    
+    
+    props = dict(boxstyle='round', facecolor='white', alpha=0.6)
+    data_str = '{t:<5} {a:.1f}°C\n{r:<3} {b:.1f}%\n{w:<3} {c:.1f}m/s\n{g:<3} {d}\n(upd. {l})'.format(t="T", r="RH", w="WS", g="WD", l=data.index[-1].strftime("%H:%M"),
+                                                                                             a=data['temperature'].iloc[-1],
+                                                                                             b=data['relative_humidity'].iloc[-1],
+                                                                                             c=data['wind_speed'].iloc[-1],
+                                                                                             d=wdir_classes[data['wind_sector'].iloc[-1]][0])
+
+
+    if station == "LYR":
+        x_shift = 0.0
+        y_shift = -0.08
+        # if wdir_classes[data['wind_sector'].iloc[-1]][0] in ["S", "SW", "W"]:
+            # x_shift = -0.15
+            # y_shift = -0.03
+        ax_map.annotate(data_str, xy=(station_names[station]["lon"], station_names[station]["lat"]), bbox=props, ma='left', ha="center", va="top",
+                        xytext=(station_names[station]["lon"]+x_shift, station_names[station]["lat"]+y_shift), xycoords=transform, zorder=21)
+    elif station == "IR":
+        x_shift = -0.08
+        y_shift = -0.0
+        if wdir_classes[data['wind_sector'].iloc[-1]][0] in ["S", "SW", "W"]:
+            x_shift = -0.3
+            # y_shift = -0.06
+        ax_map.annotate(data_str, xy=(station_names[station]["lon"], station_names[station]["lat"]), bbox=props, ma='left', ha="right", va="top",
+                        xytext=(station_names[station]["lon"]+x_shift, station_names[station]["lat"]+y_shift), xycoords=transform, zorder=21)
+    elif station == "NS":
+        x_shift = 0.08
+        y_shift = -0.02
+        if wdir_classes[data['wind_sector'].iloc[-1]][0] in ["S", "SE", "E"]:
+            x_shift = 0.3
+            y_shift = -0.06
+        ax_map.annotate(data_str, xy=(station_names[station]["lon"], station_names[station]["lat"]), bbox=props, ma='left', ha="left", va="top",
+                        xytext=(station_names[station]["lon"]+x_shift, station_names[station]["lat"]+y_shift), xycoords=transform, zorder=21)
+    elif station == "PYR":
+        x_shift = -0.08
+        y_shift = 0.02
+        if wdir_classes[data['wind_sector'].iloc[-1]][0] in ["N", "NW", "W"]:
+            x_shift = -0.3
+            y_shift = 0.06
+        ax_map.annotate(data_str, xy=(station_names[station]["lon"], station_names[station]["lat"]), bbox=props, ma='left', ha="right", va="bottom",
+                        xytext=(station_names[station]["lon"]+x_shift, station_names[station]["lat"]+y_shift), xycoords=transform, zorder=21)
+            
+
+    sc_map.add_grid_points_meteo_arrows([station_names[station]["lat"]], [station_names[station]["lon"]],
+                                        [data['u_knts'].iloc[-1]], [data['v_knts'].iloc[-1]], length=7, lw=.8, zorder=40)
+
+    return
+
+
 
 
 

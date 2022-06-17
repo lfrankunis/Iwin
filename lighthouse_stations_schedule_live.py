@@ -46,11 +46,11 @@ def update_all_plots(update_time):
 
 
     lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
-                   1884: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
-                   #1884: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
-                   1886: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1886: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
+                   #1886: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
+                   1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
                    1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
-    lighthouses_to_plot = [1885]
+    lighthouses_to_plot = [1884, 1885]
 
     status = "live"
     

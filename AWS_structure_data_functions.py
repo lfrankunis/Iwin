@@ -58,7 +58,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     latitude = np.ones((len(data["TIMESTAMP"]))) * np.nan
     longitude = np.ones((len(data["TIMESTAMP"]))) * np.nan
     altitude = np.ones((len(data["TIMESTAMP"]))) * np.nan
-    for c, gps in enumerate(data["GPS_Location"]):
+    for c, gps in enumerate(data["GPS_location"]):
         if type(gps) == float:
             latitude[c] = np.nan
             longitude[c] = np.nan
@@ -410,3 +410,50 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         var[:] = data["MetSENS_Status"]
 
     return
+
+
+
+def create_GIS_input_file(boats, lighthouses, met_stations):
+    
+    boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
+    
+    lighthouse_names = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
+                   1884: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
+                   #1884: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
+                   1886: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
+    
+    station_names = {"IR": {"ID": "SN99790", "height": 7., "lat": 78.0625, "lon": 13.6192},
+                     "LYR": {"ID": "SN99840", "height": 28., "lat": 78.2453, "lon": 15.5015},
+                     "PYR": {"ID": "SN99880", "height": 20., "lat": 78.6557, "lon": 16.3603},
+                     "NS": {"ID": "SN99882", "height": 13., "lat": 78.3313, "lon": 16.6818}}
+    
+    list_all = []
+    for b in boats.keys():
+        df = pd.DataFrame([boat_names[b]]*len(boats[b].data['local_time']), index=boats[b].data['local_time'], columns=["STAT"])
+        df["lat"] = boats[b].data["latitude"]
+        df["lon"] = boats[b].data["longitude"]
+        for v in ['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'u', 'v', 'u_knts', 'v_knts']:
+            df[v] = boats[b].data[v]
+        list_all.append(df)
+    for l in lighthouses.keys():
+        df = pd.DataFrame([lighthouse_names[l]["name"]]*len(lighthouses[l].data['local_time']), index=lighthouses[l].data['local_time'], columns=["STAT"])
+        df["lat"] = lighthouse_names[l]["lat"]
+        df["lon"] = lighthouse_names[l]["lon"]
+        for v in ['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_sector', 'u', 'v', 'u_knts', 'v_knts']:
+            df[v] = lighthouses[l].data[v]
+        list_all.append(df)
+    for m in met_stations.keys():
+        df = met_stations[m]
+        df["STAT"] = m
+        df["lat"] = station_names[m]["lat"]
+        df["lon"] = station_names[m]["lon"]
+        list_all.append(df)
+        
+    df_total = pd.concat(list_all)
+    
+    df_total.to_csv("C:/Users/unismet/Desktop/latest_isfjorden_data.csv")
+    
+    return
+    
+

@@ -110,7 +110,7 @@ class mobile_AWS():
             latitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
             longitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
             altitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
-            for c, gps in enumerate(df_data["GPS_Location"]):
+            for c, gps in enumerate(df_data["GPS_location"]):
                 if type(gps) == float:
                     latitude[c] = np.nan
                     longitude[c] = np.nan
@@ -287,7 +287,8 @@ class mobile_AWS():
         
         self.data["wind_speed"][~np.isfinite(self.data["wind_speed"])] = np.nan
         self.data["wind_direction"][~np.isfinite(self.data["wind_direction"])] = np.nan
-        self.data["wind_direction"][boat_speed <= threshold] = np.nan
+        if self.station == 1924:
+            self.data["wind_direction"][boat_speed <= threshold] = np.nan
         
         return
 
