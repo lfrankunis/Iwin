@@ -413,14 +413,16 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
 
 
 
-def create_GIS_input_file(boats, lighthouses, met_stations):
+def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3):
     
     boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
     
+    boat_temp_res = {1883: 10, 1872: 15, 1924: 15}
+    
     lighthouse_names = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
-                   1884: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
-                   #1884: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
-                   1886: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1886: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
+                   #1886: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
+                   1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
                    1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
     
     station_names = {"IR": {"ID": "SN99790", "height": 7., "lat": 78.0625, "lon": 13.6192},
@@ -428,29 +430,37 @@ def create_GIS_input_file(boats, lighthouses, met_stations):
                      "PYR": {"ID": "SN99880", "height": 20., "lat": 78.6557, "lon": 16.3603},
                      "NS": {"ID": "SN99882", "height": 13., "lat": 78.3313, "lon": 16.6818}}
     
+    rounding_precision = {"temperature": 0, "relative_humidity": 0, "wind_direction": 0, "pressure": 0, "wind_speed": 1, "u": 1, "v": 1, "u_knts": 1, "v_knts": 1}
+    
     list_all = []
     for b in boats.keys():
-        df = pd.DataFrame([boat_names[b]]*len(boats[b].data['local_time']), index=boats[b].data['local_time'], columns=["STAT"])
-        df["lat"] = boats[b].data["latitude"]
-        df["lon"] = boats[b].data["longitude"]
+        ind = np.where(np.array([t.minute for t in boats[b].data["local_time"]]) % boat_temp_res[b] == 0)[0]
+        df = pd.DataFrame([boat_names[b]]*len(ind), index=boats[b].data['local_time'][ind], columns=["STAT"])
+        df["lat"] = boats[b].data["latitude"][ind]
+        df["lon"] = boats[b].data["longitude"][ind]
         for v in ['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'u', 'v', 'u_knts', 'v_knts']:
-            df[v] = boats[b].data[v]
+            df[v] = boats[b].data[v][ind]
         list_all.append(df)
     for l in lighthouses.keys():
-        df = pd.DataFrame([lighthouse_names[l]["name"]]*len(lighthouses[l].data['local_time']), index=lighthouses[l].data['local_time'], columns=["STAT"])
+        df = pd.DataFrame([lighthouse_names[l]["name"]], index=[lighthouses[l].data['local_time'][-1]], columns=["STAT"])
         df["lat"] = lighthouse_names[l]["lat"]
         df["lon"] = lighthouse_names[l]["lon"]
         for v in ['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_sector', 'u', 'v', 'u_knts', 'v_knts']:
-            df[v] = lighthouses[l].data[v]
+            df[v] = [lighthouses[l].data[v][-1]]
         list_all.append(df)
     for m in met_stations.keys():
-        df = met_stations[m]
+        df = met_stations[m].iloc[-1:].copy()
         df["STAT"] = m
         df["lat"] = station_names[m]["lat"]
         df["lon"] = station_names[m]["lon"]
         list_all.append(df)
         
-    df_total = pd.concat(list_all)
+    df_total = pd.concat(list_all).drop(["wind_sector"], axis=1)
+    
+    df_total = df_total.round(rounding_precision)
+    df_total = df_total[df_total.index >= (df_total.index.max() - pd.Timedelta(hours=past_hours))]
+    
+    df_total.index = df_total.index.strftime('%H:%M')
     
     df_total.to_csv("C:/Users/unismet/Desktop/latest_isfjorden_data.csv")
     

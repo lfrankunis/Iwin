@@ -467,11 +467,13 @@ def plot_lighthouse_timeseries(lighthouse, status):
                 ax.set_yticklabels(["N", "E", "S", "W", "N"])
                 ax.xaxis.set_major_locator(HourLocator(interval=2))
                 ax.xaxis.set_major_formatter(DateFormatter('%H'))
-                ax.set_ylabel(plot_labels['wind_direction'])
+                if l_ind == 0:
+                    ax.set_ylabel(plot_labels['wind_direction'])
                 ax.set_xlabel("Local time")
             else:
                 ax.plot(lighthouse[l].data['local_time'], lighthouse[l].data[plot_variables[i]], color=plot_colors[plot_variables[i]])
-                ax.set_ylabel(plot_labels[plot_variables[i]])
+                if l_ind == 0:
+                    ax.set_ylabel(plot_labels[plot_variables[i]])
                 
             if status == "live":
                 if i < len(axes_lighthouse)-1:

@@ -171,7 +171,7 @@ def update_all_plots(update_time):
     upload_picture(local_output_path, os.path.basename(local_output_path))
     
     
-    create_GIS_input_file(boat, lighthouse, met_stations)
+    create_GIS_input_file(boat, lighthouse, met_stations, past_hours=3)
     
     
         
