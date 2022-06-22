@@ -10,6 +10,7 @@ import datetime
 from netCDF4 import Dataset
 from pyproj import Proj
 import copy
+import json
 
 
 def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min", path="C:/Data/"):
@@ -412,6 +413,35 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     return
 
 
+def export_json(df, out_path):
+
+    properties = list(df.drop(['lat', 'lon'], axis=1).columns)
+    
+    df = df.fillna(value=0)
+
+    geojson = {'type':'FeatureCollection', 'features':[]}
+
+    # loop through each row in the dataframe and convert each row to geojson format
+    for _, row in df.iterrows():
+        # create a feature template to fill in
+        feature = {'type':'Feature',
+                   'properties':{},
+                   'geometry':{'type':'Point',
+                               'coordinates':[row["lon"],row["lat"]]}}
+
+
+        # for each column, get the value and add it as a new feature property
+        for prop in properties:
+            feature['properties'][prop] = row[prop]
+        
+        # add this feature (aka, converted dataframe row) to the list of features inside our dict
+        geojson['features'].append(feature)
+        
+    with open(out_path, 'w', encoding='utf-8') as f:
+        f.write(json.dumps(geojson))
+    
+    return 
+
 
 def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3):
     
@@ -463,6 +493,8 @@ def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3):
     df_total.index = df_total.index.strftime('%H:%M')
     
     df_total.to_csv("C:/Users/unismet/Desktop/latest_isfjorden_data.csv")
+    
+    export_json(df_total, "C:/Users/unismet/Desktop/latest_isfjorden_data.geojson")
     
     return
     
