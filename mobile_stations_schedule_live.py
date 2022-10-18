@@ -48,15 +48,15 @@ def update_all_plots(update_time):
     path_data = "C:/Data/"
 
 
-    lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
-                   1886: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
-                   #1886: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
-                   1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
-                   1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
-    lighthouses_to_plot = [1884, 1885]
+    lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
+                   1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685},
+                   1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082}}
+    
+    lighthouses_to_plot = [1884, 1885, 1886, 1887]
 
-    boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
-    boats_to_plot = [1883, 1924, 1872]
+    boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Bard_2"}
+    boats_to_plot = [1883, 1924]
     
     MET_stations_to_plot = ["LYR", "IR", "PYR", "NS"]
 
@@ -83,7 +83,7 @@ def update_all_plots(update_time):
     for b in boats_to_plot:
         boat[b] = mobile_AWS_class.mobile_AWS(station=b, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
-                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction',
+                                            variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction',
                                                        "wind_speed_raw", "wind_direction_raw", 'latitude', 'longitude', "GPS_speed", "GPS_heading", "compass_heading"],
                                             file_type="raw", path=path_data)
         
@@ -106,7 +106,7 @@ def update_all_plots(update_time):
     for l in lighthouses_to_plot:
         lighthouse[l] = lighthouse_AWS_class.lighthouse_AWS(station=l, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
-                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
+                                            variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
                                             file_type="raw", path=path_data)
     
         lighthouse[l].calculate_windvector_components()
@@ -124,7 +124,7 @@ def update_all_plots(update_time):
     
     # load MET station data
     
-    met_stations = download_MET_stations(update_time, MET_stations_to_plot)
+    met_stations = download_MET_stations(update_time)
     
     ####################################################################################
     ####################################################################################

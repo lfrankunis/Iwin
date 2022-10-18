@@ -45,12 +45,12 @@ def update_all_plots(update_time):
     path_data = "C:/Data/"
 
 
-    lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
-                   1886: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
-                   #1886: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
-                   1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
-                   1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
-    lighthouses_to_plot = [1884, 1885]
+    lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
+                   1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685},
+                   1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082}}
+    
+    lighthouses_to_plot = [1884, 1885, 1886, 1887]
 
     status = "live"
     
@@ -70,13 +70,13 @@ def update_all_plots(update_time):
     for l in lighthouses_to_plot:
         lighthouse[l] = lighthouse_AWS_class.lighthouse_AWS(station=l, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
-                                            variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
+                                            variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction', "battery"],
                                             file_type="raw", path=path_data)
     
         lighthouse[l].calculate_windvector_components()
         lighthouse[l].calculate_wind_sector()
         lighthouse[l].calculate_wind_in_knots()
-        lighthouse[l].only_latest_data(datetime.timedelta(hours=12))
+        lighthouse[l].only_latest_data(datetime.timedelta(hours=72))
         
         # add info to the class instance
         lighthouse[l].station_name = lighthouses[l]["name"]

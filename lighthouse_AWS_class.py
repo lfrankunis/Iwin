@@ -22,7 +22,7 @@ class lighthouse_AWS():
                         resolution="1min",                # temporal resolution of the data
                         starttime="202104090800",         # INPUT Define start- and end-points in time for retrieving the data
                         endtime="202104091800",           # Format: YYYYmmddHHMM
-                        variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
+                        variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
                         file_type="nc", total_time=datetime.timedelta(days=1), path=False
                         ):
 
@@ -105,13 +105,14 @@ class lighthouse_AWS():
             df_data["time"] = pd.to_datetime(df_data["TIMESTAMP"]).dt.to_pydatetime()
 
             df_data = df_data.rename({"temperature_Avg": 'temperature',
-                                "air_pressure_Avg": 'pressure',
+                                "air_pressure_Avg": 'air_pressure',
                                 "relative_humidity_Avg": 'relative_humidity',
                                 "dewpoint_temperature_Avg": 'dewpoint',
                                 "wind_speed_Avg": 'wind_speed',
                                 "wind_speed_Max": 'wind_speed_max',
                                 "wind_direction_Avg": 'wind_direction',
-                                "wind_direction_Std": 'wind_direction_std'}, axis='columns')
+                                "wind_direction_Std": 'wind_direction_std',
+                                "BattV_Min": "battery"}, axis='columns')
 
             df_data = df_data.dropna()
 
@@ -163,7 +164,7 @@ class lighthouse_AWS():
 
         e = 0.01*self.data['relative_humidity']*(6.112 * np.exp((17.62*self.data['temperature'])/(243.12+self.data['temperature'])))
 
-        self.data['specific_humidity'] = 1000.*(0.622*e)/(self.data['pressure']-0.378*e)
+        self.data['specific_humidity'] = 1000.*(0.622*e)/(self.data['air_pressure']-0.378*e)
         self.variables.append('specific_humidity')
 
         return

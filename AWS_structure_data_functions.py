@@ -78,8 +78,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     # correct wind data for motion of the boat
     myProj = Proj("+proj=utm +zone=33 +north +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
     x, y = myProj(longitude, latitude)
-    boat_u = np.gradient(x)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
-    boat_v = np.gradient(y)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
+    boat_u = np.gradient(x)/np.asarray(np.gradient(data["TIMESTAMP"].values.astype("datetime64[s]")), dtype=float)
+    boat_v = np.gradient(y)/np.asarray(np.gradient(data["TIMESTAMP"].values.astype("datetime64[s]")), dtype=float)
     boat_speed = data["GPS_speed"] 
     boat_heading = data["GPS_heading"] # OR boat_heading = data["compass_heading"]
 
@@ -106,8 +106,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     data.loc[~np.isfinite(data["wind_direction_corrected_Avg"]), "wind_direction_corrected_Avg"] = np.nan
     
     
-    if station == "1924":
-        data.loc[boat_speed <= threshold, "wind_direction_corrected_Avg"] = np.nan
+    # if station == "1924":
+    #     data.loc[boat_speed <= threshold, "wind_direction_corrected_Avg"] = np.nan
     
     u = -np.abs(data["wind_speed_corrected_Max"]) * np.sin(np.deg2rad(data["wind_direction_corrected_Avg"]))
     v = -np.abs(data["wind_speed_corrected_Max"]) * np.cos(np.deg2rad(data["wind_direction_corrected_Avg"]))
@@ -449,16 +449,24 @@ def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3):
     
     boat_temp_res = {1883: 10, 1872: 15, 1924: 15}
     
-    lighthouse_names = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
-                   1886: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082},
-                   #1886: {"name": "Kapp Thordsen", 'lat': 78.45638,'lon': 15.46793},
-                   1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
-                   1887: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685}}
+    lighthouse_names = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
+                   1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
+                   1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685},
+                   1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082}}
     
-    station_names = {"IR": {"ID": "SN99790", "height": 7., "lat": 78.0625, "lon": 13.6192},
-                     "LYR": {"ID": "SN99840", "height": 28., "lat": 78.2453, "lon": 15.5015},
-                     "PYR": {"ID": "SN99880", "height": 20., "lat": 78.6557, "lon": 16.3603},
-                     "NS": {"ID": "SN99882", "height": 13., "lat": 78.3313, "lon": 16.6818}}
+    station_names = {"IR": {"name": "Isfjord Radio", "ID": "SN99790", "height": 7., "lat": 78.0625, "lon": 13.6192},
+                     "LYR": {"name": "Longyearbyen Airport", "ID": "SN99840", "height": 28., "lat": 78.2453, "lon": 15.5015},
+                     "PYR": {"name": "Pyramiden", "ID": "SN99880", "height": 20., "lat": 78.6557, "lon": 16.3603},
+                     "NS": {"name": "Nedre Sassendalen", "ID": "SN99882", "height": 13., "lat": 78.3313, "lon": 16.6818},
+                     "PB": {"name": "Plataberget", "ID": "SN99843", "height": 450., "lat": 78.2278, "lon": 15.378},
+                     "AD": {"name": "Adventdalen", "ID": "SN99870", "height": 15., "lat":  78.2022, "lon": 15.831},
+                     "IH": {"name": "Innerhytta", "ID": "SN99879", "height": 81., "lat":  78.18883, "lon": 16.34423},
+                     "AO": {"name": "Akseloya", "ID": "SN99765", "height": 20., "lat":  77.6873, "lon": 14.7578},
+                     "KL": {"name": "Klauva", "ID": "SN99884", "height": 480., "lat":  78.3002, "lon": 18.2248},
+                     "ID": {"name": "Istjorndalen", "ID": "SN99770", "height": 188., "lat":  78.0092, "lon": 15.2108}, 
+                     "JH": {"name": "Janssonhagen", "ID": "SN99874", "height": 250., "lat":  78.18, "lon": 16.41},
+                     "RP": {"name": "Reindalspasset", "ID": "SN99763", "height": 181., "lat":  78.0648, "lon":  17.0442},
+                     "SV": {"name": "Svea", "ID": "SN99760", "height": 9., "lat":  77.8953, "lon": 16.72}}
     
     rounding_precision = {"temperature": 0, "relative_humidity": 0, "wind_direction": 0, "pressure": 0, "wind_speed": 1, "u": 1, "v": 1, "u_knts": 1, "v_knts": 1}
     
@@ -468,33 +476,36 @@ def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3):
         df = pd.DataFrame([boat_names[b]]*len(ind), index=boats[b].data['local_time'][ind], columns=["STAT"])
         df["lat"] = boats[b].data["latitude"][ind]
         df["lon"] = boats[b].data["longitude"][ind]
-        for v in ['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'u', 'v', 'u_knts', 'v_knts']:
+        for v in ['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction']:
             df[v] = boats[b].data[v][ind]
         list_all.append(df)
     for l in lighthouses.keys():
         df = pd.DataFrame([lighthouse_names[l]["name"]], index=[lighthouses[l].data['local_time'][-1]], columns=["STAT"])
         df["lat"] = lighthouse_names[l]["lat"]
         df["lon"] = lighthouse_names[l]["lon"]
-        for v in ['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_sector', 'u', 'v', 'u_knts', 'v_knts']:
+        for v in ['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_sector']:
             df[v] = [lighthouses[l].data[v][-1]]
         list_all.append(df)
     for m in met_stations.keys():
         df = met_stations[m].iloc[-1:].copy()
-        df["STAT"] = m
+        df["STAT"] = station_names[m]["name"]
         df["lat"] = station_names[m]["lat"]
         df["lon"] = station_names[m]["lon"]
         list_all.append(df)
         
-    df_total = pd.concat(list_all).drop(["wind_sector"], axis=1)
+    df_total = pd.concat(list_all).drop(["u", "v", "u_knts", "v_knts", "wind_sector"], axis=1)
     
     df_total = df_total.round(rounding_precision)
     df_total = df_total[df_total.index >= (df_total.index.max() - pd.Timedelta(hours=past_hours))]
     
     df_total.index = df_total.index.strftime('%H:%M')
     
-    df_total.to_csv("C:/Users/unismet/Desktop/latest_isfjorden_data.csv")
+    df_total.rename({'temperature': "Temperature", 'air_pressure': "Pressure", 'relative_humidity': "Relative Humidity",
+                     "wind_speed": "Wind Speed", "wind_direction": "Wind Direction"})
     
-    export_json(df_total, "C:/Users/unismet/Desktop/latest_isfjorden_data.geojson")
+    df_total.to_csv("C:/Users/unismet/OneDrive - Universitetssenteret på Svalbard AS/IWIN/GIS/latest_isfjorden_data.csv")
+    
+    export_json(df_total, "C:/Users/unismet/OneDrive - Universitetssenteret på Svalbard AS/IWIN/GIS/latest_isfjorden_data.geojson")
     
     return
     

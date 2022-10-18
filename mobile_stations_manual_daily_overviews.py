@@ -23,8 +23,8 @@ from_time = datetime.datetime.strptime(day, "%Y%m%d").replace(hour=0, minute=15,
 update_time = from_time + datetime.timedelta(days=1)
 
 # for reprocessing daily overview plot for website:
-update_overview_plot(update_time, file_type="raw", for_website=True)
+# update_overview_plot(update_time, file_type="raw", for_website=True)
 
 
 # for quicklook what happened during one specific day: (comment again after use, and uncomment regular line)
-# update_overview_plot(update_time, file_type="nc", for_website=False)
+update_overview_plot(update_time, file_type="nc", for_website=False)

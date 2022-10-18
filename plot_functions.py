@@ -153,8 +153,8 @@ def plot_boat_on_map(ax_map, sc_map, boat, variable="temperature", position_swit
         ship_legend = mpl.lines.Line2D([],[],marker="X",markersize=13,linestyle="None",color="m",label="Last received position")
 
         ind = np.where((boat.data['time'] >= boat.data['time'][-1]-datetime.timedelta(hours=3)))[0]
-        p = np.nanmean(boat.data['pressure'][ind])
-        _, ptrend_bool, _, _, _, _, _, ptend, _ = mk.original_test(boat.data['pressure'][ind])
+        p = np.nanmean(boat.data['air_pressure'][ind])
+        _, ptrend_bool, _, _, _, _, _, ptend, _ = mk.original_test(boat.data['air_pressure'][ind])
         if ptrend_bool:
             if ptend > 0:
                 pressure_legend = mpl.lines.Line2D([],[],marker=10,markersize=12,linestyle="None",color="lime",label=f"Pressure: {p:.1f} hPa")
@@ -178,8 +178,8 @@ def combined_legend_positions(ax_map, boat, boat_names):
     
     i = list(boat.keys())[0]
     ind = np.where((boat[i].data['time'] >= boat[i].data['time'][-1]-datetime.timedelta(hours=3)))[0]
-    p = np.nanmean(boat[i].data['pressure'][ind])
-    _, ptrend_bool, _, _, _, _, _, ptend, _ = mk.original_test(boat[i].data['pressure'][ind])
+    p = np.nanmean(boat[i].data['air_pressure'][ind])
+    _, ptrend_bool, _, _, _, _, _, ptend, _ = mk.original_test(boat[i].data['air_pressure'][ind])
     if ptrend_bool:
         if ptend > 0:
             pressure_legend = mpl.lines.Line2D([],[],marker=10,markersize=12,linestyle="None",color="lime",label=f"Pressure: {p:.1f} hPa")
@@ -232,13 +232,13 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
             y_shift = 0.06
         ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
                         xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
-    elif lighthouse.station_name == "Gasoyane":#"Kapp Thordsen"
-        x_shift = -0.08
+    elif lighthouse.station_name == "Gasoyane":
+        x_shift = 0.08
         y_shift = 0.00
         if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
-            x_shift = -0.2
+            x_shift = 0.2
             y_shift = 0.00
-        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="center",
+        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="left", va="center",
                         xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
     elif lighthouse.station_name == "Narveneset":
         x_shift = -0.35
@@ -263,10 +263,19 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
 
 def plot_MET_station_on_map(station, data, ax_map, sc_map):
     
-    station_names = {"IR": {"ID": "SN99790", "height": 7., "lat": 78.0625, "lon": 13.6192},
-                     "LYR": {"ID": "SN99840", "height": 28., "lat": 78.2453, "lon": 15.5015},
-                     "PYR": {"ID": "SN99880", "height": 20., "lat": 78.6557, "lon": 16.3603},
-                     "NS": {"ID": "SN99882", "height": 13., "lat": 78.3313, "lon": 16.6818}}
+    station_names = {"IR": {"name": "Isfjord Radio", "ID": "SN99790", "height": 7., "lat": 78.0625, "lon": 13.6192},
+                     "LYR": {"name": "Longyearbyen Airport", "ID": "SN99840", "height": 28., "lat": 78.2453, "lon": 15.5015},
+                     "PYR": {"name": "Pyramiden", "ID": "SN99880", "height": 20., "lat": 78.6557, "lon": 16.3603},
+                     "NS": {"name": "Nedre Sassendalen", "ID": "SN99882", "height": 13., "lat": 78.3313, "lon": 16.6818},
+                     "PB": {"name": "Plataberget", "ID": "SN99843", "height": 450., "lat": 78.2278, "lon": 15.378},
+                     "AD": {"name": "Adventdalen", "ID": "SN99870", "height": 15., "lat":  78.2022, "lon": 15.831},
+                     "IH": {"name": "Innerhytta", "ID": "SN99879", "height": 81., "lat":  78.18883, "lon": 16.34423},
+                     "AO": {"name": "Akseloya", "ID": "SN99765", "height": 20., "lat":  77.6873, "lon": 14.7578},
+                     "KL": {"name": "Klauva", "ID": "SN99884", "height": 480., "lat":  78.3002, "lon": 18.2248},
+                     "ID": {"name": "Istjorndalen", "ID": "SN99770", "height": 188., "lat":  78.0092, "lon": 15.2108}, 
+                     "JH": {"name": "Janssonhagen", "ID": "SN99874", "height": 250., "lat":  78.18, "lon": 16.41},
+                     "RP": {"name": "Reindalspasset", "ID": "SN99763", "height": 181., "lat":  78.0648, "lon":  17.0442},
+                     "SV": {"name": "Svea", "ID": "SN99760", "height": 9., "lat":  77.8953, "lon": 16.72}}
     
     transform = ccrs.PlateCarree()._as_mpl_transform(ax_map)
     
@@ -432,21 +441,26 @@ def plot_lighthouse_timeseries(lighthouse, status):
     future_time_plot = {'live': 4, 'overview': 0}
 
     plot_variables = {0: 'temperature', 1: 'relative_humidity', 2: 'wind_speed', 3: 'wind_direction'}
+    # plot_variables = {0: 'battery', 1: 'relative_humidity', 2: 'wind_speed', 3: 'wind_direction'}
+
 
     plot_colors = {'temperature': '#377eb8',
               'relative_humidity': '#4daf4a',
               'wind_speed': '#984ea3',
-              'wind_direction': '#e41a1c'}
+              'wind_direction': '#e41a1c',
+              'battery': 'k'}
 
     plot_labels = {'temperature': 'Temp.\n[°C]',
               'relative_humidity': 'Rel. Humi.\n[%]',
               'wind_speed': 'Wind Speed\n[m/s]',
-              'wind_direction': 'Wind Dir.\n[°]'}
+              'wind_direction': 'Wind Dir.\n[°]',
+              'battery': 'k'}
 
     plot_units = {'temperature': '°C',
               'relative_humidity': '%',
               'wind_speed': 'm/s',
-              'wind_direction': '°'}
+              'wind_direction': '°',
+              'battery': "V"}
     
 
     fig, axes = plt.subplots(nrows=4, ncols=len(lighthouse.keys()), sharex=True, sharey="row", constrained_layout=True)
@@ -459,7 +473,7 @@ def plot_lighthouse_timeseries(lighthouse, status):
         axes_lighthouse[0].set_title(lighthouse[l].station_name)
             
         for i, ax in enumerate(axes_lighthouse):
-            if plot_variables[i] == "wind_direction":
+            if i == len(plot_variables.keys())-1:
                 ax.scatter(lighthouse[l].data['local_time'], lighthouse[l].data["wind_direction"], s=3, color=plot_colors['wind_direction'])
                 ax.set_xlim((lighthouse[l].data['local_time'][0], lighthouse[l].data['local_time'][-1]+datetime.timedelta(hours=future_time_plot[status])))
                 ax.set_ylim((0., 360.))

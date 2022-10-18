@@ -15,6 +15,7 @@ import copy
 import pandas as pd
 from collections import deque
 from io import StringIO
+from pyproj import Proj
 
 import matplotlib.pyplot as plt
 
@@ -24,7 +25,7 @@ class mobile_AWS():
                         resolution="1min",                # temporal resolution of the data
                         starttime="202104090800",         # INPUT Define start- and end-points in time for retrieving the data
                         endtime="202104091800",           # Format: YYYYmmddHHMM
-                        variables=['temperature', 'pressure', 'relative_humidity', 'wind_speed', 'wind_speed_raw', 'wind_direction_raw', 'wind_direction', 'latitude', 'longitude'],
+                        variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_speed_raw', 'wind_direction_raw', 'wind_direction', 'latitude', 'longitude'],
                         file_type="nc", total_time=datetime.timedelta(days=1), path=False
                         ):
 
@@ -131,7 +132,7 @@ class mobile_AWS():
 
             df_data = df_data.rename({"temperature": 'temperature',
                                 "temperature_Avg": 'temperature_Avg',
-                                "air_pressure_Avg": 'pressure',
+                                "air_pressure_Avg": 'air_pressure',
                                 "relative_humidity": 'relative_humidity',
                                 "relative_humidity_Avg": 'relative_humidity_Avg',
                                 "dewpoint_temperature_Avg": 'dewpoint',
@@ -259,8 +260,8 @@ class mobile_AWS():
         """
         Method to correct the wind speed and correction for the motion of the boats.
         """
-        
-        x, y, _, _ = utm.from_latlon(self.data["latitude"], self.data["longitude"])
+        myProj = Proj("+proj=utm +zone=33 +north +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+        x, y = myProj(self.data["longitude"], self.data["latitude"])
         boat_u = np.gradient(x)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
         boat_v = np.gradient(y)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
         boat_speed = self.data["GPS_speed"] 
@@ -287,8 +288,8 @@ class mobile_AWS():
         
         self.data["wind_speed"][~np.isfinite(self.data["wind_speed"])] = np.nan
         self.data["wind_direction"][~np.isfinite(self.data["wind_direction"])] = np.nan
-        if self.station == 1924:
-            self.data["wind_direction"][boat_speed <= threshold] = np.nan
+        # if self.station == 1924:
+        #     self.data["wind_direction"][boat_speed <= threshold] = np.nan
         
         return
 
@@ -319,7 +320,7 @@ class mobile_AWS():
 
         e = 0.01*self.data['relative_humidity']*(6.112 * np.exp((17.62*self.data['temperature'])/(243.12+self.data['temperature'])))
 
-        self.data['specific_humidity'] = 1000.*(0.622*e)/(self.data['pressure']-0.378*e)
+        self.data['specific_humidity'] = 1000.*(0.622*e)/(self.data['air_pressure']-0.378*e)
         self.variables.append('specific_humidity')
 
         return

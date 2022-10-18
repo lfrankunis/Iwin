@@ -33,13 +33,13 @@ def next_wakeup():
 
 # define for which stations the program should run
 mobile_switches = {1883: True, 
-                   1872: True,
+                   1872: False,
                    1924: True}
 
 lighthouse_switches = {1885: True,
                        1884: True,
-                       1886: False,
-                       1887: False}
+                       1886: True,
+                       1887: True}
 
 # define path to the data folder
 path = "C:/Data/"
