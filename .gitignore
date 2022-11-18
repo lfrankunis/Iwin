@@ -1,4 +1,4 @@
 
 *.pyc
 
-./path_config.yaml
+config_paths.yaml
