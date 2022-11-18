@@ -34,7 +34,7 @@ days_to_process = [str(i) for i in sys.argv[1:]]
 
 
 # define path to the data folder
-with open("./path_config.yaml", "r") as f:
+with open("./config_paths.yaml", "r") as f:
     paths = yaml.safe_load(f)
     
 

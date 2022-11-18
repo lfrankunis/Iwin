@@ -41,7 +41,7 @@ class mobile_AWS():
         self.station = station
 
         if not path:
-            with open("./path_config.yaml", "r") as f:
+            with open("./config_paths.yaml", "r") as f:
                 paths = yaml.safe_load(f)
             self.path = paths['local_data']
         else:
