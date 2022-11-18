@@ -48,7 +48,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     
 
     # define constants
-    with open("./config_paths.yaml", "r") as f:
+    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
         paths = yaml.safe_load(f)
     
     

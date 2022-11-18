@@ -43,7 +43,7 @@ lighthouse_switches = {1885: True,
                        1887: True}
 
 # define path to the data folder
-with open("./config_paths.yaml", "r") as f:
+with open("./config_paths.yaml", "r", encoding='utf-8') as f:
     paths = yaml.safe_load(f)
 
 # define resolution of output files (daily files/hourly files/minute files)
