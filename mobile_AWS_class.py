@@ -16,6 +16,7 @@ import pandas as pd
 from collections import deque
 from io import StringIO
 from pyproj import Proj
+import yaml
 
 import matplotlib.pyplot as plt
 
@@ -41,16 +42,12 @@ class mobile_AWS():
         self.station = station
 
         if not path:
-            # determine path to data files depending on system
-            if sys.platform == 'linux':
-                if os.path.isdir("/media/lukas/ACSI/Data/mobile_AWS/"):
-                    self.path = "/media/lukas/ACSI/Data/mobile_AWS/"
-                else:
-                    self.path = "/media/lukas/ACSI_backup/Data/mobile_AWS/"
-            elif sys.platform == "win32":
-                self.path = "D:/Data/mobile_AWS/"
+            with open("./path_config.yaml", "r") as f:
+                paths = yaml.safe_load(f)
+            self.path = paths['local_data']
         else:
             self.path = path
+            
 
         # Load all files needed
         self.data = self.read_mobile_AWS(day_vector.pop(0), file_type)

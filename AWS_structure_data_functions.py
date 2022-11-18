@@ -443,7 +443,7 @@ def export_json(df, out_path):
     return 
 
 
-def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3):
+def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3, path="C:/Users/unismet/OneDrive - Universitetssenteret på Svalbard AS/"):
     
     boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
     
@@ -503,9 +503,9 @@ def create_GIS_input_file(boats, lighthouses, met_stations, past_hours=3):
     df_total.rename({'temperature': "Temperature", 'air_pressure': "Pressure", 'relative_humidity': "Relative Humidity",
                      "wind_speed": "Wind Speed", "wind_direction": "Wind Direction"})
     
-    df_total.to_csv("C:/Users/unismet/OneDrive - Universitetssenteret på Svalbard AS/IWIN/GIS/latest_isfjorden_data.csv")
+    df_total.to_csv(f"{path}IWIN/GIS/latest_isfjorden_data.csv")
     
-    export_json(df_total, "C:/Users/unismet/OneDrive - Universitetssenteret på Svalbard AS/IWIN/GIS/latest_isfjorden_data.geojson")
+    export_json(df_total, f"{path}IWIN/GIS/latest_isfjorden_data.geojson")
     
     return
     

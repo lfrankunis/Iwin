@@ -37,7 +37,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     ## data path for before september
     # infile = "{p}mobile_AWS_{s}/raw_backups/mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution)
 
-    infile = "{p}mobile_AWS_{s}/mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution)
+    infile = "{p}mobile_AWS_{s}/mobile_AWS_{s}_Table_{r}_pre20220516.dat".format(p=path, s=station, r=resolution)
     outfile_ascii = "{p}mobile_AWS_{s}/{a}{b:02d}{c:02d}/ascii/{a}{b:02d}{c:02d}_mobile_AWS_{s}_Table_{r}.dat".format(p=path, s=station, r=resolution, a=from_time.year, b=from_time.month, c=from_time.day)
     outfile_nc = "{p}mobile_AWS_{s}/{a}{b:02d}{c:02d}/nc/{a}{b:02d}{c:02d}_mobile_AWS_{s}_Table_{r}.nc".format(p=path, s=station, r=resolution, a=from_time.year, b=from_time.month, c=from_time.day)
 
@@ -79,8 +79,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     # correct wind data for motion of the boat
     myProj = Proj("+proj=utm +zone=33 +north +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
     x, y = myProj(longitude, latitude)
-    boat_u = np.gradient(x)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
-    boat_v = np.gradient(y)/np.asarray(np.gradient(data["TIMESTAMP"].astype("datetime64[s]")), dtype=float)
+    boat_u = np.gradient(x)/np.asarray(np.gradient(data["TIMESTAMP"].values.astype("datetime64[s]")), dtype=float)
+    boat_v = np.gradient(y)/np.asarray(np.gradient(data["TIMESTAMP"].values.astype("datetime64[s]")), dtype=float)
     boat_speed = np.sqrt(boat_u**2. + boat_v**2.)
     boat_heading = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
 
@@ -404,7 +404,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         var.units = col_names["WS_ms_Max"]
         var[:] = data["WS_ms_Max"]
 
-        var = f.createVariable('wind_speed_vector_avg', 'f8', ('time',))
+        var = f.createVariable('wind_speed_vector_avg', 'f8', ('time',)) 
         var.long_name = "Vector_Average_Wind_Speed"
         var.units = col_names["WS_ms_S_WVT"]
         var[:] = data["WS_ms_S_WVT"]

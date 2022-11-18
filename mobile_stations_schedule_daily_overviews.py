@@ -14,6 +14,7 @@ import numpy as np
 import mobile_AWS_class
 import lighthouse_AWS_class
 import ftplib
+import yaml
 
 import multiprocessing as mp
 
@@ -47,7 +48,8 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     
 
     # define constants
-    path_data = "C:/Data/"
+    with open("./path_config.yaml", "r") as f:
+        paths = yaml.safe_load(f)
     
     
     lighthouses = {1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
@@ -57,7 +59,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     lighthouses_to_plot = [1884, 1885, 1886, 1887]
     
     boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924 : "MS_Bard_2"}
-    boats_to_plot = [1883, 1924]
+    boats_to_plot = []
     
     status = "overview"
     
@@ -82,7 +84,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
                                             starttime=start_time, endtime=latest_update_time,
                                             variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction', 'wind_speed_raw',
                                                        'wind_direction_raw', 'latitude', 'longitude', "GPS_speed", "GPS_heading", "compass_heading"],
-                                            file_type=file_type, path=path_data)
+                                            file_type=file_type, path=paths["local_data"])
     
         boat[b].filter_GPScoverage()
         boat[b].masks_for_harbors()
@@ -102,7 +104,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
         lighthouse[l] = lighthouse_AWS_class.lighthouse_AWS(station=l, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
                                             variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
-                                            file_type="raw", path=path_data)
+                                            file_type="raw", path=paths["local_data"])
         
         lighthouse[l].calculate_windvector_components()
         lighthouse[l].calculate_wind_sector()
@@ -125,7 +127,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
         plot_boat_timeseries(boat[b], fig, gs, status)
         
         if for_website:
-            local_output_path = "C:/Users/unismet/Desktop/daily_overview_plot_{b}.png".format(b=boat[b].boat_name)
+            local_output_path = f"{paths['local_desktop']}daily_overview_plot_{boat[b].boat_name}.png"
         
             plt.savefig(local_output_path)
             plt.close("all")
@@ -133,7 +135,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
             upload_picture(local_output_path, os.path.basename(local_output_path))
             
         else:
-            local_output_path = "C:/Users/unismet/Desktop/{b}_{d}.png".format(b=boat[b].boat_name, d=(update_time-datetime.timedelta(days=1)).strftime("%Y%m%d"))
+            local_output_path = f"{paths['local_desktop']}{boat[b].boat_name}_{(update_time-datetime.timedelta(days=1)).strftime('%Y%m%d')}.png"
         
             plt.savefig(local_output_path)
             plt.close("all")
@@ -142,7 +144,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
     plot_lighthouse_timeseries(lighthouse, status)
     
     if for_website:
-        local_output_path = "C:/Users/unismet/Desktop/daily_overview_plot_lighthouses.png"
+        local_output_path = f"{paths['local_desktop']}daily_overview_plot_lighthouses.png"
     
         plt.savefig(local_output_path)
         plt.close("all")
@@ -150,7 +152,7 @@ def update_overview_plot(update_time, file_type="raw", for_website=True):
         upload_picture(local_output_path, os.path.basename(local_output_path))
         
     else:
-        local_output_path = "C:/Users/unismet/Desktop/lighthouses_{d}.png".format(d=(update_time-datetime.timedelta(days=1)).strftime("%Y%m%d"))
+        local_output_path = f"{paths['local_desktop']}lighthouses_{(update_time-datetime.timedelta(days=1)).strftime('%Y%m%d')}.png"
     
         plt.savefig(local_output_path)
         plt.close("all")

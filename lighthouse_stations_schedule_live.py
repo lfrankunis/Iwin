@@ -12,6 +12,7 @@ from plot_functions import plot_lighthouse_timeseries
 import matplotlib.pyplot as plt
 import lighthouse_AWS_class
 import ftplib
+import yaml
 
 import multiprocessing as mp
 
@@ -42,7 +43,8 @@ def next_wakeup():
 def update_all_plots(update_time):
     
     # define constants
-    path_data = "C:/Data/"
+    with open("./path_config.yaml", "r") as f:
+        paths = yaml.safe_load(f)
 
 
     lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
@@ -71,7 +73,7 @@ def update_all_plots(update_time):
         lighthouse[l] = lighthouse_AWS_class.lighthouse_AWS(station=l, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
                                             variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction', "battery"],
-                                            file_type="raw", path=path_data)
+                                            file_type="raw", path=paths["local_data"])
     
         lighthouse[l].calculate_windvector_components()
         lighthouse[l].calculate_wind_sector()
@@ -91,7 +93,7 @@ def update_all_plots(update_time):
 
     plot_lighthouse_timeseries(lighthouse, status)
 
-    local_output_path = "C:/Users/unismet/Desktop/liveplot_lighthouses.png"
+    local_output_path = f"{paths['local_desktop']}liveplot_lighthouses.png"
     
     plt.savefig(local_output_path)
     plt.close("all")

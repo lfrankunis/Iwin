@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import mobile_AWS_class
 import lighthouse_AWS_class
 import ftplib
+import yaml
 from AWS_structure_data_functions import create_GIS_input_file
 
 import multiprocessing as mp
@@ -45,7 +46,8 @@ def next_wakeup():
 def update_all_plots(update_time):
     
     # define constants
-    path_data = "C:/Data/"
+    with open("./path_config.yaml", "r") as f:
+        paths = yaml.safe_load(f)
 
 
     lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
@@ -56,7 +58,7 @@ def update_all_plots(update_time):
     lighthouses_to_plot = [1884, 1885, 1886, 1887]
 
     boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Bard_2"}
-    boats_to_plot = [1883, 1924]
+    boats_to_plot = []
     
     MET_stations_to_plot = ["LYR", "IR", "PYR", "NS"]
 
@@ -85,7 +87,7 @@ def update_all_plots(update_time):
                                             starttime=start_time, endtime=latest_update_time,
                                             variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction',
                                                        "wind_speed_raw", "wind_direction_raw", 'latitude', 'longitude', "GPS_speed", "GPS_heading", "compass_heading"],
-                                            file_type="raw", path=path_data)
+                                            file_type="raw", path=paths["local_data"])
         
         boat[b].only_latest_data(datetime.timedelta(hours=12))
         boat[b].filter_GPScoverage()
@@ -107,7 +109,7 @@ def update_all_plots(update_time):
         lighthouse[l] = lighthouse_AWS_class.lighthouse_AWS(station=l, resolution="1min",
                                             starttime=start_time, endtime=latest_update_time,
                                             variables=['temperature', 'air_pressure', 'relative_humidity', 'wind_speed', 'wind_direction'],
-                                            file_type="raw", path=path_data)
+                                            file_type="raw", path=paths["local_data"])
     
         lighthouse[l].calculate_windvector_components()
         lighthouse[l].calculate_wind_sector()
@@ -142,7 +144,7 @@ def update_all_plots(update_time):
             plot_MET_station_on_map(m, met_stations[m], ax_map, sc_map)
         plot_boat_timeseries(boat[b], fig, gs, status)
         
-        local_output_path = "C:/Users/unismet/Desktop/liveplot_{b}.png".format(b=boat[b].boat_name)
+        local_output_path = f"{paths['local_desktop']}liveplot_{b}.png".format(b=boat[b].boat_name)
         
         plt.savefig(local_output_path)
         plt.close("all")
@@ -163,7 +165,7 @@ def update_all_plots(update_time):
     if len(boats_to_plot) > 0:
         combined_legend_positions(ax_map, boat, boat_names) # combined legend
     
-    local_output_path = "C:/Users/unismet/Desktop/liveplot_overview_map.png"
+    local_output_path = f"{paths['local_desktop']}liveplot_overview_map.png"
     
     plt.savefig(local_output_path)
     plt.close("all")
@@ -171,7 +173,7 @@ def update_all_plots(update_time):
     upload_picture(local_output_path, os.path.basename(local_output_path))
     
     
-    create_GIS_input_file(boat, lighthouse, met_stations, past_hours=3)
+    create_GIS_input_file(boat, lighthouse, met_stations, past_hours=3, path=paths['onedrive'])
     
     
         

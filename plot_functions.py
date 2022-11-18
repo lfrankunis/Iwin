@@ -49,6 +49,8 @@ def initialize_halfpage_map():
     ax_map.annotate("Pyramiden", (settlements['PYR']['lon'], settlements['PYR']['lat']), xytext=(settlements['PYR']['lon']+0.06, settlements['PYR']['lat']+0.02), ha="left", xycoords=transform, zorder=21)
     ax_map.annotate("Barentsburg", (settlements['BB']['lon'], settlements['BB']['lat']), xytext=(settlements['BB']['lon']+0.1, settlements['BB']['lat']-0.02),  ha="left", xycoords=transform, zorder=21)
 
+    ax_map.text(0.98, 0.97, datetime.date.today().strftime("%d. %b %Y"), transform=ax_map.transAxes, verticalalignment='top', horizontalalignment="right", bbox=dict(boxstyle='round', facecolor='none', alpha=0., edgecolor="k"))
+
 
     return([fig, gs, ax_map, sc_map])
 
@@ -80,6 +82,7 @@ def initialize_fullpage_map():
     ax_map.annotate("Pyramiden", (settlements['PYR']['lon'], settlements['PYR']['lat']), xytext=(settlements['PYR']['lon']+0.06, settlements['PYR']['lat']+0.02), ha="left", xycoords=transform, zorder=21)
     ax_map.annotate("Barentsburg", (settlements['BB']['lon'], settlements['BB']['lat']), xytext=(settlements['BB']['lon']+0.1, settlements['BB']['lat']-0.02),  ha="left", xycoords=transform, zorder=21)
 
+    ax_map.text(0.98, 0.97, datetime.date.today().strftime("%d. %b %Y"), transform=ax_map.transAxes, verticalalignment='top', horizontalalignment="right", bbox=dict(boxstyle='round', facecolor='none', alpha=0., edgecolor="k"))
 
     return([fig, False, ax_map, sc_map])
 
