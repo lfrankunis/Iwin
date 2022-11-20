@@ -57,7 +57,7 @@ def update_all_plots(update_time):
     
     lighthouses_to_plot = [1884, 1885, 1886, 1887]
 
-    boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Bard_2"}
+    boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
     boats_to_plot = []
     
     MET_stations_to_plot = ["LYR", "IR", "PYR", "NS"]

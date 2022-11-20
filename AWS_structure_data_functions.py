@@ -36,10 +36,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     threshold = 0.25
 
     if from_time < datetime.datetime(2022,5,17):
-        infile = f"{path_in}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_pre20220516.dat"
+        infile = f"{path_in}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
     else:
-        infile = f"{path_in}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}.dat"
-    outfile_nc = f"{path_out}mobile_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}/{from_time.year}{from_time.month:02d}{from_time.day:02d}_mobile_AWS_{station}_Table_{resolution}.nc"
+        infile = f"{path_in}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
+    outfile_nc = f"{path_out}mobile_AWS_{station}/{resolution}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -68,23 +68,20 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                      'Sensor_Dewpoint': 'dewpoint_temperature',
                      'Barometric_Pressure': 'air_pressure',
                      'GPS_Location': 'GPS_location',
-                     'BattV': 'battery_voltage',
-                     'PTemp_C': 'panel_temperature',
-                     'Sensor_status': "sensor_status",
-                     'Sensor_Supply_volt_Min': 'sensor_supply_voltage'}
+                     'Sensor_status': "sensor_status"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
         data.rename(new_names, axis=1, inplace=True)
         data.drop(columns=cols_to_drop, inplace=True)
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01 00:00:00", 'battery_voltage': "V", 'panel_temperature': 'degree_C', "sensor_supply_voltage": "V", 'wind_speed_raw_Avg': "m s-1",
+        "units": {'time': "seconds since 1970-01-01 00:00:00", 'wind_speed_raw_Avg': "m s-1",
                   'wind_direction_raw_Avg': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
                   'wind_speed_corrected_Avg': "m s-1", 'wind_direction_corrected_Avg': "degree", 'wind_direction_corrected_Std': "degree", 'wind_speed_corrected_Max': "m s-1",
                   'temperature': "degree_C", 'temperature_Max': "degree_C", 'temperature_Min': "degree_C",
                   'relative_humidity': "percent", 'relative_humidity_Max': "percent", 'relative_humidity_Min': "percent",
                   'dewpoint_temperature': "degree_C", 'air_pressure': "hPa",
                   'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'altitude': "m"},
-        "long_names" : {'time': "UTC time", 'battery_voltage': "battery voltage", 'panel_temperature': "panel temperature", 'sensor_status': "sensor status", 'sensor_supply_voltage': "sensor supply voltage",
+        "long_names" : {'time': "UTC time", 'sensor_status': "sensor status",
                         'wind_speed_raw_Avg': "raw wind speed averaged over the sampling interval",
                         'wind_direction_raw_Avg': "raw wind direction averaged over the sampling interval",
                         'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
@@ -99,9 +96,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                         'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
                         'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS"},
         "standard_names": {'time': "time", 'sensor_status': "status_flag", 'wind_speed_raw_Avg': "wind_speed", 'wind_direction_raw_Avg': "wind_from_direction",
-                           'wind_direction_raw_Std': "wind_from_direction", 'wind_speed_raw_Max': "wind_speed", 
+                           'wind_speed_raw_Max': "wind_speed", 
                            'wind_speed_corrected_Avg': "wind_speed", 'wind_direction_corrected_Avg': "wind_from_direction",
-                           'wind_direction_corrected_Std': "wind_from_direction", 'wind_speed_corrected_Max': "wind_speed",
+                           'wind_speed_corrected_Max': "wind_speed",
                            'temperature': "air_temperature", 'temperature_Max': "air_temperature", 'temperature_Min': "air_temperature",
                            'relative_humidity': 'relative_humidity', 'relative_humidity_Max': 'relative_humidity', 'relative_humidity_Min': 'relative_humidity',
                            'dewpoint_temperature': "dew_point_temperature",
@@ -109,21 +106,22 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                            'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude"}}
         
     else:
-        new_names = {"TIMESTAMP": "time",
-                     'BattV_Min': 'battery_voltage',
-                     'PTemp_C': 'panel_temperature'}
+        new_names = {"TIMESTAMP": "time"}
         data.rename(new_names, axis=1, inplace=True)
-        data.drop(columns=['RECORD'], inplace=True)
+        if resolution == "10min":
+            data.drop(columns=['RECORD', 'BattV_Min', 'PTemp_C'], inplace=True)
+        else:
+            data.drop(columns=['RECORD'], inplace=True)
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01 00:00:00", 'battery_voltage': "V", 'panel_temperature': 'degree_C', 'wind_speed_raw_Avg': "m s-1",
+        "units": {'time': "seconds since 1970-01-01 00:00:00", 'wind_speed_raw_Avg': "m s-1",
                   'wind_direction_raw_Avg': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1", 'wind_speed_raw': "m s-1",
                   'wind_direction_raw': "degree", 'wind_speed_corrected_Avg': "m s-1", 'wind_direction_corrected_Avg': "degree", 'wind_direction_corrected_Std': "degree",
                   'wind_speed_corrected_Max': "m s-1", 'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'temperature': "degree_C",
                   'temperature_Avg': "degree_C", 'relative_humidity': "percent", 'relative_humidity_Avg': "percent", 'dewpoint_temperature_Avg': "degree_C", 'air_pressure_Avg': "hPa",
                   'GPS_heading': "degree", 'GPS_speed': "m s-1", 'compass_heading': "degree", 'latitude': "degree_N", 'longitude': "degree_E", 'altitude': "m"},
         
-        "long_name" : {'time': "UTC time", 'battery_voltage': "battery voltage", 'panel_temperature': "panel temperature", 'sensor_status': "sensor status",
+        "long_name" : {'time': "UTC time", 'sensor_status': "sensor status",
                         'wind_speed_raw_Avg': "raw wind speed averaged over the sampling interval",
                         'wind_direction_raw_Avg': "raw wind direction averaged over the sampling interval",
                         'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
@@ -143,9 +141,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                         'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS"},
         
         "standard_name": {'time': "time", 'sensor_status': "status_flag", 'wind_speed_raw_Avg': "wind_speed", 'wind_direction_raw_Avg': "wind_from_direction",
-                           'wind_direction_raw_Std': "wind_from_direction", 'wind_speed_raw_Max': "wind_speed", 'wind_speed_raw': "wind_speed",
+                           'wind_speed_raw_Max': "wind_speed", 'wind_speed_raw': "wind_speed",
                            'wind_direction_raw': "wind_from_direction", 'wind_speed_corrected_Avg': "wind_speed", 'wind_direction_corrected_Avg': "wind_from_direction",
-                           'wind_direction_corrected_Std': "wind_from_direction", 'wind_speed_corrected_Max': "wind_speed", 'wind_speed_corrected': "wind_speed",
+                           'wind_speed_corrected_Max': "wind_speed", 'wind_speed_corrected': "wind_speed",
                            'wind_direction_corrected': "wind_from_direction", 'temperature': "air_temperature", 'temperature_Avg': "air_temperature",
                            'relative_humidity': 'relative_humidity', 'relative_humidity_Avg': 'relative_humidity', 'dewpoint_temperature_Avg': "dew_point_temperature",
                            'air_pressure_Avg': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
@@ -189,7 +187,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     x, y = myProj(longitude, latitude)
     boat_u = np.gradient(x)/np.asarray(np.gradient(data["time"].values.astype("datetime64[s]")), dtype=float)
     boat_v = np.gradient(y)/np.asarray(np.gradient(data["time"].values.astype("datetime64[s]")), dtype=float)
-    if from_time < datetime.datetime(2022,5,7):
+    if from_time < datetime.datetime(2022,5,17):
         data["GPS_speed"]  = np.sqrt(boat_u**2. + boat_v**2.)
         data["GPS_heading"] = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
 
@@ -250,7 +248,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     ds = data.to_xarray()
     for vari in list(ds.variables):
-        if vari != 'sensor_status':
+        if vari == "time":
+            ds[vari] = ds[vari].astype('float64', keep_attrs=True)
+        elif vari != 'sensor_status':
             ds[vari] = ds[vari].astype('float32', keep_attrs=True)
         attris = {}
         for a, d in variable_attributes.items():
@@ -262,11 +262,58 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         
         
     # Assign global attributes
-    global_attributes = {"institution": "The University Centre in Svalbard (UNIS)",
-                          "project": "IWIN: Isfjorden Weather Information Network",
-                          "license": "https://creativecommons.org/licenses/by/4.0/",
-                          "principal_investigator": "Lukas Frank",
-                          }
+    dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    
+    if ((station == "1924") & (from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
+        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1924": {"name": "MS Bard", "installation":  datetime.datetime(2022,3,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+    else:
+        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1924": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+        
+    
+    global_attributes = {"boat": boat_names[station]['name'],
+        "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} measured onboard {boat_names[station]['name']} in Isfjorden, Svalbard.",
+        "summary": "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. The raw data is only filtered for obviously wrong GPS positions, otherwise the data is made available as is. Wind speed and wind direction are corrected for the horizontal movements of the boat using GPS data.",
+        "keywords": "EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>AIR TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>DEW POINT TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WATER VAPOR>WATER VAPOR INDICATORS>HUMIDITY>RELATIVE HUMIDITY, \
+            EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND DIRECTION, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND SPEED, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC PRESSURE>SURFACE PRESSURE, \
+            ACADEMIC>UNIS, GEOGRAPHIC REGION>POLAR, CONTINENT>EUROPE>NORTHERN EUROPE>SCANDINAVIA>NORWAY, \
+            IN SITU/LABORATORY INSTRUMENTS>CURRENT/WIND METERS>SONIC ANEMOMETER, IN SITU/LABORATORY INSTRUMENTS>PRESSURE/HEIGHT METERS>PRESSURE SENSORS, \
+            IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>TEMPERATURE SENSORS, IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>HUMIDITY SENSORS",
+        "keywords_vocabulary": 'GCMD Science Keywords',
+        "naming_authority": "NMDC",
+        "data_type": "netCDF-4",
+        "feature_type": "Time Series",
+        "geospatial_lat_min": 78.,
+        "geospatial_lat_max": 79.,
+        "geospatial_lon_min": 12.,
+        "geospatial_lon_max": 18.,
+        "area": "Svalbard, Isfjorden",
+        "time_coverage_start": boat_names[station]["installation"],
+        "time_coverage_end": "present",
+        "Conventions": "CF-1.6, ACDD-1.3",
+        'date_created': dtnow,
+        'history': f'File created at {dtnow} using xarray in Python3.',
+        "processing_level": "raw, only filtered for obviously wrong GPS positions, wind speed and direction corrected for horizontal movement of boat",
+        "creator_type": "group",
+        "creator_institution": "The University Centre in Svalbard",
+        "creator_name": "L. Frank, F. Schalamon, A. Stenlund, M. O. Jonassen",
+        "creator_email": "lukasf@unis.no",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967, F. Schalamon, A. Stenlund, https://orcid.org/0000-0002-4745-9009",
+        "institution": "The University Centre in Svalbard (UNIS)",
+        "project": "IWIN: Isfjorden Weather Information Network",
+        "source": "Gill MaxiMet GMX 500",
+        "platform": f"WATER-BASED PLATFORMS>VESSELS>SURFACE>{boat_names[station]['name']}",
+        "instrument_type": "Gill MaxiMet GMX 500",
+        "license": "https://creativecommons.org/licenses/by/4.0/",
+        "iso_topic_category": "atmosphere",
+        "principal_investigator": "L. Frank",
+        "publisher_name": "???",
+        "publisher_url": "???",
+        "publisher_email": "???",
+        "id": "???"}
     
     for a, value in global_attributes.items():
         ds.attrs[a] = value
@@ -299,10 +346,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     """
 
     if from_time < datetime.datetime(2022,5,8):
-        infile = f"{path_in}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_pre20220507.dat"
+        infile = f"{path_in}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
     else:
         infile = f"{path_in}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}.dat"
-    outfile_nc = f"{path_out}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}/{from_time.year}{from_time.month:02d}{from_time.day:02d}_lighthouse_AWS_{station}_Table_{resolution}.nc"
+    outfile_nc = f"{path_out}lighthouse_AWS_{station}/{resolution}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -312,29 +359,39 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     ind = np.where((time_avail >= from_time) & (time_avail < to_time))[0]
     data = pd.read_csv(infile, header=3+ind[0], nrows=len(ind), sep=",", na_values="NAN", names=list(col_names.keys()))
     
+    if ((station == "1887") & (from_time < datetime.datetime(2022,11,6))):
+        data['wind_direction_Avg'] -= 65.
+    
     if from_time < datetime.datetime(2022,5,8):
-        new_names = {'TIMESTAMP': "time", 'BattV_Min': "battery_voltage", 'PTemp_C': "panel_temperature",
-                     'BP_mbar': "air_pressure", 'BP_mbar_Avg': "air_pressure_Avg",
-                     'RH': "relative_humidity", 'RH_Avg': "relative_humidity_Avg",
-                     'AirT_C': "air_temperature", 'AirT_C_Min': "air_temperature_Min",
-                     'AirT_C_Max': "air_temperature_Max", 'DP_C': "dew_point_temperature",
+        new_names = {'TIMESTAMP': "time",
+                     'BP_mbar': "air_pressure",
+                     'BP_mbar_Avg': "air_pressure_Avg",
+                     'RH': "relative_humidity",
+                     'RH_Avg': "relative_humidity_Avg",
+                     'AirT_C': "air_temperature",
+                     'AirT_C_Min': "air_temperature_Min",
+                     'AirT_C_Max': "air_temperature_Max",
+                     'DP_C': "dew_point_temperature",
                      'WS_ms': "wind_speed",
-                     'WS_ms_Min': "wind_speed_Min", 'WS_ms_Max': "wind_speed_Max",
-                     'WindDir': "wind_direction", 'WS_ms_S_WVT': "wind_speed_Avg",
-                     'WindDir_D1_WVT': "wind_direction_Avg", 'WindDir_SD1_WVT': "wind_direction_Std",
+                     'WS_ms_Min': "wind_speed_Min",
+                     'WS_ms_Max': "wind_speed_Max",
+                     'WindDir': "wind_direction",
+                     'WS_ms_S_WVT': "wind_speed_Avg",
+                     'WindDir_D1_WVT': "wind_direction_Avg",
+                     'WindDir_SD1_WVT': "wind_direction_Std",
                      'MetSENS_Status': "sensor_status"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
         data.rename(new_names, axis=1, inplace=True)
         data.drop(columns=cols_to_drop, inplace=True)
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01 00:00:00", 'battery_voltage': "V", 'panel_temperature': "degree_C",
+        "units": {'time': "seconds since 1970-01-01 00:00:00",
                   'air_pressure': "hPa", 'air_pressure_Avg': "hPa", 'relative_humidity': "percent", 'relative_humidity_Avg': "percent",
                   'air_temperature': "degree_C", 'air_temperature_Min': "degree_C", 'air_temperature_Max': "degree_C", 'dew_point_temperature': "degree_C",
                   'wind_speed': "m s-1", 'wind_speed_Min': "m s-1", 'wind_speed_Max': "m s-1", 'wind_direction': "degree", 'wind_speed_Avg': "m s-1",
                   'wind_direction_Avg': "degree", 'wind_direction_Std': "degree"},
         
-        "long_name": {'time': "UTC time", 'battery_voltage': "battery voltage", 'panel_temperature': "panel temperature",
+        "long_name": {'time': "UTC time",
                       'air_pressure': "air pressure sampled at the respective timestamp", 'air_pressure_Avg': "air pressure averaged over the sampling interval",
                       'relative_humidity': "air relative humidity sampled at the respective timestamp",
                       'relative_humidity_Avg': "air relative humidity averaged over the sampling interval",
@@ -355,27 +412,24 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                           'air_temperature': "air_temperature", 'air_temperature_Min': "air_temperature", 'air_temperature_Max': "air_temperature",
                           'dew_point_temperature': "dew_point_temperature", 'wind_speed': "wind_speed",
                           'wind_speed_Min': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction",
-                          'wind_speed_Avg': "wind_speed", 'wind_direction_Avg': "wind_from_direction", 'wind_direction_Std': "wind_from_direction",
+                          'wind_speed_Avg': "wind_speed", 'wind_direction_Avg': "wind_from_direction",
                           'sensor_status': "status_flag"}}
         
     else:
         new_names = {"TIMESTAMP": "time",
-                     'BattV_Min': 'battery_voltage',
-                     'PTemp_C': 'panel_temperature',
                      'MetSENS_Status': 'sensor_status'}
         data.rename(new_names, axis=1, inplace=True)
-        data.drop(columns=['RECORD'], inplace=True)
+        data.drop(columns=['RECORD', 'BattV_Min', 'PTemp_C'], inplace=True)
         
         variable_attributes = {
         "units": {'time': "seconds since 1970-01-01 00:00:00", 'wind_speed_Avg': "m s-1", 'wind_direction_Avg': "degree", 'wind_direction_Std': "degree",
-                  'wind_speed_Max': "m s-1", 'battery_voltage': "V", 'panel_temperature': "degree_C", 'air_pressure_Avg': "hPa",
+                  'wind_speed_Max': "m s-1", 'air_pressure_Avg': "hPa",
                   'relative_humidity_Avg': "percent", 'temperature_Avg': "degree_C", 'dewpoint_temperature_Avg': "degree_C"},
         
         "long_name": {'time': "UTC time", 'wind_speed_Avg': "wind speed averaged over the sampling interval", "sensor_status": "sensor status",
                       'wind_direction_Avg': "wind direction averaged over the sampling interval",
                       'wind_direction_Std': "standard deviation of the wind sdirection during the sampling interval",
                       'wind_speed_Max': "maximum wind speed during the sampling interval",
-                      'battery_voltage': "battery voltage", 'panel_temperature': "panel temperature",
                       'air_pressure_Avg': "air pressure averaged over the sampling interval",
                       'relative_humidity_Avg': "air relative humidity averaged over the sampling interval",
                       'temperature_Avg': "air temperature averaged over the sampling interval",
@@ -393,7 +447,9 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     
     ds = data.to_xarray()
     for vari in list(ds.variables):
-        if vari != 'sensor_status':
+        if vari == "time":
+            ds[vari] = ds[vari].astype('float64', keep_attrs=True)
+        elif vari != 'sensor_status':
             ds[vari] = ds[vari].astype('float32', keep_attrs=True)
         attris = {}
         for a, d in variable_attributes.items():
@@ -405,11 +461,56 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         
         
     # Assign global attributes
-    global_attributes = {"institution": "The University Centre in Svalbard (UNIS)",
-                          "project": "IWIN: Isfjorden Weather Information Network",
-                          "license": "https://creativecommons.org/licenses/by/4.0/",
-                          "principal_investigator": "Lukas Frank",
-                          }
+    dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    
+    lighthouses = {"1884": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "installation": datetime.datetime(2022,6,18,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                   "1885": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "installation": datetime.datetime(2021,8,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                   "1886": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "installation": datetime.datetime(2022,6,28,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                   "1887": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "installation": datetime.datetime(2022,9,3,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+    
+    global_attributes = {"location": lighthouses[station]["name"],
+        "latitude": lighthouses[station]["lat"],
+        "longitude": lighthouses[station]["lon"],
+        "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} at {lighthouses[station]['name']} in Isfjorden, Svalbard.",
+        "summary": "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. The raw data is only filtered for obviously wrong values, otherwise the data is made available as is.",
+        "keywords": "EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>AIR TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>DEW POINT TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WATER VAPOR>WATER VAPOR INDICATORS>HUMIDITY>RELATIVE HUMIDITY, \
+            EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND DIRECTION, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND SPEED, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC PRESSURE>SURFACE PRESSURE, \
+            ACADEMIC>UNIS, GEOGRAPHIC REGION>POLAR, CONTINENT>EUROPE>NORTHERN EUROPE>SCANDINAVIA>NORWAY, \
+            IN SITU/LABORATORY INSTRUMENTS>CURRENT/WIND METERS>SONIC ANEMOMETER, IN SITU/LABORATORY INSTRUMENTS>PRESSURE/HEIGHT METERS>PRESSURE SENSORS, \
+            IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>TEMPERATURE SENSORS, IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>HUMIDITY SENSORS",
+        "keywords_vocabulary": 'GCMD Science Keywords',
+        "naming_authority": "NMDC",
+        "data_type": "netCDF-4",
+        "feature_type": "Time Series",
+        "geospatial_lat_min": 78.,
+        "geospatial_lat_max": 79.,
+        "geospatial_lon_min": 12.,
+        "geospatial_lon_max": 18.,
+        "area": "Svalbard, Isfjorden",
+        "time_coverage_start": lighthouses[station]["installation"],
+        "time_coverage_end": "present",
+        "Conventions": "CF-1.6, ACDD-1.3",
+        'date_created': dtnow,
+        'history': f'File created at {dtnow} using xarray in Python3.',
+        "processing_level": "raw, filtered for obviously wrong measurements",
+        "creator_type": "group",
+        "creator_institution": "The University Centre in Svalbard",
+        "creator_name": "L. Frank, F. Schalamon, A. Stenlund, M. O. Jonassen",
+        "creator_email": "lukasf@unis.no",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967, F. Schalamon, A. Stenlund, https://orcid.org/0000-0002-4745-9009",
+        "institution": "The University Centre in Svalbard (UNIS)",
+        "project": "IWIN: Isfjorden Weather Information Network",
+        "source": "Campbell Scientific METSENS 500",
+        "platform": "LAND-BASED PLATFORMS>PERMANENT LAND SITES>METEOROLOGICAL STATIONS, LAND-BASED PLATFORMS>PERMANENT LAND SITES>COASTAL STATIONS",
+        "platform_vocabulary": 'GCMD Science Keywords',
+        "instrument_type": "Campbell Scientific METSENS 500",
+        "license": "https://creativecommons.org/licenses/by/4.0/",
+        "iso_topic_category": "atmosphere",
+        "principal_investigator": "L. Frank",
+        "publisher_name": "???",
+        "publisher_url": "???",
+        "publisher_email": "???",
+        "id": "???"}
     
     for a, value in global_attributes.items():
         ds.attrs[a] = value

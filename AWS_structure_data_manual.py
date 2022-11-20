@@ -19,8 +19,8 @@ mobile_switches = {1883: False,
                    1872: False,
                    1924: False}
 
-lighthouse_switches = {1885: True,
-                       1884: False,
+lighthouse_switches = {1884: False,
+                       1885: True,
                        1886: False,
                        1887: False}
 
@@ -67,32 +67,29 @@ for day in days_to_process:
         
     for station, switch in mobile_switches.items():
         if switch:
-        # create directories
-            os.mkdir(f"{paths['local_storage']}mobile_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}")
-    
             # call the function to restructure
             for res in mobile_resolutions:
                 try:
                     restructure_mobile_AWS(from_time, to_time, station=str(station), resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
+                    
+                    # shutil.copyfile(f"{paths['local_storage']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
+                    #                 f"{paths['harddrive']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
+                    
                 except FileNotFoundError:
                     pass
 
-            # shutil.copytree(f"{paths['local_storage']}mobile_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}",
-            #                 f"{paths['harddrive']}mobile_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}")
-    
+
 
     for station, switch in lighthouse_switches.items():
         if switch:
-            # create directories
-            os.mkdir(f"{paths['local_storage']}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}")
-    
             # call the function to restructure
             for res in lighthouse_resolutions:
                 try:
                     restructure_lighthouse_AWS(from_time, to_time, station=str(station), resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
+                    
+                    # shutil.copyfile(f"{paths['local_storage']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
+                    #                 f"{paths['harddrive']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
+                    
                 except FileNotFoundError:
                     pass
     
-            # shutil.copytree(f"{paths['local_storage']}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}",
-            #                 f"{paths['harddrive']}lighthouse_AWS_{station}/{from_time.year}{from_time.month:02d}{from_time.day:02d}")
-
