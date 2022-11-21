@@ -267,11 +267,11 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     if ((station == "1924") & (from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
         boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                       "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1924": {"name": "MS Bard", "installation":  datetime.datetime(2022,3,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+                      "1924": {"name": "MS Bard", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
     else:
         boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                       "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1924": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+                      "1924": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
         
     
     global_attributes = {"boat": boat_names[station]['name'],
@@ -301,7 +301,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "creator_institution": "The University Centre in Svalbard",
         "creator_name": "L. Frank, F. Schalamon, A. Stenlund, M. O. Jonassen",
         "creator_email": "lukasf@unis.no",
-        "creator_url": "https://orcid.org/0000-0003-1472-7967, F. Schalamon, A. Stenlund, https://orcid.org/0000-0002-4745-9009",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X, https://orcid.org/0000-0002-4745-9009",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "IWIN: Isfjorden Weather Information Network",
         "source": "Gill MaxiMet GMX 500",
@@ -368,9 +368,9 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                      'BP_mbar_Avg': "air_pressure_Avg",
                      'RH': "relative_humidity",
                      'RH_Avg': "relative_humidity_Avg",
-                     'AirT_C': "air_temperature",
-                     'AirT_C_Min': "air_temperature_Min",
-                     'AirT_C_Max': "air_temperature_Max",
+                     'AirT_C': "temperature",
+                     'AirT_C_Min': "temperature_Min",
+                     'AirT_C_Max': "temperature_Max",
                      'DP_C': "dew_point_temperature",
                      'WS_ms': "wind_speed",
                      'WS_ms_Min': "wind_speed_Min",
@@ -387,7 +387,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         variable_attributes = {
         "units": {'time': "seconds since 1970-01-01 00:00:00",
                   'air_pressure': "hPa", 'air_pressure_Avg': "hPa", 'relative_humidity': "percent", 'relative_humidity_Avg': "percent",
-                  'air_temperature': "degree_C", 'air_temperature_Min': "degree_C", 'air_temperature_Max': "degree_C", 'dew_point_temperature': "degree_C",
+                  'temperature': "degree_C", 'temperature_Min': "degree_C", 'temperature_Max': "degree_C", 'dew_point_temperature': "degree_C",
                   'wind_speed': "m s-1", 'wind_speed_Min': "m s-1", 'wind_speed_Max': "m s-1", 'wind_direction': "degree", 'wind_speed_Avg': "m s-1",
                   'wind_direction_Avg': "degree", 'wind_direction_Std': "degree"},
         
@@ -395,9 +395,9 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                       'air_pressure': "air pressure sampled at the respective timestamp", 'air_pressure_Avg': "air pressure averaged over the sampling interval",
                       'relative_humidity': "air relative humidity sampled at the respective timestamp",
                       'relative_humidity_Avg': "air relative humidity averaged over the sampling interval",
-                      'air_temperature': "air temperature sampled at the respective timestamp",
-                      'air_temperature_Min': "minimum air temperature during the sampling interval",
-                      'air_temperature_Max': "maximum air temperature during the sampling interval",
+                      'temperature': "air temperature sampled at the respective timestamp",
+                      'temperature_Min': "minimum air temperature during the sampling interval",
+                      'temperature_Max': "maximum air temperature during the sampling interval",
                       'dew_point_temperature': "air dewpoint temperature sampled at the respective timestamp",
                       'wind_speed': "wind speed sampled at the respective timestamp",
                       'wind_speed_Min': "minimum wind speed during the sampling interval",
@@ -409,7 +409,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                       'sensor_status': "sensor status"},
         "standard_name": {'time': "time", 'air_pressure': "air_pressure", 'air_pressure_Avg': "air_pressure",
                           'relative_humidity': "relative_humidity", 'relative_humidity_Avg': "relative_humidity",
-                          'air_temperature': "air_temperature", 'air_temperature_Min': "air_temperature", 'air_temperature_Max': "air_temperature",
+                          'temperature': "air_temperature", 'temperature_Min': "air_temperature", 'temperature_Max': "air_temperature",
                           'dew_point_temperature': "dew_point_temperature", 'wind_speed': "wind_speed",
                           'wind_speed_Min': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction",
                           'wind_speed_Avg': "wind_speed", 'wind_direction_Avg': "wind_from_direction",
@@ -440,6 +440,8 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                   'relative_humidity_Avg': "relative_humidity", 'temperature_Avg': "air_temperature", 'dewpoint_temperature_Avg': "dew_point_temperature"}}
         
 
+
+
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
 
@@ -465,7 +467,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     
     lighthouses = {"1884": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "installation": datetime.datetime(2022,6,18,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                    "1885": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "installation": datetime.datetime(2021,8,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                   "1886": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "installation": datetime.datetime(2022,6,28,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                   "1886": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "installation": datetime.datetime(2022,7,8,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                    "1887": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "installation": datetime.datetime(2022,9,3,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
     
     global_attributes = {"location": lighthouses[station]["name"],
@@ -497,7 +499,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "creator_institution": "The University Centre in Svalbard",
         "creator_name": "L. Frank, F. Schalamon, A. Stenlund, M. O. Jonassen",
         "creator_email": "lukasf@unis.no",
-        "creator_url": "https://orcid.org/0000-0003-1472-7967, F. Schalamon, A. Stenlund, https://orcid.org/0000-0002-4745-9009",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X, https://orcid.org/0000-0002-4745-9009",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "IWIN: Isfjorden Weather Information Network",
         "source": "Campbell Scientific METSENS 500",

@@ -59,13 +59,17 @@ for day in days_to_process:
     else:
         mobile_resolutions = ["10min", "1min", "20sec"]
         
-    if from_time < datetime.datetime(2022,5,8):
+    if ((from_time < datetime.datetime(2021,10,18)) | ((from_time >= datetime.datetime(2022,3,7)) & ((from_time < datetime.datetime(2022,5,8))))):
         lighthouse_resolutions = ["hour", "10min", "1min"]
+    elif ((from_time >= datetime.datetime(2021,10,18)) & ((from_time < datetime.datetime(2022,3,7)))):
+        lighthouse_resolutions = ["1min"]
     else:
         lighthouse_resolutions = ["10min", "1min"]
 
         
     for station, switch in mobile_switches.items():
+        if ((station == 1883) & (day in ["20210509", "20210510", "20210511", "20210622"])):
+            continue
         if switch:
             # call the function to restructure
             for res in mobile_resolutions:
