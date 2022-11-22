@@ -7,9 +7,6 @@ Created on Sun Nov 20 14:45:27 2022
 """
 import sys
 import pandas as pd
-from unisacsi import Meteo as met
-import unisacsi
-import pandas as pd
 import cmocean as cmo
 import matplotlib.pyplot as plt
 import  numpy as np
@@ -68,11 +65,15 @@ dem = dem.where(dem > 0.)
 
 
 #%% read data
-boat_data = {"MS_Bard": met.read_IWIN(f"{path_iwin_data}mobile_AWS_1883/20sec/mobile_AWS_1883_Table_20sec_{day_str}.nc"),
-             "MS_Polargirl": met.read_IWIN(f"{path_iwin_data}mobile_AWS_1872/20sec/mobile_AWS_1872_Table_20sec_{day_str}.nc")}
+mobile_stations = {1883: "MS_Bard", 1872: "MS_Polargirl"}
+boat_data = {}
+for s, boat in mobile_stations.items():
+    with xr.open_dataset(f"{path_iwin_data}mobile_AWS_{s}/20sec/mobile_AWS_{s}_Table_20sec_{day_str}.nc") as ds:
+        boat_data[boat] = ds.load()
 
 
-lighthouse_data = met.read_IWIN(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc")
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
+    lighthouse_data = ds.load()
 # lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-05 23:59:50", freq="20S"), method="linear")
 
 for b, b_data in boat_data.items():
@@ -114,14 +115,16 @@ for b, b_data in boat_data.items():
     
 # lighthouse_arrow_data = lighthouse_data.sel(time = times_arrows["MS_Bard"]+times_arrows["MS_Polargirl"])
 
-fig, ax = plt.subplots(1,1, figsize=latex_helpers.set_size(397.4, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
+fig, ax = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
 ax.set_xticks([14., 15., 16., 17.], crs=ccrs.PlateCarree())
 ax.set_yticks([78.1, 78.3], crs=ccrs.PlateCarree())
 ax.xaxis.set_major_formatter(lon_formatter)
 ax.yaxis.set_major_formatter(lat_formatter)
 # gl = ax.gridlines(draw_labels=False)
 ax.set_facecolor("lightgrey")
-met.map_add_coastline(fig, ax, option=1, color="k", lat_limits=lat_lims, lon_limits=lon_lims, path_mapdata=path_map_data)
+df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
+df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
+df_coastline.plot(ax=ax, edgecolor="k", facecolor="none", zorder=20, lw=1.)
 dem.plot.imshow(ax=ax, cmap=mpl.colors.ListedColormap([cmo.cm.topo(a) for a in np.linspace(0.6,1.,255)]), levels=np.arange(0, 50. * np.ceil(np.nanmax(dem)/50.)+1., 50.),
                   interpolation=None, add_colorbar=False)
 
@@ -179,7 +182,9 @@ ax_FF.set_yticks([78.17, 78.20, 78.23], crs=ccrs.PlateCarree())
 ax_FF.xaxis.set_major_formatter(lon_formatter)
 ax_FF.yaxis.set_major_formatter(lat_formatter)
 ax_FF.set_facecolor("lightgrey")
-met.map_add_coastline(fig, ax_FF, option=1, color="k", lat_limits=lat_lims, lon_limits=lon_lims, path_mapdata=path_map_data)
+df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
+df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
+df_coastline.plot(ax=ax, edgecolor="k", facecolor="none", zorder=20, lw=1.)
 dem.plot.imshow(ax=ax_FF, cmap=mpl.colors.ListedColormap([cmo.cm.topo(a) for a in np.linspace(0.6,1.,255)]), levels=np.arange(0, 50. * np.ceil(np.nanmax(dem)/50.)+1., 50.),
                   interpolation=None, add_colorbar=False)
 

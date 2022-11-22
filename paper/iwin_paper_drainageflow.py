@@ -7,8 +7,6 @@ Created on Sun Nov 20 14:45:27 2022
 """
 import sys
 import pandas as pd
-from unisacsi import Meteo as met
-import unisacsi
 import pandas as pd
 import cmocean as cmo
 import matplotlib.pyplot as plt
@@ -65,7 +63,8 @@ dem = dem.where(dem > 0.)
 
 #%% read data
 
-boat_data = met.read_IWIN(f"{path_iwin_data}mobile_AWS_1883/20sec/mobile_AWS_1883_Table_20sec_{day_str}.nc")
+with xr.open_dataset(f"{path_iwin_data}mobile_AWS_1883/20sec/mobile_AWS_1883_Table_20sec_{day_str}.nc") as ds:
+    boat_data = ds.load()
 
 mask = ~((boat_data["latitude"] > 78.22745) & (boat_data["latitude"] < 78.22878) & (boat_data["longitude"] > 15.60521) & (boat_data["longitude"] < 15.61387))
 boat_data = xr.where(mask, boat_data, np.nan)
@@ -74,9 +73,9 @@ boat_data = xr.where(mask, boat_data, np.nan)
 mask = ~((boat_data["latitude"] > 78.65447) & (boat_data["latitude"] < 78.65518) & (boat_data["longitude"] > 16.37723) & (boat_data["longitude"] < 16.38635))
 boat_data = xr.where(mask, boat_data, np.nan)
 
-lighthouse_data = met.read_IWIN(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc")
     
-
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
+    lighthouse_data = ds.load()
     
 #%% plot
 
@@ -97,14 +96,16 @@ times_drainage_signals = np.array([ pd.Timestamp("2022-10-20 07:57"),
 wind_arrow_data = boat_data.sel(time = times_drainage_signals)
 lighthouse_arrow_data = lighthouse_data.sel(time = times_drainage_signals)
 
-fig, ax = plt.subplots(1,1, figsize=latex_helpers.set_size(397.4, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
+fig, ax = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
 ax.set_xticks([15.5, 16., 16.5, 17.], crs=ccrs.PlateCarree())
 ax.set_yticks([78.4, 78.5, 78.6, 78.7], crs=ccrs.PlateCarree())
 ax.xaxis.set_major_formatter(lon_formatter)
 ax.yaxis.set_major_formatter(lat_formatter)
 # gl = ax.gridlines(draw_labels=False)
 ax.set_facecolor("lightgrey")
-met.map_add_coastline(fig, ax, option=1, color="k", lat_limits=lat_lims, lon_limits=lon_lims, path_mapdata=path_map_data)
+df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
+df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
+df_coastline.plot(ax=ax, edgecolor="k", facecolor="none", zorder=20, lw=1.)
 dem.plot.imshow(ax=ax, cmap=mpl.colors.ListedColormap([cmo.cm.topo(a) for a in np.linspace(0.6,1.,255)]), levels=np.arange(0, 50. * np.ceil(np.nanmax(dem)/50.)+1., 50.),
                   interpolation=None, add_colorbar=False)
 

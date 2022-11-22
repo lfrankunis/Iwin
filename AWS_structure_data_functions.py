@@ -245,6 +245,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     data.set_index("time", inplace=True)
     data.drop(columns=["GPS_location"], inplace=True)
     
+    data = data[~data.index.duplicated(keep='first')]
+    
     
     ds = data.to_xarray()
     for vari in list(ds.variables):
@@ -446,6 +448,8 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
 
     data.set_index("time", inplace=True)
+    
+    data = data[~data.index.duplicated(keep='first')]
     
     ds = data.to_xarray()
     for vari in list(ds.variables):
