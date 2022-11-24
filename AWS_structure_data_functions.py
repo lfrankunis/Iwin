@@ -74,7 +74,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         data.drop(columns=cols_to_drop, inplace=True)
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01 00:00:00", 'wind_speed_raw_Avg': "m s-1",
+        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw_Avg': "m s-1",
                   'wind_direction_raw_Avg': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
                   'wind_speed_corrected_Avg': "m s-1", 'wind_direction_corrected_Avg': "degree", 'wind_direction_corrected_Std': "degree", 'wind_speed_corrected_Max': "m s-1",
                   'temperature': "degree_C", 'temperature_Max': "degree_C", 'temperature_Min': "degree_C",
@@ -114,7 +114,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
             data.drop(columns=['RECORD'], inplace=True)
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01 00:00:00", 'wind_speed_raw_Avg': "m s-1",
+        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw_Avg': "m s-1",
                   'wind_direction_raw_Avg': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1", 'wind_speed_raw': "m s-1",
                   'wind_direction_raw': "degree", 'wind_speed_corrected_Avg': "m s-1", 'wind_direction_corrected_Avg': "degree", 'wind_direction_corrected_Std': "degree",
                   'wind_speed_corrected_Max': "m s-1", 'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'temperature': "degree_C",
@@ -300,10 +300,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "raw, only filtered for obviously wrong GPS positions, wind speed and direction corrected for horizontal movement of boat",
         "creator_type": "group",
-        "creator_institution": "The University Centre in Svalbard",
-        "creator_name": "L. Frank, F. Schalamon, A. Stenlund, M. O. Jonassen",
-        "creator_email": "lukasf@unis.no",
-        "creator_url": "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X, https://orcid.org/0000-0002-4745-9009",
+        "creator_institution": "The University Centre in Svalbard; University of Graz; The University Centre in Svalbard; The University Centre in Svalbard",
+        "creator_name": "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen",
+        "creator_email": "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "IWIN: Isfjorden Weather Information Network",
         "source": "Gill MaxiMet GMX 500",
@@ -320,7 +320,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     for a, value in global_attributes.items():
         ds.attrs[a] = value
     
-    ds.to_netcdf(outfile_nc)
+    ds.to_netcdf(outfile_nc, unlimited_dims=["time"])
 
     return
 
@@ -387,7 +387,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         data.drop(columns=cols_to_drop, inplace=True)
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01 00:00:00",
+        "units": {'time': "seconds since 1970-01-01T00:00:00Z",
                   'air_pressure': "hPa", 'air_pressure_Avg': "hPa", 'relative_humidity': "percent", 'relative_humidity_Avg': "percent",
                   'temperature': "degree_C", 'temperature_Min': "degree_C", 'temperature_Max': "degree_C", 'dew_point_temperature': "degree_C",
                   'wind_speed': "m s-1", 'wind_speed_Min': "m s-1", 'wind_speed_Max': "m s-1", 'wind_direction': "degree", 'wind_speed_Avg': "m s-1",
@@ -424,7 +424,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         data.drop(columns=['RECORD', 'BattV_Min', 'PTemp_C'], inplace=True)
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01 00:00:00", 'wind_speed_Avg': "m s-1", 'wind_direction_Avg': "degree", 'wind_direction_Std': "degree",
+        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_Avg': "m s-1", 'wind_direction_Avg': "degree", 'wind_direction_Std': "degree",
                   'wind_speed_Max': "m s-1", 'air_pressure_Avg': "hPa",
                   'relative_humidity_Avg': "percent", 'temperature_Avg': "degree_C", 'dewpoint_temperature_Avg': "degree_C"},
         
@@ -500,10 +500,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "raw, filtered for obviously wrong measurements",
         "creator_type": "group",
-        "creator_institution": "The University Centre in Svalbard",
-        "creator_name": "L. Frank, F. Schalamon, A. Stenlund, M. O. Jonassen",
-        "creator_email": "lukasf@unis.no",
-        "creator_url": "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X, https://orcid.org/0000-0002-4745-9009",
+        "creator_institution": "The University Centre in Svalbard; University of Graz; The University Centre in Svalbard; The University Centre in Svalbard",
+        "creator_name": "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen",
+        "creator_email": "lukasf@unis.no; florina.schalamon@uni-graz.at; mariusj@unis.no",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "IWIN: Isfjorden Weather Information Network",
         "source": "Campbell Scientific METSENS 500",
@@ -521,7 +521,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     for a, value in global_attributes.items():
         ds.attrs[a] = value
     
-    ds.to_netcdf(outfile_nc)
+    ds.to_netcdf(outfile_nc, unlimited_dims=["time"])
 
 
     return
