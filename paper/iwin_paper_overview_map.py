@@ -23,6 +23,8 @@ from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import latex_helpers
 import windrose
 from scipy import stats
+from scalebar import scale_bar
+
 
 lon_formatter = LongitudeFormatter(zero_direction_label=True)
 lat_formatter = LatitudeFormatter()
@@ -85,6 +87,7 @@ for b, b_data in boat_data.items():
     mask = ~((b_data["latitude"] > 78.65447) & (b_data["latitude"] < 78.65518) & (b_data["longitude"] > 16.37723) & (b_data["longitude"] < 16.38635))
     boat_data[b] = xr.where(mask, b_data, np.nan)
     
+    
 for b, b_data in boat_data.items():
     df = b_data.to_dataframe()
     boat_data[b] = df.set_index(b_data.time.values)
@@ -98,7 +101,7 @@ all_boat_data = all_boat_data[all_boat_data['latitude'].notna()]
 lat_bins = np.arange(lat_lims[0], lat_lims[1], 0.01)
 lon_bins = np.arange(lon_lims[0], lon_lims[1], 0.05)
 
-hist_counts = stats.binned_statistic_2d(all_boat_data.longitude, all_boat_data.latitude, all_boat_data.temperature_Avg, bins=[lon_bins, lat_bins], statistic="count")
+hist_counts = stats.binned_statistic_2d(all_boat_data.longitude, all_boat_data.latitude, all_boat_data.temperature, bins=[lon_bins, lat_bins], statistic="count")
 hist_counts.statistic[hist_counts.statistic == 0] = np.nan
 
 
@@ -145,12 +148,15 @@ ax_main.scatter([15.63083], [78.22433], color="k", marker='d', s=50, transform=c
 ax_main.scatter([16.33432], [78.65312], color="k", marker='^', s=50, transform=ccrs.PlateCarree(), zorder=200)
 # BB
 ax_main.scatter([14.21033], [78.06091], color="k", marker='+', lw=2., s=70, transform=ccrs.PlateCarree(), zorder=200)
+# NS
+ax_main.scatter([16.6818], [78.3313], color="k", marker='H', lw=2., s=40, transform=ccrs.PlateCarree(), zorder=200)
 
 
 ax_main.set_extent(lon_lims+lat_lims, crs=ccrs.PlateCarree())
 ax_main.set_title(None)
 ax_main.set_xlabel(None)
 ax_main.set_ylabel(None)
+
 
 
 wspeed_bins = np.arange(0. ,21., 5.)
@@ -165,6 +171,7 @@ ax_main.legend(handles=handles, ncols=len(wspeed_bins), loc="upper center", bbox
 
 for k, spine in ax_main.spines.items():  #ax.spines is a dictionary
     spine.set_zorder(500)
+
 
 inset_size = .17
 for s, lh in lighthouse_data.items():
@@ -193,7 +200,9 @@ for s, lh in lighthouse_data.items():
     polar_inset.grid(False)
     
     # plot data
-    polar_inset.bar(lh["wind_direction_Avg"], lh["wind_speed_Avg"], bins=wspeed_bins, normed=True, opening=0.8, cmap=cmo.cm.haline)
+    polar_inset.bar(lh["wind_direction"], lh["wind_speed"], bins=wspeed_bins, normed=True, opening=0.8, cmap=cmo.cm.haline)
+
+scale_bar(ax_main, (0.04, 0.03), 10, text_kwargs={"weight": "bold"}, zorder=400)
 
 
 plt.savefig(path_out, dpi=300)

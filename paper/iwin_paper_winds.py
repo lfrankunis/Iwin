@@ -18,6 +18,7 @@ import rioxarray as rxr
 import cartopy.crs as ccrs
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import latex_helpers
+from scalebar import scale_bar
 
 lon_formatter = LongitudeFormatter(zero_direction_label=True)
 lat_formatter = LatitudeFormatter()
@@ -75,6 +76,9 @@ for s, boat in mobile_stations.items():
 with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
     lighthouse_data = ds.load()
 # lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-05 23:59:50", freq="20S"), method="linear")
+
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
+    bohemanneset_data = ds.load()
 
 for b, b_data in boat_data.items():
     # boat_data[b]["temperature_Avg"] -= lighthouse_data["temperature_Avg"]
@@ -173,6 +177,9 @@ ax.plot([15.33, lon_lims_FF[1]], [78.41014, lat_lims_FF[1]], "k--", lw=1.5, tran
 
 ax.text(0.94, 0.95, "(b)", transform=ax.transAxes, fontsize=10)
 
+scale_bar(ax, (0.87, 0.03), 10, text_kwargs={"weight": "bold"})
+
+
 
 pos = ax.get_position()
 ax_FF = fig.add_axes([pos.x0-0.02, pos.y0+pos.height/2.0, pos.width/2.0, pos.height/2.0+0.03], projection=ccrs.Mercator())
@@ -211,6 +218,7 @@ ax_FF.set_ylabel(None)
 ax_FF.xaxis.tick_top()
 ax_FF.text(0.03, 0.9, "(a)", transform=ax_FF.transAxes, fontsize=10)
 
+scale_bar(ax_FF, (0.78, 0.03), 2, text_kwargs={"weight": "bold"})
 
 plt.savefig(path_out, dpi=300)
 

@@ -51,106 +51,119 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     if from_time < datetime.datetime(2022,5,17):
         new_names = {"TIMESTAMP": "time",
-                     'Wind_Speed_S_WVT': 'wind_speed_raw_Avg',
-                     'Wind_Direction_D1_WVT': 'wind_direction_raw_Avg',
+                     'Wind_Speed_S_WVT': 'wind_speed_raw',
+                     'Wind_Direction_D1_WVT': 'wind_direction_raw',
                      'Wind_Direction_SDI_WVT': 'wind_direction_raw_Std',
                      'Wind_Speed_raw_Max': 'wind_speed_raw_Max',
-                     'Wind_Speed_Corrected_S_WVT': 'wind_speed_corrected_Avg',
-                     'Wind_Direction_Corrected_D1_WVT': 'wind_direction_corrected_Avg',
+                     'Wind_Speed_Corrected_S_WVT': 'wind_speed_corrected',
+                     'Wind_Direction_Corrected_D1_WVT': 'wind_direction_corrected',
                      'Wind_Direction_Corrected_SDI_WVT': 'wind_direction_corrected_Std',
                      'Wind_Speed_corrected_Max': 'wind_speed_corrected_Max',
                      'Ambient_Temperature': 'temperature',
-                     'Ambient_Temperature_Max': 'temperature_Max',
-                     'Ambient_Temperature_Min': 'temperature_Min',
                      'Relative_Humidity': 'relative_humidity',
-                     'Relative_Humidity_Max': 'relative_humidity_Max',
-                     'Relative_Humidity_Min': 'relative_humidity_Min',
-                     'Sensor_Dewpoint': 'dewpoint_temperature',
                      'Barometric_Pressure': 'air_pressure',
                      'GPS_Location': 'GPS_location',
-                     'Sensor_status': "sensor_status"}
+                     'Sensor_status': "sensor_status",
+                     "GPS_speed": "GPS_speed",
+                     "GPS_heading": "GPS_heading"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
-        data.rename(new_names, axis=1, inplace=True)
         data.drop(columns=cols_to_drop, inplace=True)
+        data.rename(new_names, axis=1, inplace=True)
+
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw_Avg': "m s-1",
-                  'wind_direction_raw_Avg': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
-                  'wind_speed_corrected_Avg': "m s-1", 'wind_direction_corrected_Avg': "degree", 'wind_direction_corrected_Std': "degree", 'wind_speed_corrected_Max': "m s-1",
-                  'temperature': "degree_C", 'temperature_Max': "degree_C", 'temperature_Min': "degree_C",
-                  'relative_humidity': "percent", 'relative_humidity_Max': "percent", 'relative_humidity_Min': "percent",
-                  'dewpoint_temperature': "degree_C", 'air_pressure': "hPa",
+        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw': "m s-1",
+                  'wind_direction_raw': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
+                  'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree", 'wind_speed_corrected_Max': "m s-1",
+                  'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
                   'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'altitude': "m"},
         "long_names" : {'time': "UTC time", 'sensor_status': "sensor status",
-                        'wind_speed_raw_Avg': "raw wind speed averaged over the sampling interval",
-                        'wind_direction_raw_Avg': "raw wind direction averaged over the sampling interval",
+                        'wind_speed_raw': "raw wind speed averaged over the sampling interval",
+                        'wind_direction_raw': "raw wind direction averaged over the sampling interval",
                         'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
                         'wind_speed_raw_Max': "maximum raw wind speed during the sampling interval",
-                        'wind_speed_corrected_Avg': "wind speed averaged over the sampling interval, corrected for the movement of the boat",
-                        'wind_direction_corrected_Avg': "wind direction averaged over the sampling interval, corrected for the movement of the boat",
+                        'wind_speed_corrected': "wind speed averaged over the sampling interval, corrected for the movement of the boat",
+                        'wind_direction_corrected': "wind direction averaged over the sampling interval, corrected for the movement of the boat",
                         'wind_direction_corrected_Std': "standard deviation of the wind direction during the sampling interval, corrected for the movement of the boat",
                         'wind_speed_corrected_Max': "maximum wind speed during the sampling interval, corrected for the movement of the boat",
-                        'temperature': "air temperature sampled at the respective timestamp", 'temperature_Max': "maximum air temperature during the sampling interval", 'temperature_Min': "minimum air temperature during the sampling interval",
-                        'relative_humidity': "air relative humidity sampled at the respective timestamp", 'relative_humidity_Max': "maximum air relative humidity during the sampling interval", 'relative_humidity_Min': "minimum air relative humidity during the sampling interval",
-                        'dewpoint_temperature': "air dewpoint temperature sampled at the respective timestamp", 'air_pressure': "air pressure sampled at the respective timestamp",
+                        'temperature': "air temperature sampled at the respective timestamp",
+                        'relative_humidity': "air relative humidity sampled at the respective timestamp",
+                        'air_pressure': "air pressure sampled at the respective timestamp",
                         'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
-                        'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS"},
-        "standard_names": {'time': "time", 'sensor_status': "status_flag", 'wind_speed_raw_Avg': "wind_speed", 'wind_direction_raw_Avg': "wind_from_direction",
+                        'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS",
+                        "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
+        "standard_names": {'time': "time", 'sensor_status': "status_flag", 'wind_speed_raw': "wind_speed", 'wind_direction_raw': "wind_from_direction",
                            'wind_speed_raw_Max': "wind_speed", 
-                           'wind_speed_corrected_Avg': "wind_speed", 'wind_direction_corrected_Avg': "wind_from_direction",
+                           'wind_speed_corrected': "wind_speed", 'wind_direction_corrected': "wind_from_direction",
                            'wind_speed_corrected_Max': "wind_speed",
-                           'temperature': "air_temperature", 'temperature_Max': "air_temperature", 'temperature_Min': "air_temperature",
-                           'relative_humidity': 'relative_humidity', 'relative_humidity_Max': 'relative_humidity', 'relative_humidity_Min': 'relative_humidity',
-                           'dewpoint_temperature': "dew_point_temperature",
-                           'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
-                           'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude"}}
+                           'temperature': "air_temperature", 'relative_humidity': 'relative_humidity', 'air_pressure': "air_pressure",
+                           'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
+                           'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude",
+                           "exhaust_plume_influence": "status_flag"},
+        "flag_values": {"sensor_status": 'OK, Unknown Fault, Wind Fault', "exhaust_plume_influence": "0, 1"},
+        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume, measurements_impacted_by_exhaust_plume"}}
         
     else:
-        new_names = {"TIMESTAMP": "time"}
+        new_names = {"TIMESTAMP": "time",
+                     'wind_speed_raw_Avg': 'wind_speed_raw',
+                     'wind_direction_raw_Avg': 'wind_direction_raw',
+                     'wind_direction_raw_Std': 'wind_direction_raw_Std',
+                     'wind_speed_raw_Max': 'wind_speed_raw_Max',
+                     'wind_speed_corrected_Avg': 'wind_speed_corrected',
+                     'wind_direction_corrected_Avg': 'wind_direction_corrected',
+                     'wind_direction_corrected_Std': 'wind_direction_corrected_Std',
+                     'wind_speed_corrected_Max': 'wind_speed_corrected_Max',
+                     'temperature': 'temperature',
+                     'relative_humidity': 'relative_humidity',
+                     'air_pressure': 'air_pressure',
+                     'GPS_location': 'GPS_location',
+                     'sensor_status': "sensor_status",
+                     'compass_heading': 'compass_heading',
+                     "GPS_speed": "GPS_speed",
+                     "GPS_heading": "GPS_heading"}
+        cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
+        data.drop(columns=cols_to_drop, inplace=True)
         data.rename(new_names, axis=1, inplace=True)
-        if resolution == "10min":
-            data.drop(columns=['RECORD', 'BattV_Min', 'PTemp_C'], inplace=True)
-        else:
-            data.drop(columns=['RECORD'], inplace=True)
+
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw_Avg': "m s-1",
-                  'wind_direction_raw_Avg': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1", 'wind_speed_raw': "m s-1",
-                  'wind_direction_raw': "degree", 'wind_speed_corrected_Avg': "m s-1", 'wind_direction_corrected_Avg': "degree", 'wind_direction_corrected_Std': "degree",
-                  'wind_speed_corrected_Max': "m s-1", 'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'temperature': "degree_C",
-                  'temperature_Avg': "degree_C", 'relative_humidity': "percent", 'relative_humidity_Avg': "percent", 'dewpoint_temperature_Avg': "degree_C", 'air_pressure_Avg': "hPa",
+        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw': "m s-1",
+                  'wind_direction_raw': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
+                  'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree",
+                  'wind_speed_corrected_Max': "m s-1",
+                  'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
                   'GPS_heading': "degree", 'GPS_speed': "m s-1", 'compass_heading': "degree", 'latitude': "degree_N", 'longitude': "degree_E", 'altitude': "m"},
         
         "long_name" : {'time': "UTC time", 'sensor_status': "sensor status",
-                        'wind_speed_raw_Avg': "raw wind speed averaged over the sampling interval",
-                        'wind_direction_raw_Avg': "raw wind direction averaged over the sampling interval",
+                        'wind_speed_raw': "raw wind speed averaged over the sampling interval",
+                        'wind_direction_raw': "raw wind direction averaged over the sampling interval",
                         'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
                         'wind_speed_raw_Max': "maximum raw wind speed during the sampling interval",
-                        'wind_speed_raw': "raw wind speed sampled at the respective timestamp", 'wind_direction_raw': "raw wind direction sampled at the respective timestamp",
-                        'wind_speed_corrected_Avg': "wind speed averaged over the sampling interval, corrected for the movement of the boat",
-                        'wind_direction_corrected_Avg': "wind direction averaged over the sampling interval, corrected for the movement of the boat",
+                        'wind_speed_corrected': "wind speed averaged over the sampling interval, corrected for the movement of the boat",
+                        'wind_direction_corrected': "wind direction averaged over the sampling interval, corrected for the movement of the boat",
                         'wind_direction_corrected_Std': "standard deviation of the wind direction during the sampling interval, corrected for the movement of the boat",
                         'wind_speed_corrected_Max': "maximum wind speed during the sampling interval, corrected for the movement of the boat",
-                        'wind_speed_corrected': "wind speed sampled at the respective timestamp, corrected for the movement of the boat",
-                        'wind_direction_corrected': "wind direction sampled at the respective timestamp, corrected for the movement of the boat",
-                        'temperature': "air temperature sampled at the respective timestamp", 'temperature_Avg': "air temperature averaged over the sampling interval",
-                        'relative_humidity': "air relative humidity sampled at the respective timestamp", 'relative_humidity_Avg': "air relative humidity averaged over the sampling interval",
-                        'dewpoint_temperature_Avg': "air dewpoint temperature averaged over the sampling interval", 'air_pressure_Avg': "air pressure averaged over the sampling interval",
+                        'temperature': "air temperature averaged over the sampling interval",
+                        'relative_humidity': "air relative humidity averaged over the sampling interval",
+                        'air_pressure': "air pressure averaged over the sampling interval",
                         'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
                         'compass_heading': "heading of the boat, retrieved from the compass",
-                        'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS"},
+                        'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS",
+                        "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
         
-        "standard_name": {'time': "time", 'sensor_status': "status_flag", 'wind_speed_raw_Avg': "wind_speed", 'wind_direction_raw_Avg': "wind_from_direction",
+        "standard_name": {'time': "time", 'sensor_status': "status_flag",
                            'wind_speed_raw_Max': "wind_speed", 'wind_speed_raw': "wind_speed",
-                           'wind_direction_raw': "wind_from_direction", 'wind_speed_corrected_Avg': "wind_speed", 'wind_direction_corrected_Avg': "wind_from_direction",
+                           'wind_direction_raw': "wind_from_direction",
                            'wind_speed_corrected_Max': "wind_speed", 'wind_speed_corrected': "wind_speed",
-                           'wind_direction_corrected': "wind_from_direction", 'temperature': "air_temperature", 'temperature_Avg': "air_temperature",
-                           'relative_humidity': 'relative_humidity', 'relative_humidity_Avg': 'relative_humidity', 'dewpoint_temperature_Avg': "dew_point_temperature",
-                           'air_pressure_Avg': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
-                           'compass_heading': "platform_azimuth_angle", 'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude"}}
+                           'wind_direction_corrected': "wind_from_direction",
+                           'temperature': "air_temperature",
+                           'relative_humidity': 'relative_humidity',
+                           'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
+                           'compass_heading': "platform_azimuth_angle", 'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude",
+                           "exhaust_plume_influence": "status_flag"},
+        "flag_values": {"sensor_status": 'OK, Unknown Fault, Wind Fault', "exhaust_plume_influence": "0, 1"},
+        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume, measurements_impacted_by_exhaust_plume"}}
         
-        
-    
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
@@ -195,10 +208,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     boat_heading = data["GPS_heading"] # OR boat_heading = data["compass_heading"]
     
     # average wind 
-    u = -np.abs(data["wind_speed_corrected_Avg"]) * np.sin(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    v = -np.abs(data["wind_speed_corrected_Avg"]) * np.cos(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    u_raw = -np.abs(data["wind_speed_raw_Avg"]) * np.sin(np.deg2rad(data["wind_direction_raw_Avg"]))
-    v_raw = -np.abs(data["wind_speed_raw_Avg"]) * np.cos(np.deg2rad(data["wind_direction_raw_Avg"]))
+    u = -np.abs(data["wind_speed_corrected"]) * np.sin(np.deg2rad(data["wind_direction_corrected"]))
+    v = -np.abs(data["wind_speed_corrected"]) * np.cos(np.deg2rad(data["wind_direction_corrected"]))
+    u_raw = -np.abs(data["wind_speed_raw"]) * np.sin(np.deg2rad(data["wind_direction_raw"]))
+    v_raw = -np.abs(data["wind_speed_raw"]) * np.cos(np.deg2rad(data["wind_direction_raw"]))
 
     u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
     v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
@@ -212,20 +225,20 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
     
 
-    data["wind_speed_corrected_Avg"] = np.sqrt(u_true**2. + v_true**2.)
-    data["wind_direction_corrected_Avg"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
+    data["wind_speed_corrected"] = np.sqrt(u_true**2. + v_true**2.)
+    data["wind_direction_corrected"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
     
-    data.loc[~np.isfinite(data["wind_speed_corrected_Avg"]), "wind_speed_corrected_Avg"] = np.nan
-    data.loc[~np.isfinite(data["wind_direction_corrected_Avg"]), "wind_direction_corrected_Avg"] = np.nan
+    data.loc[~np.isfinite(data["wind_speed_corrected"]), "wind_speed_corrected"] = np.nan
+    data.loc[~np.isfinite(data["wind_direction_corrected"]), "wind_direction_corrected"] = np.nan
     
     if ((station == "1924") & (from_time < datetime.datetime(2022,8,31))):
-        data.loc[boat_speed <= threshold, "wind_direction_corrected_Avg"] = np.nan
+        data.loc[boat_speed <= threshold, "wind_direction_corrected"] = np.nan
     
     # maximum wind speed
-    u = -np.abs(data["wind_speed_corrected_Max"]) * np.sin(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    v = -np.abs(data["wind_speed_corrected_Max"]) * np.cos(np.deg2rad(data["wind_direction_corrected_Avg"]))
-    u_raw = -np.abs(data["wind_speed_raw_Max"]) * np.sin(np.deg2rad(data["wind_direction_raw_Avg"])) 
-    v_raw = -np.abs(data["wind_speed_raw_Max"]) * np.cos(np.deg2rad(data["wind_direction_raw_Avg"]))
+    u = -np.abs(data["wind_speed_corrected_Max"]) * np.sin(np.deg2rad(data["wind_direction_corrected"]))
+    v = -np.abs(data["wind_speed_corrected_Max"]) * np.cos(np.deg2rad(data["wind_direction_corrected"]))
+    u_raw = -np.abs(data["wind_speed_raw_Max"]) * np.sin(np.deg2rad(data["wind_direction_raw"])) 
+    v_raw = -np.abs(data["wind_speed_raw_Max"]) * np.cos(np.deg2rad(data["wind_direction_raw"]))
 
     u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
     v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
@@ -247,12 +260,50 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     data = data[~data.index.duplicated(keep='first')]
     
+    start_data_coverage = datetime.datetime.fromtimestamp(data.index[0], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_data_coverage = datetime.datetime.fromtimestamp(data.index[-1], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    
+    
+    # filter data for unphysical outliers
+    for vari in data.columns:
+        if "wind_direction" in vari:
+            data.loc[data[vari]<0., vari] = np.nan
+            data.loc[data[vari]>360., vari] = np.nan
+        elif "wind_speed" in vari:
+            data.loc[data[vari]<0., vari] = np.nan
+            data.loc[data[vari]>80., vari] = np.nan
+        elif 'temperature' in vari:
+            data.loc[data[vari]<-80., vari] = np.nan
+            data.loc[data[vari]>40., vari] = np.nan
+        elif "relative_humidity" in vari:
+            data.loc[data[vari]<0., vari] = np.nan
+            data.loc[data[vari]>100., vari] = np.nan
+        elif "pressure" in vari:
+            data.loc[data[vari]<800., vari] = np.nan
+            data.loc[data[vari]>1100., vari] = np.nan
+    
+    # determine exhaust plume flag
+    exhaust_sectors = {"1872": (215., 235.),
+                       "1924": (170., 190.),
+                       "1883": (-3., -2.)}      # dummy for MS Bard
+
+    if ((station == "1924") & (from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
+        data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors["1883"][1]) & 
+                                                      (data['wind_direction_raw'] > exhaust_sectors["1883"][0])), dtype=int)
+    else:
+        data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors[station][1]) & 
+                                                      (data['wind_direction_raw'] > exhaust_sectors[station][0])), dtype=int)
+    
+    data.fillna(-99999., inplace=True)
     
     ds = data.to_xarray()
+    
     for vari in list(ds.variables):
         if vari == "time":
             ds[vari] = ds[vari].astype('float64', keep_attrs=True)
-        elif vari != 'sensor_status':
+        elif vari in ["exhaust_plume_influence", 'sensor_status']:
+            ds[vari] = ds[vari].astype('int32', keep_attrs=True)
+        else:
             ds[vari] = ds[vari].astype('float32', keep_attrs=True)
         attris = {}
         for a, d in variable_attributes.items():
@@ -262,7 +313,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                 pass
         ds[vari].attrs = attris
         
-        
+    
     # Assign global attributes
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     
@@ -288,13 +339,13 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "naming_authority": "NMDC",
         "data_type": "netCDF-4",
         "feature_type": "Time Series",
-        "geospatial_lat_min": 78.,
-        "geospatial_lat_max": 79.,
-        "geospatial_lon_min": 12.,
-        "geospatial_lon_max": 18.,
+        "geospatial_lat_min": 77.95926,
+        "geospatial_lat_max": 78.85822,
+        "geospatial_lon_min": 13.38286,
+        "geospatial_lon_max": 17.46182,
         "area": "Svalbard, Isfjorden",
-        "time_coverage_start": boat_names[station]["installation"],
-        "time_coverage_end": "present",
+        "time_coverage_start": start_data_coverage,
+        "time_coverage_end": end_data_coverage,
         "Conventions": "CF-1.6, ACDD-1.3",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
@@ -320,7 +371,11 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     for a, value in global_attributes.items():
         ds.attrs[a] = value
     
-    ds.to_netcdf(outfile_nc, unlimited_dims=["time"])
+    myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v not in ["time", "sensor_status", "exhaust_plume_influence"]}
+    myencoding["exhaust_plume_influence"] = {"_FillValue": -99999}
+    myencoding["time"] = {'_FillValue': None}
+    
+    ds.to_netcdf(outfile_nc, unlimited_dims=["time"], encoding=myencoding)
 
     return
 
@@ -366,80 +421,72 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     
     if from_time < datetime.datetime(2022,5,8):
         new_names = {'TIMESTAMP': "time",
-                     'BP_mbar': "air_pressure",
-                     'BP_mbar_Avg': "air_pressure_Avg",
-                     'RH': "relative_humidity",
-                     'RH_Avg': "relative_humidity_Avg",
+                     'BP_mbar_Avg': "air_pressure",
+                     'RH_Avg': "relative_humidity",
                      'AirT_C': "temperature",
-                     'AirT_C_Min': "temperature_Min",
-                     'AirT_C_Max': "temperature_Max",
-                     'DP_C': "dew_point_temperature",
-                     'WS_ms': "wind_speed",
-                     'WS_ms_Min': "wind_speed_Min",
                      'WS_ms_Max': "wind_speed_Max",
-                     'WindDir': "wind_direction",
-                     'WS_ms_S_WVT': "wind_speed_Avg",
-                     'WindDir_D1_WVT': "wind_direction_Avg",
+                     'WS_ms_S_WVT': "wind_speed",
+                     'WindDir_D1_WVT': "wind_direction",
                      'WindDir_SD1_WVT': "wind_direction_Std",
                      'MetSENS_Status': "sensor_status"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
-        data.rename(new_names, axis=1, inplace=True)
         data.drop(columns=cols_to_drop, inplace=True)
+        data.rename(new_names, axis=1, inplace=True)
+
         
         variable_attributes = {
         "units": {'time': "seconds since 1970-01-01T00:00:00Z",
-                  'air_pressure': "hPa", 'air_pressure_Avg': "hPa", 'relative_humidity': "percent", 'relative_humidity_Avg': "percent",
-                  'temperature': "degree_C", 'temperature_Min': "degree_C", 'temperature_Max': "degree_C", 'dew_point_temperature': "degree_C",
-                  'wind_speed': "m s-1", 'wind_speed_Min': "m s-1", 'wind_speed_Max': "m s-1", 'wind_direction': "degree", 'wind_speed_Avg': "m s-1",
-                  'wind_direction_Avg': "degree", 'wind_direction_Std': "degree"},
+                  'air_pressure': "hPa", 'relative_humidity': "percent",
+                  'temperature': "degree_C", 
+                  'wind_speed': "m s-1", 'wind_speed_Max': "m s-1", 'wind_direction': "degree",
+                  'wind_direction_Std': "degree"},
         
         "long_name": {'time': "UTC time",
-                      'air_pressure': "air pressure sampled at the respective timestamp", 'air_pressure_Avg': "air pressure averaged over the sampling interval",
-                      'relative_humidity': "air relative humidity sampled at the respective timestamp",
-                      'relative_humidity_Avg': "air relative humidity averaged over the sampling interval",
+                      'air_pressure': "air pressure averaged over the sampling interval",
+                      'relative_humidity': "air relative humidity averaged over the sampling interval",
                       'temperature': "air temperature sampled at the respective timestamp",
-                      'temperature_Min': "minimum air temperature during the sampling interval",
-                      'temperature_Max': "maximum air temperature during the sampling interval",
-                      'dew_point_temperature': "air dewpoint temperature sampled at the respective timestamp",
-                      'wind_speed': "wind speed sampled at the respective timestamp",
-                      'wind_speed_Min': "minimum wind speed during the sampling interval",
                       'wind_speed_Max': "maximum wind speed during the sampling interval",
-                      'wind_direction': "wind direction sampled at the respective timestamp",
-                      'wind_speed_Avg': "wind speed averaged over the sampling interval",
-                      'wind_direction_Avg': "wind direction averaged over the sampling interval",
-                      'wind_direction_Std': "standard deviation of the wind sdirection during the sampling interval",
+                      'wind_speed': "wind speed averaged over the sampling interval",
+                      'wind_direction': "wind direction averaged over the sampling interval",
+                      'wind_direction_Std': "standard deviation of the wind direction during the sampling interval",
                       'sensor_status': "sensor status"},
-        "standard_name": {'time': "time", 'air_pressure': "air_pressure", 'air_pressure_Avg': "air_pressure",
-                          'relative_humidity': "relative_humidity", 'relative_humidity_Avg': "relative_humidity",
-                          'temperature': "air_temperature", 'temperature_Min': "air_temperature", 'temperature_Max': "air_temperature",
-                          'dew_point_temperature': "dew_point_temperature", 'wind_speed': "wind_speed",
-                          'wind_speed_Min': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction",
-                          'wind_speed_Avg': "wind_speed", 'wind_direction_Avg': "wind_from_direction",
+        "standard_name": {'time': "time", 'air_pressure': "air_pressure",
+                          'relative_humidity': "relative_humidity",
+                          'temperature': "air_temperature",
+                          'wind_speed': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction",
                           'sensor_status': "status_flag"}}
         
     else:
         new_names = {"TIMESTAMP": "time",
+                     'air_pressure_Avg': "air_pressure",
+                     'relative_humidity_Avg': "relative_humidity",
+                     'temperature_Avg': "temperature",
+                     'wind_speed_Max': "wind_speed_Max",
+                     'wind_speed_Avg': "wind_speed",
+                     'wind_direction_Avg': "wind_direction",
+                     'wind_direction_Std': "wind_direction_Std",
                      'MetSENS_Status': 'sensor_status'}
+        cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
+        data.drop(columns=cols_to_drop, inplace=True)
         data.rename(new_names, axis=1, inplace=True)
-        data.drop(columns=['RECORD', 'BattV_Min', 'PTemp_C'], inplace=True)
+
         
         variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_Avg': "m s-1", 'wind_direction_Avg': "degree", 'wind_direction_Std': "degree",
-                  'wind_speed_Max': "m s-1", 'air_pressure_Avg': "hPa",
-                  'relative_humidity_Avg': "percent", 'temperature_Avg': "degree_C", 'dewpoint_temperature_Avg': "degree_C"},
+        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed': "m s-1", 'wind_direction': "degree", 'wind_direction_Std': "degree",
+                  'wind_speed_Max': "m s-1", 'air_pressure': "hPa",
+                  'relative_humidity': "percent", 'temperature': "degree_C"},
         
-        "long_name": {'time': "UTC time", 'wind_speed_Avg': "wind speed averaged over the sampling interval", "sensor_status": "sensor status",
-                      'wind_direction_Avg': "wind direction averaged over the sampling interval",
+        "long_name": {'time': "UTC time", 'wind_speed': "wind speed averaged over the sampling interval", "sensor_status": "sensor status",
+                      'wind_direction': "wind direction averaged over the sampling interval",
                       'wind_direction_Std': "standard deviation of the wind sdirection during the sampling interval",
                       'wind_speed_Max': "maximum wind speed during the sampling interval",
-                      'air_pressure_Avg': "air pressure averaged over the sampling interval",
-                      'relative_humidity_Avg': "air relative humidity averaged over the sampling interval",
-                      'temperature_Avg': "air temperature averaged over the sampling interval",
-                      'dewpoint_temperature_Avg': "air dewpoint temperature averaged over the sampling interval"},
+                      'air_pressure': "air pressure averaged over the sampling interval",
+                      'relative_humidity': "air relative humidity averaged over the sampling interval",
+                      'temperature': "air temperature averaged over the sampling interval"},
         
-        "standard_name": {'time': "time", 'wind_speed_Avg': "wind_speed", 'wind_direction_Avg': "wind_from_direction",
-                  'wind_speed_Max': "wind_speed", 'air_pressure_Avg': "air_pressure", "sensor_status": "status_flag",
-                  'relative_humidity_Avg': "relative_humidity", 'temperature_Avg': "air_temperature", 'dewpoint_temperature_Avg': "dew_point_temperature"}}
+        "standard_name": {'time': "time", 'wind_speed': "wind_speed", 'wind_direction': "wind_from_direction",
+                  'wind_speed_Max': "wind_speed", 'air_pressure': "air_pressure", "sensor_status": "status_flag",
+                  'relative_humidity': "relative_humidity", 'temperature': "air_temperature"}}
         
 
 
@@ -451,11 +498,36 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     
     data = data[~data.index.duplicated(keep='first')]
     
+    start_data_coverage = datetime.datetime.fromtimestamp(data.index[0], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_data_coverage = datetime.datetime.fromtimestamp(data.index[-1], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    
+    # filter data for unphysical outliers
+    for vari in data.columns:
+        if "wind_direction" in vari:
+            data.loc[data[vari]<0., vari] = np.nan
+            data.loc[data[vari]>360., vari] = np.nan
+        elif "wind_speed" in vari:
+            data.loc[data[vari]<0., vari] = np.nan
+            data.loc[data[vari]>80., vari] = np.nan
+        elif vari == 'temperature':
+            data.loc[data[vari]<-80., vari] = np.nan
+            data.loc[data[vari]>40., vari] = np.nan
+        elif vari == "relative_humidity":
+            data.loc[data[vari]<0., vari] = np.nan
+            data.loc[data[vari]>100., vari] = np.nan
+        elif vari == "air_pressure":
+            data.loc[data[vari]<800., vari] = np.nan
+            data.loc[data[vari]>1100., vari] = np.nan
+    
+    data.fillna(-99999., inplace=True)
+    
     ds = data.to_xarray()
     for vari in list(ds.variables):
         if vari == "time":
             ds[vari] = ds[vari].astype('float64', keep_attrs=True)
-        elif vari != 'sensor_status':
+        elif vari == 'sensor_status':
+            ds[vari] = ds[vari].astype('int32', keep_attrs=True)
+        else:
             ds[vari] = ds[vari].astype('float32', keep_attrs=True)
         attris = {}
         for a, d in variable_attributes.items():
@@ -485,16 +557,16 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
             IN SITU/LABORATORY INSTRUMENTS>CURRENT/WIND METERS>SONIC ANEMOMETER, IN SITU/LABORATORY INSTRUMENTS>PRESSURE/HEIGHT METERS>PRESSURE SENSORS, \
             IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>TEMPERATURE SENSORS, IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>HUMIDITY SENSORS",
         "keywords_vocabulary": 'GCMD Science Keywords',
-        "naming_authority": "NMDC",
+        "naming_authority": "ADC",
         "data_type": "netCDF-4",
         "feature_type": "Time Series",
-        "geospatial_lat_min": 78.,
-        "geospatial_lat_max": 79.,
-        "geospatial_lon_min": 12.,
-        "geospatial_lon_max": 18.,
+        "geospatial_lat_min": lighthouses[station]["lat"],
+        "geospatial_lat_max": lighthouses[station]["lat"],
+        "geospatial_lon_min": lighthouses[station]["lon"],
+        "geospatial_lon_max": lighthouses[station]["lon"],
         "area": "Svalbard, Isfjorden",
-        "time_coverage_start": lighthouses[station]["installation"],
-        "time_coverage_end": "present",
+        "time_coverage_start": start_data_coverage,
+        "time_coverage_end": end_data_coverage,
         "Conventions": "CF-1.6, ACDD-1.3",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
@@ -521,7 +593,12 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     for a, value in global_attributes.items():
         ds.attrs[a] = value
     
-    ds.to_netcdf(outfile_nc, unlimited_dims=["time"])
+    myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v not in ["time", "sensor_status"]}
+    myencoding["sensor_status"] = {'_FillValue': -99999}
+    myencoding["time"] = {'_FillValue': None}
+    
+    ds.to_netcdf(outfile_nc, unlimited_dims=["time"], encoding=myencoding)
+
 
 
     return

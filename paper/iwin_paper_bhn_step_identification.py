@@ -53,6 +53,9 @@ klicker_T = clicker(
 
 # plt.show(block=True)
 
+
+#%%
+
 shifts_dict = klicker_T.get_positions()
 
 # shift_land_times = shifts_dict["land"][:,0]

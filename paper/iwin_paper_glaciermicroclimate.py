@@ -19,6 +19,8 @@ import rioxarray as rxr
 import cartopy.crs as ccrs
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import latex_helpers
+from scalebar import scale_bar
+
 
 lon_formatter = LongitudeFormatter(zero_direction_label=True)
 lat_formatter = LatitudeFormatter()
@@ -116,9 +118,9 @@ df_layer_glaciers.plot(ax=ax, edgecolor=None, facecolor="#FFFFFF")
 # LYR
 ax.scatter([15.63083], [78.22433], color="k", marker='d', s=50, transform=ccrs.PlateCarree(), zorder=200)
 # BB
-ax.scatter([14.21033], [78.06091], color="k", marker='+', lw=3., s=70, transform=ccrs.PlateCarree(), zorder=200)
+ax.scatter([14.21033], [78.06091], color="k", marker='+', lw=2., s=70, transform=ccrs.PlateCarree(), zorder=200)
 # BHN
-ax.scatter([14.75300], [78.38166], color="k", marker='x', lw=2., s=50, transform=ccrs.PlateCarree(), zorder=200)
+ax.scatter([14.75300], [78.38166], color="k", marker='*', lw=2., s=70, transform=ccrs.PlateCarree(), zorder=200)
 
 for b, b_data in boat_data.items():
     df = pd.DataFrame({'latitude': b_data["latitude"], 'longitude': b_data["longitude"], "color": b_data["temperature_Avg"]})
@@ -134,6 +136,7 @@ ax.set_title(None)
 ax.set_xlabel(None)
 ax.set_ylabel(None)
 
+scale_bar(ax, (0.8, 0.03), 10, text_kwargs={"weight": "bold"})
 
 plt.savefig(path_out, dpi=300)
 

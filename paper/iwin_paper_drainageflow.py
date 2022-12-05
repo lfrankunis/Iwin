@@ -19,6 +19,7 @@ import rioxarray as rxr
 import cartopy.crs as ccrs
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import latex_helpers
+from scalebar import scale_bar
 
 lon_formatter = LongitudeFormatter(zero_direction_label=True)
 lat_formatter = LatitudeFormatter()
@@ -76,6 +77,9 @@ boat_data = xr.where(mask, boat_data, np.nan)
     
 with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
     lighthouse_data = ds.load()
+    
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
+    bohemanneset_data = ds.load()
     
 #%% plot
 
@@ -143,6 +147,7 @@ ax.set_title(None)
 ax.set_xlabel(None)
 ax.set_ylabel(None)
 
+scale_bar(ax, (0.8, 0.03), 5, text_kwargs={"weight": "bold"})
 
 plt.savefig(path_out, dpi=300)
 
