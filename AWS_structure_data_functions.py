@@ -349,7 +349,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "Conventions": "CF-1.6, ACDD-1.3",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
-        "processing_level": "raw, only filtered for obviously wrong GPS positions, wind speed and direction corrected for horizontal movement of boat",
+        "processing_level": "Known bad data has been replaced with null values, ranges applied, data has been scaled using contextual information (wind speed and direction corrected for horizontal movement of boat)",
         "creator_type": "group",
         "creator_institution": "The University Centre in Svalbard; University of Graz; The University Centre in Svalbard; The University Centre in Svalbard",
         "creator_name": "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen",
@@ -525,9 +525,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     for vari in list(ds.variables):
         if vari == "time":
             ds[vari] = ds[vari].astype('float64', keep_attrs=True)
-        elif vari == 'sensor_status':
-            ds[vari] = ds[vari].astype('int32', keep_attrs=True)
-        else:
+        elif vari != 'sensor_status':
             ds[vari] = ds[vari].astype('float32', keep_attrs=True)
         attris = {}
         for a, d in variable_attributes.items():
@@ -570,11 +568,11 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "Conventions": "CF-1.6, ACDD-1.3",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
-        "processing_level": "raw, filtered for obviously wrong measurements",
+        "processing_level": "Known bad data has been replaced with null values, ranges applied",
         "creator_type": "group",
         "creator_institution": "The University Centre in Svalbard; University of Graz; The University Centre in Svalbard; The University Centre in Svalbard",
         "creator_name": "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen",
-        "creator_email": "lukasf@unis.no; florina.schalamon@uni-graz.at; mariusj@unis.no",
+        "creator_email": "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no",
         "creator_url": "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "IWIN: Isfjorden Weather Information Network",
@@ -594,7 +592,6 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         ds.attrs[a] = value
     
     myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v not in ["time", "sensor_status"]}
-    myencoding["sensor_status"] = {'_FillValue': -99999}
     myencoding["time"] = {'_FillValue': None}
     
     ds.to_netcdf(outfile_nc, unlimited_dims=["time"], encoding=myencoding)
