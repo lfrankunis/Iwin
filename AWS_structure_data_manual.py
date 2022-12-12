@@ -70,8 +70,8 @@ for day in days_to_process:
             try:
                 restructure_mobile_AWS(from_time, to_time, station=station, resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
                 
-                # shutil.copyfile(f"{paths['local_storage']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
-                #                 f"{paths['harddrive']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
+                shutil.copyfile(f"{paths['local_storage']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
+                                f"{paths['harddrive']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
                 
             except FileNotFoundError:
                 pass
@@ -83,8 +83,8 @@ for day in days_to_process:
             try:
                 restructure_lighthouse_AWS(from_time, to_time, station=station, resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
                 
-                # shutil.copyfile(f"{paths['local_storage']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
-                #                 f"{paths['harddrive']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
+                shutil.copyfile(f"{paths['local_storage']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
+                                f"{paths['harddrive']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
                 
             except FileNotFoundError:
                 pass
