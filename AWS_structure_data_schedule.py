@@ -69,17 +69,8 @@ while True:                 # always true, to keep the script running forever
     from_time -= datetime.timedelta(minutes=dt_minutes_offset)
     to_time -= datetime.timedelta(minutes=dt_minutes_offset)
     
-    if from_time < datetime.datetime(2022,5,17):
-        mobile_resolutions = ["hour", "10min", "5min", "1min", "20sec"]
-    else:
-        mobile_resolutions = ["10min", "1min", "20sec"]
-        
-    if from_time < datetime.datetime(2022,5,8):
-        lighthouse_resolutions = ["hour", "10min", "1min"]
-    else:
-        lighthouse_resolutions = ["10min", "1min"]
-
-
+    mobile_resolutions = ["10min", "1min", "20sec"]
+    lighthouse_resolutions = ["10min", "1min"]
 
     for station, switch in mobile_switches.items():
         if switch:
