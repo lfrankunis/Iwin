@@ -43,12 +43,11 @@ with open("./config_paths.yaml", "r", encoding='utf-8') as f:
     
 
 for day in days_to_process:
-    print(day)
     
     from_time = datetime.datetime.strptime(day, "%Y%m%d").replace(hour=0, minute=0, second=0)
     to_time = from_time + datetime.timedelta(days=1)
     
-    print(f"Manual processing of {from_time}")
+    print(f"Manual processing of {from_time.date()}")
     
     if from_time < datetime.datetime(2022,5,17):
         mobile_resolutions = ["hour", "10min", "5min", "1min", "20sec"]
@@ -67,25 +66,9 @@ for day in days_to_process:
         if ((station == "1883") & (day in ["20210509", "20210510", "20210511", "20210622"])):
             continue
         for res in mobile_resolutions:
-            try:
-                restructure_mobile_AWS(from_time, to_time, station=station, resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
-                
-                shutil.copyfile(f"{paths['local_storage']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
-                                f"{paths['harddrive']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
-                
-            except FileNotFoundError:
-                pass
-
-
+            restructure_mobile_AWS(from_time, to_time, station=station, resolution=res)
 
     for station in lighthouse_stations:
         for res in lighthouse_resolutions:
-            try:
-                restructure_lighthouse_AWS(from_time, to_time, station=station, resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
-                
-                shutil.copyfile(f"{paths['local_storage']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
-                                f"{paths['harddrive']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
-                
-            except FileNotFoundError:
-                pass
+            restructure_lighthouse_AWS(from_time, to_time, station=station, resolution=res)
 

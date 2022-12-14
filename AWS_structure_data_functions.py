@@ -7,13 +7,15 @@ Created on Sat Mar 27 14:37:44 2021
 import numpy as np
 import pandas as pd
 import datetime
-from netCDF4 import Dataset
+import yaml
+import shutil
 from pyproj import Proj
 import copy
+import os
 import json
 
 
-def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min", path_in="C:/Data/", path_out="C:/Data/"):
+def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min"):
     """
     Function to restructure the mobile AWS data into e.g. daily files
     Parameters
@@ -34,14 +36,19 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     """
 
     threshold = 0.25
+    
+    # define path to the data folder
+    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
+        paths = yaml.safe_load(f)
 
     if from_time < datetime.datetime(2022,5,17):
-        infile = f"{path_in}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
+        infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
     elif from_time < datetime.datetime(2023,1,1):
-        infile = f"{path_in}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
+        infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
     else:
-        infile = f"{path_in}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}.dat"
-    outfile_nc = f"{path_out}mobile_AWS_{station}/{resolution}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}.dat"
+    outfile_nc = f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_nc = f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -378,13 +385,17 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     myencoding["time"] = {'_FillValue': None}
     
     ds.to_netcdf(outfile_nc, unlimited_dims=["time"], encoding=myencoding)
+    
+    if os.path.isfile(backup_nc):
+        os.remove(backup_nc)
+    shutil.copyfile(outfile_nc, backup_nc)
 
-    return
+    return time_avail[-1]
 
 
 
 
-def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="10min", path_in="C:/Data/", path_out="C:/Data/"):
+def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="10min"):
     """
     Function to restructure the lighthouse AWS data into e.g. daily files
     Parameters
@@ -403,14 +414,19 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     -------
     In case the restructured interval is not one day, remember to change the output file names
     """
+    
+    # define path to the data folder
+    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
+        paths = yaml.safe_load(f)
 
     if from_time < datetime.datetime(2022,5,8):
-        infile = f"{path_in}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
+        infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
     elif from_time < datetime.datetime(2022,11,18):
-        infile = f"{path_in}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
+        infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
     else:
-        infile = f"{path_in}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}.dat"
-    outfile_nc = f"{path_out}lighthouse_AWS_{station}/{resolution}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}.dat"
+    outfile_nc = f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_nc = f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -482,7 +498,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         
         "long_name": {'time': "UTC time", 'wind_speed': "wind speed averaged over the sampling interval", "sensor_status": "sensor status",
                       'wind_direction': "wind direction averaged over the sampling interval",
-                      'wind_direction_Std': "standard deviation of the wind sdirection during the sampling interval",
+                      'wind_direction_Std': "standard deviation of the wind direction during the sampling interval",
                       'wind_speed_Max': "maximum wind speed during the sampling interval",
                       'air_pressure': "air pressure averaged over the sampling interval",
                       'relative_humidity': "air relative humidity averaged over the sampling interval",
@@ -599,10 +615,13 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     myencoding["time"] = {'_FillValue': None}
     
     ds.to_netcdf(outfile_nc, unlimited_dims=["time"], encoding=myencoding)
+    
+    if os.path.isfile(backup_nc):
+        os.remove(backup_nc)
+    shutil.copyfile(outfile_nc, backup_nc)
 
 
-
-    return
+    return time_avail[-1]
 
 
 def export_json(df, out_path):

@@ -11,94 +11,113 @@ from AWS_structure_data_functions import restructure_mobile_AWS, restructure_lig
 import os
 import shutil
 import yaml
+import multiprocessing as mp
+
+
+
 
 def next_wakeup():
-    global next_wakeup_time
-    global round_to
-    global dt_minutes_offset
-
+    
+    # refresh period
+    dt_minutes = 5
+    dt_hours = 0
+    time_delta=datetime.timedelta(hours=dt_hours, minutes=dt_minutes)
+    round_to = time_delta.total_seconds()                   # 60s
 
     dt = datetime.datetime.now()
-    seconds = (dt - dt.min).seconds
+    seconds = (dt - dt.min).seconds                       
 
     if seconds % round_to == 0 and dt.microsecond == 0:
         rounding = (seconds + round_to / 2) // round_to * round_to
     else:
         rounding = (seconds + dt.microsecond/1000000 + round_to) // round_to * round_to
 
-    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond)
-    next_wakeup_time += datetime.timedelta(minutes=dt_minutes_offset)
+    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond) + datetime.timedelta(minutes=2)
     print("The next wakeup is scheduled for: {a}".format(a=next_wakeup_time))
 
-    return
-
-# define for which stations the program should run
-mobile_switches = {1883: False, 
-                   1872: False,
-                   1924: False}
-
-lighthouse_switches = {1885: True,
-                       1884: True,
-                       1886: True,
-                       1887: True}
-
-# define path to the data folder
-with open("./config_paths.yaml", "r", encoding='utf-8') as f:
-    paths = yaml.safe_load(f)
-
-# define resolution of output files (daily files/hourly files/minute files)
-dt_days = 1
-dt_hours = 0
-dt_minutes = 0
-dt_minutes_offset = 15      # to shift the python precessing until the Loggernet data downloading is completed
-
-time_delta=datetime.timedelta(days=dt_days, hours=dt_hours, minutes=dt_minutes)
-round_to = time_delta.total_seconds()
-
-next_wakeup()
+    return next_wakeup_time
 
 
-while True:                 # always true, to keep the script running forever
-    while datetime.datetime.now() < next_wakeup_time:       # sleep until the next scheduled wakeup time
-        time.sleep(1)
 
-    from_time = next_wakeup_time - time_delta
-    to_time = next_wakeup_time
 
-    # take away the offset again
-    from_time -= datetime.timedelta(minutes=dt_minutes_offset)
-    to_time -= datetime.timedelta(minutes=dt_minutes_offset)
+def restructure_AWS(now, stat, res, latest_day, new_day):
+    
+    mobile_stations = [1883, 1872, 1924]
+    lighthouse_stations = [1884, 1885, 1886, 1887]
+    
+
+    midnight = datetime.datetime.combine(now, datetime.datetime.min.time())
+    if stat in mobile_stations:
+        latest_avail_time = restructure_mobile_AWS(midnight, now, station=str(stat), resolution=res)
+    elif stat in lighthouse_stations:
+        latest_avail_time = restructure_lighthouse_AWS(midnight, now, station=str(stat), resolution=res)
+
+    if ((latest_day != now.date()) & (latest_avail_time > midnight)):
+        print("final restructure yesterday")
+        if stat in mobile_stations:
+            restructure_mobile_AWS(midnight-datetime.timedelta(days=1), midnight, station=str(stat), resolution=res)
+        elif stat in lighthouse_stations:
+            restructure_lighthouse_AWS(midnight-datetime.timedelta(days=1), midnight, station=str(stat), resolution=res)
+     
+        new_day.put(now.date())
+        
+    else:
+        new_day.put(latest_day)
+
+
+####################################################################################
+####################################################################################
+
+
+
+if __name__ == '__main__':
+    
+    # define for which stations the program should run
+    mobile_switches = {1883: False, 
+                       1872: False,
+                       1924: False}
+
+    lighthouse_switches = {1885: True,
+                           1884: True,
+                           1886: True,
+                           1887: True}
+    
+    stations_to_restructure = [s for s, sw in mobile_switches.items() if sw] + [s for s, sw in lighthouse_switches.items() if sw]
     
     mobile_resolutions = ["10min", "1min", "20sec"]
     lighthouse_resolutions = ["10min", "1min"]
 
-    for station, switch in mobile_switches.items():
-        if switch:
-            # call the function to restructure
-            for res in mobile_resolutions:
-                try:
-                    restructure_mobile_AWS(from_time, to_time, station=str(station), resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
+
+    latest_day_not_fully_restructured = {}
+    for station in stations_to_restructure:
+        if station in mobile_switches.keys():
+            resolutions = mobile_resolutions
+        elif station in lighthouse_switches.keys():
+            resolutions = lighthouse_resolutions
+              
+        latest_day_not_fully_restructured[station] = {r:datetime.date.today()-datetime.timedelta(days=1) for r in resolutions}
+        
+    # start first wake-up
+    next_wakeup_time = next_wakeup()   
+    
+    # always true, to keep the script running forever
+    while True:                 
+        while datetime.datetime.now() < next_wakeup_time:       # sleep until the next scheduled wakeup time
+            time.sleep(1)
                     
-                    shutil.copyfile(f"{paths['local_storage']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
-                                    f"{paths['harddrive']}mobile_AWS_{station}/{res}/mobile_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
-                    
-                except FileNotFoundError:
-                    pass
-
-
-
-    for station, switch in lighthouse_switches.items():
-        if switch:
-            # call the function to restructure
-            for res in lighthouse_resolutions:
-                try:
-                    restructure_lighthouse_AWS(from_time, to_time, station=str(station), resolution=res, path_in=paths['local_data'], path_out=paths["local_storage"])
-                    
-                    shutil.copyfile(f"{paths['local_storage']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc",
-                                    f"{paths['harddrive']}lighthouse_AWS_{station}/{res}/lighthouse_AWS_{station}_Table_{res}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc")
-                    
-                except FileNotFoundError:
-                    pass
-
-
-    next_wakeup()           # don't forget to update the next wakeup time!!!
+        for station in stations_to_restructure:
+            
+            if station in mobile_switches.keys():
+                resolutions = mobile_resolutions
+            elif station in lighthouse_switches.keys():
+                resolutions = lighthouse_resolutions
+                
+            for res in resolutions:
+                new_latest_day = mp.Queue()
+                proc=mp.Process(target=restructure_AWS, args=[next_wakeup_time, station, res, latest_day_not_fully_restructured[station][res], new_latest_day])
+                proc.start()
+                latest_day_not_fully_restructured[station][res] = new_latest_day.get()
+                proc.join()
+        
+        next_wakeup_time = next_wakeup()           # don't forget to update the next wakeup time!!!
+        
