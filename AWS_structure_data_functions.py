@@ -56,6 +56,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
 
     time_avail = pd.to_datetime(pd.read_csv(infile, header=3, sep=",", usecols=[0], na_values="NAN").iloc[:,0]).dt.to_pydatetime()
     ind = np.where((time_avail >= from_time) & (time_avail < to_time))[0]
+    
+    if len(ind) == 0:
+        return time_avail[-1]
+    
     data = pd.read_csv(infile, header=3+ind[0], nrows=len(ind), sep=",", na_values="NAN", names=list(col_names.keys()))
     
     if from_time < datetime.datetime(2022,5,17):
@@ -335,6 +339,22 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                       "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                       "1924": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
         
+    if from_time < datetime.datetime(2022,1,1):
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_names = "L. Frank; F. Schalamon; M. O. Jonassen; T. Remes"
+        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; mariusj@unis.no; teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+    elif from_time < datetime.datetime(2022,10,1):
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_names = "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen; T. Remes"
+        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no; teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+    else:
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_names = "L. Frank; M. O. Jonassen; T. Remes"
+        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+    
     
     global_attributes = {"boat": boat_names[station]['name'],
         "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} measured onboard {boat_names[station]['name']} in Isfjorden, Svalbard.",
@@ -360,10 +380,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Known bad data has been replaced with null values, ranges applied, data has been scaled using contextual information (wind speed and direction corrected for horizontal movement of boat)",
         "creator_type": "group",
-        "creator_institution": "The University Centre in Svalbard; University of Graz; The University Centre in Svalbard; The University Centre in Svalbard",
-        "creator_name": "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen",
-        "creator_email": "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no",
-        "creator_url": "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009",
+        "creator_institution": creator_insts,
+        "creator_name": creator_names,
+        "creator_email": creator_mails,
+        "creator_url": creator_urls,
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "IWIN: Isfjorden Weather Information Network",
         "source": "Gill MaxiMet GMX 500",
@@ -372,9 +392,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "license": "https://creativecommons.org/licenses/by/4.0/",
         "iso_topic_category": "atmosphere",
         "principal_investigator": "L. Frank",
-        "publisher_name": "???",
-        "publisher_url": "???",
-        "publisher_email": "???",
+        "publisher_name": "MET Norway",
+        "publisher_url": "https://thredds.met.no/thredds/catalog.html",
+        "publisher_email": "thredds@met.no",
         "id": "???"}
     
     for a, value in global_attributes.items():
@@ -434,6 +454,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
 
     time_avail = pd.to_datetime(pd.read_csv(infile, header=3, sep=",", usecols=[0], na_values="NAN").iloc[:,0]).dt.to_pydatetime()
     ind = np.where((time_avail >= from_time) & (time_avail < to_time))[0]
+    
+    if len(ind) == 0:
+        return time_avail[-1]
+    
     data = pd.read_csv(infile, header=3+ind[0], nrows=len(ind), sep=",", na_values="NAN", names=list(col_names.keys()))
     
     if ((station == "1887") & (from_time < datetime.datetime(2022,11,6))):
@@ -564,6 +588,25 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                    "1886": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "installation": datetime.datetime(2022,7,8,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                    "1887": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "installation": datetime.datetime(2022,9,3,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
     
+    
+    if from_time < datetime.datetime(2022,1,1):
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_names = "L. Frank; F. Schalamon; M. O. Jonassen; T. Remes"
+        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; mariusj@unis.no; teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+    elif from_time < datetime.datetime(2022,10,1):
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_names = "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen; T. Remes"
+        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no; teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+    else:
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_names = "L. Frank; M. O. Jonassen; T. Remes"
+        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+    
+    
+    
     global_attributes = {"location": lighthouses[station]["name"],
         "latitude": lighthouses[station]["lat"],
         "longitude": lighthouses[station]["lon"],
@@ -590,10 +633,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Known bad data has been replaced with null values, ranges applied",
         "creator_type": "group",
-        "creator_institution": "The University Centre in Svalbard; University of Graz; The University Centre in Svalbard; The University Centre in Svalbard",
-        "creator_name": "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen",
-        "creator_email": "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no",
-        "creator_url": "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009",
+        "creator_institution": creator_insts,
+        "creator_name": creator_names,
+        "creator_email": creator_mails,
+        "creator_url": creator_urls,
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "IWIN: Isfjorden Weather Information Network",
         "source": "Campbell Scientific METSENS 500",
@@ -603,9 +646,9 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "license": "https://creativecommons.org/licenses/by/4.0/",
         "iso_topic_category": "atmosphere",
         "principal_investigator": "L. Frank",
-        "publisher_name": "???",
-        "publisher_url": "???",
-        "publisher_email": "???",
+        "publisher_name": "MET Norway",
+        "publisher_url": "https://thredds.met.no/thredds/catalog.html",
+        "publisher_email": "thredds@met.no",
         "id": "???"}
     
     for a, value in global_attributes.items():

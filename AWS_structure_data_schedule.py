@@ -32,7 +32,7 @@ def next_wakeup():
     else:
         rounding = (seconds + dt.microsecond/1000000 + round_to) // round_to * round_to
 
-    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond) + datetime.timedelta(minutes=2)
+    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond) + datetime.timedelta(minutes=3)
     print("The next wakeup is scheduled for: {a}".format(a=next_wakeup_time))
 
     return next_wakeup_time
