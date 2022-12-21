@@ -6,9 +6,10 @@ Created on Sat Mar 27 14:37:44 2021
 """
 
 import os
-import time
 import datetime
-from plot_functions import initialize_halfpage_map, initialize_fullpage_map, plot_boat_on_map, plot_lighthouse_on_map, plot_MET_station_on_map, plot_boat_timeseries, get_cbar_range, combined_legend_positions
+from plot_functions import initialize_halfpage_map, initialize_fullpage_map, \
+    plot_boat_on_map, plot_lighthouse_on_map, plot_MET_station_on_map, \
+        plot_boat_timeseries, get_cbar_range, combined_legend_positions, plot_lighthouse_timeseries
 from MET_stations import download_MET_stations
 import matplotlib.pyplot as plt
 import mobile_AWS_class
@@ -20,30 +21,8 @@ from AWS_structure_data_functions import create_GIS_input_file
 import multiprocessing as mp
 
 
-def next_wakeup():
-    
-    # refresh period
-    dt_minutes = 2
-    dt_hours = 0
-    time_delta=datetime.timedelta(hours=dt_hours, minutes=dt_minutes)
-    round_to = time_delta.total_seconds()                   # 60s
 
-    dt = datetime.datetime.now()
-    seconds = (dt - dt.min).seconds                       
-
-    if seconds % round_to == 0 and dt.microsecond == 0:
-        rounding = (seconds + round_to / 2) // round_to * round_to
-    else:
-        rounding = (seconds + dt.microsecond/1000000 + round_to) // round_to * round_to
-
-    next_wakeup_time = dt + datetime.timedelta(0, rounding - seconds, - dt.microsecond) + datetime.timedelta(seconds=30)
-    print("The next wakeup is scheduled for: {a}".format(a=next_wakeup_time))
-
-    return next_wakeup_time
-
-
-
-def update_all_plots(update_time):
+def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
     
     # define constants
     with open("./config_paths.yaml", "r", encoding='utf-8') as f:
@@ -54,18 +33,15 @@ def update_all_plots(update_time):
                    1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
                    1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685},
                    1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082}}
-    
-    lighthouses_to_plot = [1884, 1885, 1886, 1887]
 
     boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
-    boats_to_plot = []
-    
-    MET_stations_to_plot = ["LYR", "IR", "PYR", "NS"]
 
     status = "live"
 
     map_vari = "temperature"
     min_cbar_range = 3.
+    
+    update_time = datetime.datetime.now().replace(second=0, microsecond=0)
     
     
     ####################################################################################
@@ -132,7 +108,7 @@ def update_all_plots(update_time):
     ####################################################################################
     
 
-    # create and upload plots
+    # create and upload individual boat plots
     for b in boats_to_plot:
         
         fig, gs, ax_map, sc_map = initialize_halfpage_map()
@@ -151,6 +127,8 @@ def update_all_plots(update_time):
         
         upload_picture(local_output_path, os.path.basename(local_output_path))
         
+        
+    # create and upload overview plot
     fig, gs, ax_map, sc_map = initialize_fullpage_map()
     cbar_range = get_cbar_range([boat[i].data[map_vari] for i in boats_to_plot], min_cbar_range)
     for i, b in enumerate(boats_to_plot):
@@ -171,11 +149,18 @@ def update_all_plots(update_time):
     plt.close("all")
         
     upload_picture(local_output_path, os.path.basename(local_output_path))
+    # create_GIS_input_file(boat, lighthouse, met_stations, past_hours=3, path=paths['onedrive'])
+
+
+    # create and upload lighthouse plot
+    plot_lighthouse_timeseries(lighthouse, status)
+
+    local_output_path = f"{paths['local_desktop']}liveplot_lighthouses.png"
     
-    
-    create_GIS_input_file(boat, lighthouse, met_stations, past_hours=3, path=paths['onedrive'])
-    
-    
+    plt.savefig(local_output_path)
+    plt.close("all")
+        
+    upload_picture(local_output_path, os.path.basename(local_output_path))
         
     return
 
@@ -196,17 +181,33 @@ def upload_picture(local_file, online_file_name):
 
 
 if __name__ == '__main__':
-
-    next_wakeup_time = next_wakeup()    # start first wake-up
     
-    # always true, to keep the script running forever
-    while True:                 
-        while datetime.datetime.now() < next_wakeup_time:       # sleep until the next scheduled wakeup time
-            time.sleep(1)
-            
-        proc=mp.Process(target=update_all_plots, args=[next_wakeup_time])
-        proc.daemon=True
-        proc.start()
-        proc.join()
-        
-        next_wakeup_time = next_wakeup()           # don't forget to update the next wakeup time!!!
+    # define which stations the program should plot
+    mobile_switches = {1883: False, 
+                       1872: False,
+                       1924: False}
+
+    lighthouse_switches = {1885: True,
+                           1884: True,
+                           1886: True,
+                           1887: True}
+    
+    MET_switches = {"LYR": True,
+                    "IR":  True,
+                    "PYR": True,
+                    "NS":  True}
+    
+    
+    ###########################################################################
+    ###########################################################################
+    
+    mobile_stations = [s for s, sw in mobile_switches.items() if sw]
+    lighthouse_stations = [s for s, sw in lighthouse_switches.items() if sw]
+    MET_stations = [s for s, sw in MET_switches.items() if sw]
+
+    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
+        paths = yaml.safe_load(f)
+
+    proc=mp.Process(target=update_all_plots, args=[mobile_stations, lighthouse_stations, MET_stations])
+    proc.start()
+    proc.join()
