@@ -9,7 +9,7 @@ import time
 import yaml
 import multiprocessing as mp
 import datetime
-from AWS_structure_data_functions import restructure_mobile_AWS, restructure_lighthouse_AWS
+from IWIN_structure_data_functions import restructure_mobile_AWS, restructure_lighthouse_AWS
 
 
 

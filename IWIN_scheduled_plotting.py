@@ -7,7 +7,7 @@ Created on Sat Mar 27 14:37:44 2021
 
 import os
 import datetime
-from plot_functions import initialize_halfpage_map, initialize_fullpage_map, \
+from IWIN_plotting_functions import initialize_halfpage_map, initialize_fullpage_map, \
     plot_boat_on_map, plot_lighthouse_on_map, plot_MET_station_on_map, \
         plot_boat_timeseries, get_cbar_range, combined_legend_positions, plot_lighthouse_timeseries
 from MET_stations import download_MET_stations
@@ -16,7 +16,7 @@ import mobile_AWS_class
 import lighthouse_AWS_class
 import ftplib
 import yaml
-from AWS_structure_data_functions import create_GIS_input_file
+from IWIN_structure_data_functions import create_GIS_input_file
 
 import multiprocessing as mp
 

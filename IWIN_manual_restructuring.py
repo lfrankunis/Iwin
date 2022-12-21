@@ -6,7 +6,7 @@ Created on Tue Oct 12 18:07:58 2021
 """
 
 import datetime
-from AWS_structure_data_functions import restructure_mobile_AWS, restructure_lighthouse_AWS
+from IWIN_structure_data_functions import restructure_mobile_AWS, restructure_lighthouse_AWS
 import shutil
 import yaml
 import pandas as pd
