@@ -47,8 +47,22 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
     else:
         infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}.dat"
-    outfile_nc = f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-    backup_nc = f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        
+    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/"):
+        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/")
+        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/")
+    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        
+    outfile_nc = f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_nc = f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -90,6 +104,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                   'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree", 'wind_speed_corrected_Max': "m s-1",
                   'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
                   'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'altitude': "m"},
+        
         "long_names" : {'time': "UTC time", 'sensor_status': "sensor status",
                         'wind_speed_raw': "raw wind speed averaged over the sampling interval",
                         'wind_direction_raw': "raw wind direction averaged over the sampling interval",
@@ -105,6 +120,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                         'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
                         'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS",
                         "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
+        
         "standard_names": {'time': "time", 'sensor_status': "status_flag", 'wind_speed_raw': "wind_speed", 'wind_direction_raw': "wind_from_direction",
                            'wind_speed_raw_Max': "wind_speed", 
                            'wind_speed_corrected': "wind_speed", 'wind_direction_corrected': "wind_from_direction",
@@ -113,6 +129,14 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                            'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
                            'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude",
                            "exhaust_plume_influence": "status_flag"},
+        
+        "valid_range": {"wind_speed_raw": [0., 80.], "wind_speed_raw_Max": [0., 80.],
+                        "wind_direction_raw": [0., 360.], "wind_direction_raw_Std": [0., 360.],
+                        "wind_speed_corrected": [0., 80.], "wind_speed_corrected_Max": [0., 80.],
+                        "wind_direction_corrected": [0., 360.], "wind_direction_corrected_Std": [0., 360.],
+                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.],
+                        "latitude": [77., 80.], "longitude": [10., 20.]},
+        
         "flag_values": {"sensor_status": 'OK, Unknown Fault, Wind Fault', "exhaust_plume_influence": "0, 1"},
         "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume, measurements_impacted_by_exhaust_plume"}}
         
@@ -174,6 +198,14 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                            'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
                            'compass_heading': "platform_azimuth_angle", 'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude",
                            "exhaust_plume_influence": "status_flag"},
+        
+        "valid_range": {"wind_speed_raw": [0., 80.], "wind_speed_raw_Max": [0., 80.],
+                        "wind_direction_raw": [0., 360.], "wind_direction_raw_Std": [0., 360.],
+                        "wind_speed_corrected": [0., 80.], "wind_speed_corrected_Max": [0., 80.],
+                        "wind_direction_corrected": [0., 360.], "wind_direction_corrected_Std": [0., 360.],
+                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.],
+                        "latitude": [77., 80.], "longitude": [10., 20.]},
+        
         "flag_values": {"sensor_status": 'OK, Unknown Fault, Wind Fault', "exhaust_plume_influence": "0, 1"},
         "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume, measurements_impacted_by_exhaust_plume"}}
         
@@ -279,21 +311,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     # filter data for unphysical outliers
     for vari in data.columns:
-        if "wind_direction" in vari:
-            data.loc[data[vari]<0., vari] = np.nan
-            data.loc[data[vari]>360., vari] = np.nan
-        elif "wind_speed" in vari:
-            data.loc[data[vari]<0., vari] = np.nan
-            data.loc[data[vari]>80., vari] = np.nan
-        elif 'temperature' in vari:
-            data.loc[data[vari]<-80., vari] = np.nan
-            data.loc[data[vari]>40., vari] = np.nan
-        elif "relative_humidity" in vari:
-            data.loc[data[vari]<0., vari] = np.nan
-            data.loc[data[vari]>100., vari] = np.nan
-        elif "pressure" in vari:
-            data.loc[data[vari]<800., vari] = np.nan
-            data.loc[data[vari]>1100., vari] = np.nan
+        if vari in variable_attributes["valid_range"].keys():
+            data.loc[data[vari]<variable_attributes["valid_range"][vari][0], vari] = np.nan
+            data.loc[data[vari]>variable_attributes["valid_range"][vari][1], vari] = np.nan
     
     # determine exhaust plume flag
     exhaust_sectors = {"1872": (215., 235.),
@@ -445,8 +465,22 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
     else:
         infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}.dat"
-    outfile_nc = f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-    backup_nc = f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        
+    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/"):
+        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/")
+        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/")
+    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        
+    outfile_nc = f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_nc = f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -494,11 +528,16 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                       'wind_direction': "wind direction averaged over the sampling interval",
                       'wind_direction_Std': "standard deviation of the wind direction during the sampling interval",
                       'sensor_status': "sensor status"},
+        
         "standard_name": {'time': "time", 'air_pressure': "air_pressure",
                           'relative_humidity': "relative_humidity",
                           'temperature': "air_temperature",
                           'wind_speed': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction",
-                          'sensor_status': "status_flag"}}
+                          'sensor_status': "status_flag"},
+        
+        "valid_range": {"wind_speed": [0., 80.], "wind_speed_Max": [0., 80.],
+                        "wind_direction": [0., 360.], "wind_direction_Std": [0., 360.],
+                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.]}}
         
     else:
         new_names = {"TIMESTAMP": "time",
@@ -530,10 +569,12 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         
         "standard_name": {'time': "time", 'wind_speed': "wind_speed", 'wind_direction': "wind_from_direction",
                   'wind_speed_Max': "wind_speed", 'air_pressure': "air_pressure", "sensor_status": "status_flag",
-                  'relative_humidity': "relative_humidity", 'temperature': "air_temperature"}}
+                  'relative_humidity': "relative_humidity", 'temperature': "air_temperature"},
         
-
-
+        "valid_range": {"wind_speed": [0., 80.], "wind_speed_Max": [0., 80.],
+                        "wind_direction": [0., 360.], "wind_direction_Std": [0., 360.],
+                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.]}}
+        
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
@@ -545,23 +586,13 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     start_data_coverage = datetime.datetime.fromtimestamp(data.index[0], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     end_data_coverage = datetime.datetime.fromtimestamp(data.index[-1], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     
+    
     # filter data for unphysical outliers
     for vari in data.columns:
-        if "wind_direction" in vari:
-            data.loc[data[vari]<0., vari] = np.nan
-            data.loc[data[vari]>360., vari] = np.nan
-        elif "wind_speed" in vari:
-            data.loc[data[vari]<0., vari] = np.nan
-            data.loc[data[vari]>80., vari] = np.nan
-        elif vari == 'temperature':
-            data.loc[data[vari]<-80., vari] = np.nan
-            data.loc[data[vari]>40., vari] = np.nan
-        elif vari == "relative_humidity":
-            data.loc[data[vari]<0., vari] = np.nan
-            data.loc[data[vari]>100., vari] = np.nan
-        elif vari == "air_pressure":
-            data.loc[data[vari]<800., vari] = np.nan
-            data.loc[data[vari]>1100., vari] = np.nan
+        if vari in variable_attributes["valid_range"].keys():
+            data.loc[data[vari]<variable_attributes["valid_range"][vari][0], vari] = np.nan
+            data.loc[data[vari]>variable_attributes["valid_range"][vari][1], vari] = np.nan
+    
     
     data.fillna(-99999., inplace=True)
     

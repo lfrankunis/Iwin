@@ -32,7 +32,7 @@ def initialize_halfpage_map():
 
     # plot map
     ax_map = fig.add_subplot(gs[:,1], projection=ccrs.Mercator())
-    sc_map = map_classes.surface_cover_map(ax_map, ccrs.Mercator(), area='Isfjorden', mappath="C:/Svalbard_map_data/",
+    sc_map = map_classes.surface_cover_map(ax_map, ccrs.Mercator(), area='Isfjorden', mappath="/mnt/c/Svalbard_map_data/",
                                             resolution=250, scale_length_km=10)
 
     # marker for BB and PYR
@@ -65,7 +65,7 @@ def initialize_fullpage_map():
     fig, ax_map = plt.subplots(1,1,figsize=(19,12), subplot_kw={"projection": ccrs.Mercator()})
 
     # plot map
-    sc_map = map_classes.surface_cover_map(ax_map, ccrs.Mercator(), area='Isfjorden', mappath="C:/Svalbard_map_data/",
+    sc_map = map_classes.surface_cover_map(ax_map, ccrs.Mercator(), area='Isfjorden', mappath="/mnt/c/Svalbard_map_data/",
                                             resolution=250, scale_length_km=10)
 
     # marker for BB and PYR

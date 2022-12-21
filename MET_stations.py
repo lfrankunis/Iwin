@@ -81,7 +81,7 @@ def download_MET_stations(end, variables_to_read=["temperature", "relative_humid
         row = pd.DataFrame(data[i]['observations'])
         row['referenceTime'] = data[i]['referenceTime']
         row['sourceId'] = data[i]['sourceId']
-        df = df.append(row)
+        df = pd.concat([df, row])
 
     # Convert the time value to something Python understands
     df['TIMESTAMP'] = pd.to_datetime(df['referenceTime'])
