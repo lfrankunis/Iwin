@@ -73,10 +73,12 @@ dem = dem.where(dem > 0.)
 #%% read data
 
 
-lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "abbrev": "\\bf NN", "x_off": -23., "y_off": 0., "map_lon_lims": [16., 16.7], "map_lat_lims": [78.47, 78.65]},
-               1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "abbrev": "\\bf BHN", "x_off": -28., "y_off": 7., "map_lon_lims": [13.5, 16.0], "map_lat_lims": [78.2, 78.58]},
-               1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "abbrev": "\\bf DMO", "x_off": -25., "y_off": -15., "map_lon_lims": [12.2, 14.], "map_lat_lims": [78.01, 78.36]},
-               1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "abbrev": "\\bf GO", "x_off": 8., "y_off": -5., "map_lon_lims": [15.7, 16.7], "map_lat_lims": [78.3, 78.6]}}
+lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "abbrev": "\\bf NN", "x_off": -23., "y_off": 0., "map_lon_lims": [15.5, 17.4], "map_lat_lims": [78.46, 78.7], "lonticks": [15.7, 16.2, 16.7, 17.2], "latticks": [78.46, 78.52, 78.58, 78.64, 78.7], "scale_position": (0.75, 0.03)},
+                1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "abbrev": "\\bf BHN", "x_off": -28., "y_off": 7., "map_lon_lims": [13.5, 16.2], "map_lat_lims": [78.21, 78.55], "lonticks": [13.6, 14.1, 14.6, 15.1, 15.6, 16.1], "latticks": [78.22, 78.3, 78.38, 78.46, 78.54], "scale_position": (0.8, 0.03)},
+                1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "abbrev": "\\bf DMO", "x_off": -25., "y_off": -15., "map_lon_lims": [11.8, 14.5], "map_lat_lims": [78.01, 78.36], "lonticks": [11.9, 12.4, 12.9, 13.4, 13.9, 14.4], "latticks": [78.01, 78.08, 78.15, 78.22, 78.29, 78.36], "scale_position": (0.03, 0.03)},
+                1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "abbrev": "\\bf GO", "x_off": 8., "y_off": -5., "map_lon_lims": [15.25, 17.45], "map_lat_lims": [78.32, 78.6], "lonticks": [15.35, 15.85, 16.35, 16.85, 17.35], "latticks": [78.34, 78.40, 78.46, 78.52, 78.58], "scale_position": (0.03, 0.03)}}
+
+
 
 #%%
 
@@ -95,10 +97,10 @@ for l, ldata in lighthouses.items():
     print(l)
 
     fig, ax_main = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.6), subplot_kw={'projection': ccrs.Mercator()})
-    # ax_main.set_xticks([13., 14., 15., 16., 17.], crs=ccrs.PlateCarree())
-    # ax_main.set_yticks([78.1, 78.3, 78.5, 78.7], crs=ccrs.PlateCarree())
-    # ax_main.xaxis.set_major_formatter(lon_formatter)
-    # ax_main.yaxis.set_major_formatter(lat_formatter)
+    ax_main.set_xticks(ldata["lonticks"], crs=ccrs.PlateCarree())
+    ax_main.set_yticks(ldata["latticks"], crs=ccrs.PlateCarree())
+    ax_main.xaxis.set_major_formatter(lon_formatter)
+    ax_main.yaxis.set_major_formatter(lat_formatter)
     ax_main.set_facecolor("lightblue")
     
     # df_coastline = gpd.read_file(f"{path_map_data}NP_S100_SHP/S100_Land_l.shp")
@@ -159,10 +161,10 @@ for l, ldata in lighthouses.items():
     # plot data
     polar_inset.bar(lighthouse_data[l]["wind_direction"], lighthouse_data[l]["wind_speed"], bins=wspeed_bins, normed=True, opening=0.8, cmap=cmo.cm.thermal)
     
-    scale_bar(ax_main, (0.04, 0.03), 10, text_kwargs={"weight": "bold"}, zorder=400)
+    scale_bar(ax_main, ldata["scale_position"], 10, text_kwargs={"weight": "bold"}, zorder=400)
     
     
-    # plt.savefig(f"{path_out}{ldata['name']}.pdf", dpi=300)
+    plt.savefig(f"{path_out}{ldata['name']}.pdf", dpi=300)
     
     
 plt.show()
