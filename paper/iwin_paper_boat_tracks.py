@@ -135,6 +135,7 @@ ax_main.set_ylabel(None)
 
 scale_bar(ax_main, (0.04, 0.03), 10, text_kwargs={"weight": "bold"}, zorder=400)
 
+ax_main.set_zorder(1000)
 
 plt.savefig(path_out, dpi=300)
 
