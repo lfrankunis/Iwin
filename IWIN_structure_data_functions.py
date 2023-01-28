@@ -461,7 +461,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
 
     if from_time < datetime.datetime(2022,5,8):
         infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
-    elif from_time < datetime.datetime(2022,11,18):
+    elif from_time < datetime.datetime(2023,1,1):
         infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
     else:
         infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}.dat"

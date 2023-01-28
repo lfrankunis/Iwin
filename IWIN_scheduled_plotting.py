@@ -187,8 +187,8 @@ if __name__ == '__main__':
                        1872: False,
                        1924: False}
 
-    lighthouse_switches = {1885: True,
-                           1884: True,
+    lighthouse_switches = {1884: True,
+                           1885: True,
                            1886: True,
                            1887: True}
     
