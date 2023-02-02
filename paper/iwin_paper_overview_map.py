@@ -8,7 +8,6 @@ Created on Tue Nov 22 08:37:14 2022
 
 import sys
 import pandas as pd
-import pandas as pd
 import cmocean as cmo
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import InsetPosition
