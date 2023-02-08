@@ -69,3 +69,11 @@ if __name__ == '__main__':
             
     with open(f"{paths['local_desktop']}iwin_latest_day_not_fully_restructured.yaml", 'w') as f:
         yaml.dump(latest_day_not_fully_restructured, f, default_flow_style=False)
+        
+        
+        
+        
+        
+        
+        
+        

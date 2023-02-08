@@ -116,9 +116,9 @@ for m, mdata in MET_stations.items():
 
 
 for l in lighthouses.values():
-    ax_main.scatter([l["lon"]], [l["lat"]], color="c", marker='x', s=70, lw=3, transform=ccrs.PlateCarree(), zorder=2000)
+    ax_main.scatter([l["lon"]], [l["lat"]], color="m", marker='x', s=70, lw=3, transform=ccrs.PlateCarree(), zorder=2000)
     ax_main.annotate(l["abbrev"], xy=(l["lon"], l["lat"]), xytext=(l["x_off"], l["y_off"]), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax_main), 
-                     textcoords="offset points", fontsize=10, color="c", zorder=2000)
+                     textcoords="offset points", fontsize=10, color="m", zorder=2000)
     
 for f, fdata in fjords.items():
     ax_main.annotate(f, xy=(fdata["lon"], fdata["lat"]), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax_main), 

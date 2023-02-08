@@ -81,7 +81,7 @@ with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/lighthouse_AWS_1
     bohemanneset_data = ds.load()
 
 for b, b_data in boat_data.items():
-    # boat_data[b]["temperature_Avg"] -= lighthouse_data["temperature_Avg"]
+    # boat_data[b]["temperature"] -= lighthouse_data["temperature"]
     mask = ~((b_data["latitude"] > 78.22745) & (b_data["latitude"] < 78.22878) & (b_data["longitude"] > 15.60521) & (b_data["longitude"] < 15.61387))
     boat_data[b] = xr.where(mask, b_data, np.nan)
     mask = ~((b_data["latitude"] > 78.06336) & (b_data["latitude"] < 78.06433) & (b_data["longitude"] > 14.1979) & (b_data["longitude"] < 14.20329))
@@ -143,7 +143,7 @@ ax.scatter([14.21033], [78.06091], color="k", marker='+', lw=3., s=70, transform
 
 
 for b, b_data in boat_data.items():
-    df = pd.DataFrame({'latitude': b_data["latitude"], 'longitude': b_data["longitude"], "color": b_data["wind_speed_corrected_Avg"]})
+    df = pd.DataFrame({'latitude': b_data["latitude"], 'longitude': b_data["longitude"], "color": b_data["wind_speed_corrected"]})
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
     gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
     pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=1, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
@@ -153,8 +153,8 @@ cbar.ax.set_ylabel("Wind Speed [m s-1]")
 
 
 b = "MS_Bard"
-u = -np.abs(wind_arrow_data[b]["wind_speed_corrected_Avg"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected_Avg"]))
-v = -np.abs(wind_arrow_data[b]["wind_speed_corrected_Avg"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected_Avg"]))
+u = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
+v = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
 gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
 gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
@@ -175,7 +175,7 @@ ax.plot([lon_lims_FF[1], lon_lims_FF[1]], lat_lims_FF, "k-", lw=1.5, transform=c
 ax.plot([13.4, lon_lims_FF[0]], [78.41014, lat_lims_FF[1]], "k--", lw=1.5, transform=ccrs.PlateCarree(), zorder=300)
 ax.plot([15.33, lon_lims_FF[1]], [78.41014, lat_lims_FF[1]], "k--", lw=1.5, transform=ccrs.PlateCarree(), zorder=300)
 
-ax.text(0.94, 0.95, "(b)", transform=ax.transAxes, fontsize=10)
+ax.text(0.94, 0.95, "(a)", transform=ax.transAxes, fontsize=10)
 
 scale_bar(ax, (0.87, 0.03), 10, text_kwargs={"weight": "bold"})
 
@@ -197,14 +197,14 @@ dem.plot.imshow(ax=ax_FF, cmap=mpl.colors.ListedColormap([cmo.cm.topo(a) for a i
 
 df_layer_glaciers.plot(ax=ax_FF, edgecolor=None, facecolor="#FFFFFF")
 
-df = pd.DataFrame({'latitude': boat_data_hr["latitude"], 'longitude': boat_data_hr["longitude"], "color": boat_data_hr["wind_speed_corrected_Avg"]})
+df = pd.DataFrame({'latitude': boat_data_hr["latitude"], 'longitude': boat_data_hr["longitude"], "color": boat_data_hr["wind_speed_corrected"]})
 gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
 gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
 ax_FF.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=2, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
 
 b = "MS_Polargirl"
-u = -np.abs(wind_arrow_data[b]["wind_speed_corrected_Avg"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected_Avg"]))
-v = -np.abs(wind_arrow_data[b]["wind_speed_corrected_Avg"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected_Avg"]))
+u = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
+v = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
 gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
 gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
@@ -216,7 +216,7 @@ ax_FF.set_title(None)
 ax_FF.set_xlabel(None)
 ax_FF.set_ylabel(None)
 ax_FF.xaxis.tick_top()
-ax_FF.text(0.03, 0.9, "(a)", transform=ax_FF.transAxes, fontsize=10)
+ax_FF.text(0.03, 0.9, "(b)", transform=ax_FF.transAxes, fontsize=10)
 
 scale_bar(ax_FF, (0.78, 0.03), 2, text_kwargs={"weight": "bold"})
 

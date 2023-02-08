@@ -77,7 +77,7 @@ with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/lighthouse_AWS_1
 lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-05 23:59:50", freq="20S"), method="linear")
 
 for b, b_data in boat_data.items():
-    boat_data[b]["temperature_Avg"] -= lighthouse_data["temperature_Avg"]
+    boat_data[b]["temperature"] -= lighthouse_data["temperature"]
     mask = ~((b_data["latitude"] > 78.22745) & (b_data["latitude"] < 78.22878) & (b_data["longitude"] > 15.60521) & (b_data["longitude"] < 15.61387))
     boat_data[b] = xr.where(mask, b_data, np.nan)
     mask = ~((b_data["latitude"] > 78.06336) & (b_data["latitude"] < 78.06433) & (b_data["longitude"] > 14.1979) & (b_data["longitude"] < 14.20329))
@@ -85,10 +85,18 @@ for b, b_data in boat_data.items():
     mask = ~((b_data["latitude"] > 78.65447) & (b_data["latitude"] < 78.65518) & (b_data["longitude"] > 16.37723) & (b_data["longitude"] < 16.38635))
     boat_data[b] = xr.where(mask, b_data, np.nan)
 
-boat_data["MS_Bard"] = boat_data["MS_Bard"].sel(time =slice(pd.Timestamp("2022-08-05 12:30"), pd.Timestamp("2022-08-05 17:00")))
-boat_data["MS_Polargirl"] = boat_data["MS_Polargirl"].sel(time =slice(pd.Timestamp("2022-08-05 06:00"), pd.Timestamp("2022-08-05 17:00")))
+boat_data["MS_Bard"] = boat_data["MS_Bard"].sel(time=slice(pd.Timestamp("2022-08-05 12:30"), pd.Timestamp("2022-08-05 17:00")))
+boat_data["MS_Polargirl"] = boat_data["MS_Polargirl"].sel(time=slice(pd.Timestamp("2022-08-05 06:00"), pd.Timestamp("2022-08-05 17:00")))
 
 
+#%% times for arrows
+
+times_arrows = {"MS_Bard": list(np.array([pd.Timestamp("2022-08-05 14:15")])),
+                "MS_Polargirl": list(np.array([pd.Timestamp("2022-08-05 10:00")], dtype="datetime64"))}
+
+wind_arrow_data = {}
+for b, b_data in boat_data.items():
+    wind_arrow_data[b] = b_data.sel(time = times_arrows[b])
     
 #%% plot
 
@@ -123,10 +131,17 @@ ax.scatter([14.21033], [78.06091], color="k", marker='+', lw=2., s=70, transform
 ax.scatter([14.75300], [78.38166], color="k", marker='*', lw=2., s=70, transform=ccrs.PlateCarree(), zorder=200)
 
 for b, b_data in boat_data.items():
-    df = pd.DataFrame({'latitude': b_data["latitude"], 'longitude': b_data["longitude"], "color": b_data["temperature_Avg"]})
+    df = pd.DataFrame({'latitude': b_data["latitude"], 'longitude': b_data["longitude"], "color": b_data["temperature"]})
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
     gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
     pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=1, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
+    
+    u = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
+    v = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
+    df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
+    gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+    gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+    ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="c", length=6., linewidth=1., zorder=130)
 
 cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
 cbar.ax.set_ylabel("Temperature [°C]")
