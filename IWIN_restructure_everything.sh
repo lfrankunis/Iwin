@@ -1,6 +1,3 @@
-source /home/unismet/miniconda3/etc/profile.d/conda.sh
-conda activate iwin
-cd /mnt/c/Github/Iwin/
 ENDDAY=$(date -d "-2 day" "+ %Y%m%d")
 python ./IWIN_manual_restructuring.py -s 1884 -t 20220617 "$ENDDAY"
 python ./IWIN_manual_restructuring.py -s 1885 -t 20210819 "$ENDDAY"

@@ -37,6 +37,18 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
 
     threshold = 0.25
     
+    if ((from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
+        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1924": {"name": "MS Bard", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+        assignment_sensor_location = {"1883": "MSBard", "1872": "MSPolargirl"}
+        
+    else:
+        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                      "1924": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+        assignment_sensor_location = {"1883": "MSBard", "1872": "MSPolargirl", "1924": "MSBillefjord"}
+    
     # define path to the data folder
     with open("./config_paths.yaml", "r", encoding='utf-8') as f:
         paths = yaml.safe_load(f)
@@ -48,21 +60,42 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     else:
         infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}.dat"
         
-    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/"):
-        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/")
-        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/")
-    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/"):
-        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/")
-        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/")
-    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/"):
-        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/")
-        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/{from_time.year}/")
-    if not os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
-        os.makedirs(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-        os.makedirs(f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
         
-    outfile_nc = f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-    backup_nc = f"{paths['harddrive']}mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        
+    outfile_sensor_nc = f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_sensor_nc = f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+
+
+    if station in assignment_sensor_location.keys():
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/")
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/")
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+            
+        outfile_location_nc = f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        backup_location_nc = f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+
+
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -349,26 +382,17 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     # Assign global attributes
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-    
-    if ((station == "1924") & (from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
-        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1924": {"name": "MS Bard", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
-    else:
-        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1924": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
         
     if from_time < datetime.datetime(2022,1,1):
         creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
-        creator_names = "L. Frank; F. Schalamon; M. O. Jonassen; T. Remes"
-        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; mariusj@unis.no; teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon"
+        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133"
     elif from_time < datetime.datetime(2022,10,1):
         creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
-        creator_names = "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen; T. Remes"
-        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no; teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon; A. Stenlund"
+        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at; "
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X"
     else:
         creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
         creator_names = "L. Frank; M. O. Jonassen; T. Remes"
@@ -424,11 +448,18 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     myencoding["exhaust_plume_influence"] = {"_FillValue": -99999}
     myencoding["time"] = {'_FillValue': None}
     
-    ds.to_netcdf(outfile_nc, unlimited_dims=["time"], encoding=myencoding)
+    ds.to_netcdf(outfile_sensor_nc, unlimited_dims=["time"], encoding=myencoding)
     
-    if os.path.isfile(backup_nc):
-        os.remove(backup_nc)
-    shutil.copyfile(outfile_nc, backup_nc)
+    if os.path.isfile(backup_sensor_nc):
+        os.remove(backup_sensor_nc)
+    shutil.copyfile(outfile_sensor_nc, backup_sensor_nc)
+    
+    if station in assignment_sensor_location.keys():
+        ds.to_netcdf(outfile_location_nc, unlimited_dims=["time"], encoding=myencoding)
+        
+        if os.path.isfile(backup_location_nc):
+            os.remove(backup_location_nc)
+        shutil.copyfile(outfile_location_nc, backup_location_nc)
 
     return time_avail[-1]
 
@@ -455,6 +486,14 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     In case the restructured interval is not one day, remember to change the output file names
     """
     
+    if from_time > datetime.datetime(2020,1,1):         # dummy for the moment
+        lighthouses = {"1884": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "installation": datetime.datetime(2022,6,18,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                       "1885": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "installation": datetime.datetime(2021,8,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                       "1886": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "installation": datetime.datetime(2022,7,8,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
+                       "1887": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "installation": datetime.datetime(2022,9,3,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+        assignment_sensor_location = {"1884": "Narveneset", "1885": "Bohemanneset", "1886": "Daudmannsodden", "1887": "Gasoyane"}
+        
+    
     # define path to the data folder
     with open("./config_paths.yaml", "r", encoding='utf-8') as f:
         paths = yaml.safe_load(f)
@@ -466,21 +505,40 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     else:
         infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}.dat"
         
-    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/"):
-        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/")
-        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/")
-    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/"):
-        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/")
-        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/")
-    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/"):
-        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
-        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
-    if not os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
-        os.makedirs(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-        os.makedirs(f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
         
-    outfile_nc = f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-    backup_nc = f"{paths['harddrive']}lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    outfile_sensor_nc = f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_sensor_nc = f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        
+    if station in assignment_sensor_location.keys():
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/")
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/")
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
+        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        
+        outfile_location_nc = f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        backup_location_nc = f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        
+   
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
 
@@ -614,22 +672,16 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     # Assign global attributes
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     
-    lighthouses = {"1884": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "installation": datetime.datetime(2022,6,18,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                   "1885": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "installation": datetime.datetime(2021,8,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                   "1886": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "installation": datetime.datetime(2022,7,8,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                   "1887": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "installation": datetime.datetime(2022,9,3,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
-    
-    
     if from_time < datetime.datetime(2022,1,1):
         creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
-        creator_names = "L. Frank; F. Schalamon; M. O. Jonassen; T. Remes"
-        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; mariusj@unis.no; teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon"
+        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133"
     elif from_time < datetime.datetime(2022,10,1):
         creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
-        creator_names = "L. Frank; F. Schalamon; A. Stenlund; M. O. Jonassen; T. Remes"
-        creator_mails = "lukasf@unis.no; florina.schalamon@uni-graz.at; ;mariusj@unis.no; teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon; A. Stenlund"
+        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at; "
+        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X"
     else:
         creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
         creator_names = "L. Frank; M. O. Jonassen; T. Remes"
@@ -688,14 +740,39 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v not in ["time", "sensor_status"]}
     myencoding["time"] = {'_FillValue': None}
     
-    ds.to_netcdf(outfile_nc, unlimited_dims=["time"], encoding=myencoding)
+    ds.to_netcdf(outfile_sensor_nc, unlimited_dims=["time"], encoding=myencoding)
     
-    if os.path.isfile(backup_nc):
-        os.remove(backup_nc)
-    shutil.copyfile(outfile_nc, backup_nc)
+    if os.path.isfile(backup_sensor_nc):
+        os.remove(backup_sensor_nc)
+    shutil.copyfile(outfile_sensor_nc, backup_sensor_nc)
+    
+    
+    if station in assignment_sensor_location.keys():
+        ds.to_netcdf(outfile_location_nc, unlimited_dims=["time"], encoding=myencoding)
+        
+        if os.path.isfile(backup_location_nc):
+            os.remove(backup_location_nc)
+        shutil.copyfile(outfile_location_nc, backup_location_nc)
 
 
     return time_avail[-1]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def export_json(df, out_path):

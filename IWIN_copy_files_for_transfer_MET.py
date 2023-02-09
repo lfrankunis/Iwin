@@ -22,9 +22,9 @@ if __name__ == '__main__':
 
     number_of_days = int(args.number_of_days)
     
-    mobile_stations = [1883, 1872, 1924]
+    mobile_stations = ["MSBard", "MSPolargirl", "MSBillefjord"]
 
-    lighthouse_stations = [1884, 1885, 1886, 1887]
+    lighthouse_stations = ["Narveneset", "Bohemanneset", "Daudmannsodden", "Gasoyane"]
     
     resolutions = ["20sec", "1min", "10min"]
     
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     for d in days:
         for resolution in resolutions:
             for station in mobile_stations:
-                if os.path.exists(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc"):
+                if os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc"):
                     if not os.path.exists(f"{paths['MET_transfer']}mobile_AWS_{station}/"):
                         os.makedirs(f"{paths['MET_transfer']}mobile_AWS_{station}/")
                     if not os.path.exists(f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/"):
@@ -52,11 +52,11 @@ if __name__ == '__main__':
                         os.makedirs(f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/")
                     if not os.path.exists(f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/"):
                         os.makedirs(f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/")
-                    shutil.copyfile(f"{paths['local_storage']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
+                    shutil.copyfile(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
                                     f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc")
                     
             for station in lighthouse_stations:
-                if os.path.exists(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc"):
+                if os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc"):
                     if not os.path.exists(f"{paths['MET_transfer']}lighthouse_AWS_{station}/"):
                         os.makedirs(f"{paths['MET_transfer']}lighthouse_AWS_{station}/")
                     if not os.path.exists(f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/"):
@@ -65,7 +65,7 @@ if __name__ == '__main__':
                         os.makedirs(f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/")
                     if not os.path.exists(f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/"):
                         os.makedirs(f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/")
-                    shutil.copyfile(f"{paths['local_storage']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
+                    shutil.copyfile(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
                                     f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc")
                         
                         
