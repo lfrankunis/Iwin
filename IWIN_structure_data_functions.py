@@ -123,7 +123,6 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                      'Relative_Humidity': 'relative_humidity',
                      'Barometric_Pressure': 'air_pressure',
                      'GPS_Location': 'GPS_location',
-                     'Sensor_status': "sensor_status",
                      "GPS_speed": "GPS_speed",
                      "GPS_heading": "GPS_heading"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
@@ -136,9 +135,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                   'wind_direction_raw': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
                   'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree", 'wind_speed_corrected_Max': "m s-1",
                   'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
-                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'altitude': "m"},
+                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
         
-        "long_names" : {'time': "UTC time", 'sensor_status': "sensor status",
+        "long_names" : {'time': "UTC time",
                         'wind_speed_raw': "raw wind speed averaged over the sampling interval",
                         'wind_direction_raw': "raw wind direction averaged over the sampling interval",
                         'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
@@ -151,27 +150,29 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                         'relative_humidity': "air relative humidity sampled at the respective timestamp",
                         'air_pressure': "air pressure sampled at the respective timestamp",
                         'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
-                        'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS",
+                        'latitude': "latitude", 'longitude': "longitude", 'height': "height of the sensor over ground, retrieved from the GPS",
                         "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
         
-        "standard_names": {'time': "time", 'sensor_status': "status_flag", 'wind_speed_raw': "wind_speed", 'wind_direction_raw': "wind_from_direction",
+        "standard_names": {'time': "time", 'wind_speed_raw': "wind_speed", 'wind_direction_raw': "wind_from_direction",
                            'wind_speed_raw_Max': "wind_speed", 
                            'wind_speed_corrected': "wind_speed", 'wind_direction_corrected': "wind_from_direction",
                            'wind_speed_corrected_Max': "wind_speed",
                            'temperature': "air_temperature", 'relative_humidity': 'relative_humidity', 'air_pressure': "air_pressure",
                            'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
-                           'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude",
+                           'latitude': "latitude", 'longitude': "longitude", 'height': "height",
                            "exhaust_plume_influence": "status_flag"},
         
-        "valid_range": {"wind_speed_raw": [0., 80.], "wind_speed_raw_Max": [0., 80.],
-                        "wind_direction_raw": [0., 360.], "wind_direction_raw_Std": [0., 360.],
-                        "wind_speed_corrected": [0., 80.], "wind_speed_corrected_Max": [0., 80.],
-                        "wind_direction_corrected": [0., 360.], "wind_direction_corrected_Std": [0., 360.],
-                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.],
-                        "latitude": [77., 80.], "longitude": [10., 20.]},
+        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(80.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_direction_raw": [np.float32(0.), np.float32(360.)], "wind_direction_raw_Std": [np.float32(0.), np.float32(360.)],
+                        "wind_speed_corrected": [np.float32(0.), np.float32(80.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
+                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
+                        "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
         
-        "flag_values": {"sensor_status": 'OK, Unknown Fault, Wind Fault', "exhaust_plume_influence": "0, 1"},
-        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume, measurements_impacted_by_exhaust_plume"}}
+        "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
+        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume measurements_impacted_by_exhaust_plume"},
+        
+        "positive": {"height": "up"}}
         
     else:
         new_names = {"TIMESTAMP": "time",
@@ -187,7 +188,6 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                      'relative_humidity': 'relative_humidity',
                      'air_pressure': 'air_pressure',
                      'GPS_location': 'GPS_location',
-                     'sensor_status': "sensor_status",
                      'compass_heading': 'compass_heading',
                      "GPS_speed": "GPS_speed",
                      "GPS_heading": "GPS_heading"}
@@ -202,9 +202,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                   'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree",
                   'wind_speed_corrected_Max': "m s-1",
                   'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
-                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'compass_heading': "degree", 'latitude': "degree_N", 'longitude': "degree_E", 'altitude': "m"},
+                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'compass_heading': "degree", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
         
-        "long_name" : {'time': "UTC time", 'sensor_status': "sensor status",
+        "long_name" : {'time': "UTC time",
                         'wind_speed_raw': "raw wind speed averaged over the sampling interval",
                         'wind_direction_raw': "raw wind direction averaged over the sampling interval",
                         'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
@@ -218,10 +218,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                         'air_pressure': "air pressure averaged over the sampling interval",
                         'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
                         'compass_heading': "heading of the boat, retrieved from the compass",
-                        'latitude': "latitude", 'longitude': "longitude", 'altitude': "height of the sensor over ground, retrieved from the GPS",
+                        'latitude': "latitude", 'longitude': "longitude", 'height': "height of the sensor over ground, retrieved from the GPS",
                         "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
         
-        "standard_name": {'time': "time", 'sensor_status': "status_flag",
+        "standard_name": {'time': "time",
                            'wind_speed_raw_Max': "wind_speed", 'wind_speed_raw': "wind_speed",
                            'wind_direction_raw': "wind_from_direction",
                            'wind_speed_corrected_Max': "wind_speed", 'wind_speed_corrected': "wind_speed",
@@ -229,18 +229,20 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                            'temperature': "air_temperature",
                            'relative_humidity': 'relative_humidity',
                            'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
-                           'compass_heading': "platform_azimuth_angle", 'latitude': "latitude", 'longitude': "longitude", 'altitude': "altitude",
+                           'compass_heading': "platform_azimuth_angle", 'latitude': "latitude", 'longitude': "longitude", "height": "height",
                            "exhaust_plume_influence": "status_flag"},
         
-        "valid_range": {"wind_speed_raw": [0., 80.], "wind_speed_raw_Max": [0., 80.],
-                        "wind_direction_raw": [0., 360.], "wind_direction_raw_Std": [0., 360.],
-                        "wind_speed_corrected": [0., 80.], "wind_speed_corrected_Max": [0., 80.],
-                        "wind_direction_corrected": [0., 360.], "wind_direction_corrected_Std": [0., 360.],
-                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.],
-                        "latitude": [77., 80.], "longitude": [10., 20.]},
+        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(80.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_direction_raw": [np.float32(0.), np.float32(360.)], "wind_direction_raw_Std": [np.float32(0.), np.float32(360.)],
+                        "wind_speed_corrected": [np.float32(0.), np.float32(80.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
+                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
+                        "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
         
-        "flag_values": {"sensor_status": 'OK, Unknown Fault, Wind Fault', "exhaust_plume_influence": "0, 1"},
-        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume, measurements_impacted_by_exhaust_plume"}}
+        "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
+        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume measurements_impacted_by_exhaust_plume"},
+        
+        "positive": {"height": "up"}}
         
 
     # transfer timestamps into Python datetime objects
@@ -249,28 +251,28 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     # extract lat, lon and lat from GPS Location
     latitude = np.ones((len(data["time"]))) * np.nan
     longitude = np.ones((len(data["time"]))) * np.nan
-    altitude = np.ones((len(data["time"]))) * np.nan
+    height = np.ones((len(data["time"]))) * np.nan
     for c, gps in enumerate(data["GPS_location"]):
         if type(gps) == float:
             latitude[c] = np.nan
             longitude[c] = np.nan
-            altitude[c] = np.nan
+            height[c] = np.nan
         else:
             latitude[c] = float(gps.split(":")[0])
             longitude[c] = float(gps.split(":")[1])
-            altitude[c] = float(gps.split(":")[2])
+            height[c] = float(gps.split(":")[2])
             
             # filter data with erroneous GPS positions
             if ((latitude[c] < 77.95926) or (latitude[c] > 78.85822) or (longitude[c] < 13.38286) or (longitude[c] > 17.46182)):
                 latitude[c] = np.nan
                 longitude[c] = np.nan
-                altitude[c] = np.nan
+                height[c] = np.nan
                 
                 
     # add lon, lat and alt to dataframe
     data["latitude"] = latitude
     data["longitude"] = longitude
-    data["altitude"] = altitude
+    data["height"] = height
 
 
     # correct wind data for motion of the boat
@@ -367,8 +369,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     for vari in list(ds.variables):
         if vari == "time":
             ds[vari] = ds[vari].astype('float64', keep_attrs=True)
-        elif vari in ["exhaust_plume_influence", 'sensor_status']:
-            ds[vari] = ds[vari].astype('int32', keep_attrs=True)
+        elif vari == "exhaust_plume_influence":
+            ds[vari] = ds[vari].astype('int8', keep_attrs=True)
         else:
             ds[vari] = ds[vari].astype('float32', keep_attrs=True)
         attris = {}
@@ -419,7 +421,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "area": "Svalbard, Isfjorden",
         "time_coverage_start": start_data_coverage,
         "time_coverage_end": end_data_coverage,
-        "Conventions": "CF-1.6, ACDD-1.3",
+        "Conventions": "CF-1.8",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Known bad data has been replaced with null values, ranges applied, data has been scaled using contextual information (wind speed and direction corrected for horizontal movement of boat)",
@@ -444,7 +446,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     for a, value in global_attributes.items():
         ds.attrs[a] = value
     
-    myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v not in ["time", "sensor_status", "exhaust_plume_influence"]}
+    myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v not in ["time", "exhaust_plume_influence"]}
     myencoding["exhaust_plume_influence"] = {"_FillValue": -99999}
     myencoding["time"] = {'_FillValue': None}
     
@@ -563,8 +565,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                      'WS_ms_Max': "wind_speed_Max",
                      'WS_ms_S_WVT': "wind_speed",
                      'WindDir_D1_WVT': "wind_direction",
-                     'WindDir_SD1_WVT': "wind_direction_Std",
-                     'MetSENS_Status': "sensor_status"}
+                     'WindDir_SD1_WVT': "wind_direction_Std"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
         data.drop(columns=cols_to_drop, inplace=True)
         data.rename(new_names, axis=1, inplace=True)
@@ -584,18 +585,16 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                       'wind_speed_Max': "maximum wind speed during the sampling interval",
                       'wind_speed': "wind speed averaged over the sampling interval",
                       'wind_direction': "wind direction averaged over the sampling interval",
-                      'wind_direction_Std': "standard deviation of the wind direction during the sampling interval",
-                      'sensor_status': "sensor status"},
+                      'wind_direction_Std': "standard deviation of the wind direction during the sampling interval"},
         
         "standard_name": {'time': "time", 'air_pressure': "air_pressure",
                           'relative_humidity': "relative_humidity",
                           'temperature': "air_temperature",
-                          'wind_speed': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction",
-                          'sensor_status': "status_flag"},
+                          'wind_speed': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction"},
         
-        "valid_range": {"wind_speed": [0., 80.], "wind_speed_Max": [0., 80.],
-                        "wind_direction": [0., 360.], "wind_direction_Std": [0., 360.],
-                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.]}}
+        "valid_range": {"wind_speed": [np.float32(0.), np.float32(80.)], "wind_speed_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
+                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]}}
         
     else:
         new_names = {"TIMESTAMP": "time",
@@ -605,8 +604,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                      'wind_speed_Max': "wind_speed_Max",
                      'wind_speed_Avg': "wind_speed",
                      'wind_direction_Avg': "wind_direction",
-                     'wind_direction_Std': "wind_direction_Std",
-                     'MetSENS_Status': 'sensor_status'}
+                     'wind_direction_Std': "wind_direction_Std"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
         data.drop(columns=cols_to_drop, inplace=True)
         data.rename(new_names, axis=1, inplace=True)
@@ -617,7 +615,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                   'wind_speed_Max': "m s-1", 'air_pressure': "hPa",
                   'relative_humidity': "percent", 'temperature': "degree_C"},
         
-        "long_name": {'time': "UTC time", 'wind_speed': "wind speed averaged over the sampling interval", "sensor_status": "sensor status",
+        "long_name": {'time': "UTC time", 'wind_speed': "wind speed averaged over the sampling interval",
                       'wind_direction': "wind direction averaged over the sampling interval",
                       'wind_direction_Std': "standard deviation of the wind direction during the sampling interval",
                       'wind_speed_Max': "maximum wind speed during the sampling interval",
@@ -626,13 +624,12 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                       'temperature': "air temperature averaged over the sampling interval"},
         
         "standard_name": {'time': "time", 'wind_speed': "wind_speed", 'wind_direction': "wind_from_direction",
-                  'wind_speed_Max': "wind_speed", 'air_pressure': "air_pressure", "sensor_status": "status_flag",
+                  'wind_speed_Max': "wind_speed", 'air_pressure': "air_pressure",
                   'relative_humidity': "relative_humidity", 'temperature': "air_temperature"},
         
-        "valid_range": {"wind_speed": [0., 80.], "wind_speed_Max": [0., 80.],
-                        "wind_direction": [0., 360.], "wind_direction_Std": [0., 360.],
-                        "temperature": [-80., 40.], "relative_humidity": [0., 100.], "air_pressure": [800., 1100.]}}
-        
+        "valid_range": {"wind_speed": [np.float32(0.), np.float32(80.)], "wind_speed_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
+                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]}}
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
@@ -658,7 +655,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     for vari in list(ds.variables):
         if vari == "time":
             ds[vari] = ds[vari].astype('float64', keep_attrs=True)
-        elif vari != 'sensor_status':
+        else:
             ds[vari] = ds[vari].astype('float32', keep_attrs=True)
         attris = {}
         for a, d in variable_attributes.items():
@@ -711,7 +708,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "area": "Svalbard, Isfjorden",
         "time_coverage_start": start_data_coverage,
         "time_coverage_end": end_data_coverage,
-        "Conventions": "CF-1.6, ACDD-1.3",
+        "Conventions": "CF-1.8",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Known bad data has been replaced with null values, ranges applied",
@@ -737,7 +734,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     for a, value in global_attributes.items():
         ds.attrs[a] = value
     
-    myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v not in ["time", "sensor_status"]}
+    myencoding = {v: {'_FillValue': -99999., 'zlib': False} for v in list(ds.variables) if v != "time"}
     myencoding["time"] = {'_FillValue': None}
     
     ds.to_netcdf(outfile_sensor_nc, unlimited_dims=["time"], encoding=myencoding)
