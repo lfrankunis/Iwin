@@ -39,7 +39,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/"
+path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_glaciermicroclimate.pdf"
 
@@ -67,12 +67,12 @@ dem = dem.where(dem > 0.)
 mobile_stations = {1883: "MS_Bard", 1872: "MS_Polargirl"}
 boat_data = {}
 for s, boat in mobile_stations.items():
-    with xr.open_dataset(f"{path_iwin_data}mobile_AWS_{s}/20sec/mobile_AWS_{s}_Table_20sec_{day_str}.nc") as ds:
+    with xr.open_dataset(f"{path_iwin_data}mobile_AWS_{s}/20sec/{day_str[:4]}/{day_str[4:6]}/mobile_AWS_{s}_Table_20sec_{day_str}.nc") as ds:
         boat_data[boat] = ds.load()
 
 
 
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
     lighthouse_data = ds.load()
 lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-05 23:59:50", freq="20S"), method="linear")
 
@@ -114,7 +114,7 @@ ax.set_yticks([78.1, 78.2, 78.3, 78.4, 78.5], crs=ccrs.PlateCarree())
 ax.xaxis.set_major_formatter(lon_formatter)
 ax.yaxis.set_major_formatter(lat_formatter)
 # gl = ax.gridlines(draw_labels=False)
-ax.set_facecolor("lightgrey")
+ax.set_facecolor("lightblue")
 df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
 df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
 df_coastline.plot(ax=ax, edgecolor="k", facecolor="none", zorder=20, lw=1.)
@@ -141,7 +141,7 @@ for b, b_data in boat_data.items():
     df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
     gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
-    ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="c", length=6., linewidth=1., zorder=130)
+    ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="red", length=8., linewidth=2., zorder=130)
 
 cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
 cbar.ax.set_ylabel("Temperature [°C]")

@@ -46,7 +46,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/"
+path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_location/"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/"
 
@@ -73,10 +73,10 @@ dem = dem.where(dem > 0.)
 #%% read data
 
 
-lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "abbrev": "\\bf NN", "x_off": -23., "y_off": 0., "map_lon_lims": [15.5, 17.4], "map_lat_lims": [78.46, 78.7], "lonticks": [15.7, 16.2, 16.7, 17.2], "latticks": [78.46, 78.52, 78.58, 78.64, 78.7], "scale_position": (0.75, 0.03)},
-                1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "abbrev": "\\bf BHN", "x_off": -28., "y_off": 7., "map_lon_lims": [13.5, 16.2], "map_lat_lims": [78.21, 78.55], "lonticks": [13.6, 14.1, 14.6, 15.1, 15.6, 16.1], "latticks": [78.22, 78.3, 78.38, 78.46, 78.54], "scale_position": (0.8, 0.03)},
-                1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "abbrev": "\\bf DMO", "x_off": -25., "y_off": -15., "map_lon_lims": [11.8, 14.5], "map_lat_lims": [78.01, 78.36], "lonticks": [11.9, 12.4, 12.9, 13.4, 13.9, 14.4], "latticks": [78.01, 78.08, 78.15, 78.22, 78.29, 78.36], "scale_position": (0.03, 0.03)},
-                1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "abbrev": "\\bf GO", "x_off": 8., "y_off": -5., "map_lon_lims": [15.25, 17.45], "map_lat_lims": [78.32, 78.6], "lonticks": [15.35, 15.85, 16.35, 16.85, 17.35], "latticks": [78.34, 78.40, 78.46, 78.52, 78.58], "scale_position": (0.03, 0.03)}}
+lighthouses = {"Narveneset": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "abbrev": "\\bf NN", "x_off": -23., "y_off": 0., "map_lon_lims": [15.5, 17.4], "map_lat_lims": [78.46, 78.7], "lonticks": [15.7, 16.2, 16.7, 17.2], "latticks": [78.46, 78.52, 78.58, 78.64, 78.7], "scale_position": (0.75, 0.03)},
+                "Bohemanneset": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "abbrev": "\\bf BHN", "x_off": -28., "y_off": 7., "map_lon_lims": [13.5, 16.2], "map_lat_lims": [78.21, 78.55], "lonticks": [13.6, 14.1, 14.6, 15.1, 15.6, 16.1], "latticks": [78.22, 78.3, 78.38, 78.46, 78.54], "scale_position": (0.8, 0.03)},
+                "Daudmannsodden": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "abbrev": "\\bf DMO", "x_off": -25., "y_off": -15., "map_lon_lims": [11.8, 14.5], "map_lat_lims": [78.01, 78.36], "lonticks": [11.9, 12.4, 12.9, 13.4, 13.9, 14.4], "latticks": [78.01, 78.08, 78.15, 78.22, 78.29, 78.36], "scale_position": (0.03, 0.03)},
+                "Gasoyane": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "abbrev": "\\bf GO", "x_off": 8., "y_off": -5., "map_lon_lims": [15.25, 17.45], "map_lat_lims": [78.32, 78.6], "lonticks": [15.35, 15.85, 16.35, 16.85, 17.35], "latticks": [78.34, 78.40, 78.46, 78.52, 78.58], "scale_position": (0.03, 0.03)}}
 
 
 
@@ -85,7 +85,7 @@ lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "ab
 lighthouse_data = {}
 for s in lighthouses.keys():
     print(s)
-    with xr.open_mfdataset(f"{path_iwin_data}lighthouse_AWS_{s}/1min/lighthouse_AWS_{s}_Table_1min_*.nc") as ds:
+    with xr.open_mfdataset(f"{path_iwin_data}lighthouse_AWS_{s}/1min/20??/*/lighthouse_AWS_{s}_Table_1min_*.nc") as ds:
         lighthouse_data[s] = ds.to_dataframe()
         lighthouse_data[s].set_index(ds.time.values, inplace=True)
 

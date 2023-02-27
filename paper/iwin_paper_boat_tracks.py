@@ -46,7 +46,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/"
+path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_boat_tracks.pdf"
 
@@ -75,7 +75,7 @@ mobile_stations = [1883, 1872, 1924]
 boat_data = {}
 for s in mobile_stations:
     print(s)
-    with xr.open_mfdataset(f"{path_iwin_data}mobile_AWS_{s}/1min/mobile_AWS_{s}_Table_1min_*.nc") as ds:
+    with xr.open_mfdataset(f"{path_iwin_data}mobile_AWS_{s}/1min/20??/??/mobile_AWS_{s}_Table_1min_*.nc") as ds:
         boat_data[s] = ds.load()
 
 
@@ -112,7 +112,7 @@ ax_main.set_xticks([13., 14., 15., 16., 17.], crs=ccrs.PlateCarree())
 ax_main.set_yticks([78.1, 78.3, 78.5, 78.7], crs=ccrs.PlateCarree())
 ax_main.xaxis.set_major_formatter(lon_formatter)
 ax_main.yaxis.set_major_formatter(lat_formatter)
-ax_main.set_facecolor("lightgrey")
+ax_main.set_facecolor("lightblue")
 
 pic = ax_main.pcolormesh((lon_bins[1:]+lon_bins[:-1])/2., (lat_bins[1:]+lat_bins[:-1])/2., np.transpose(hist_counts.statistic),
                          vmin=0., vmax=1.e3, cmap=cmo.cm.amp, shading="auto", transform=ccrs.PlateCarree())

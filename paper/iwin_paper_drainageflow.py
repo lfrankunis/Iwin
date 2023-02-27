@@ -38,7 +38,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/"
+path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_drainageflow.pdf"
 
@@ -64,7 +64,7 @@ dem = dem.where(dem > 0.)
 
 #%% read data
 
-with xr.open_dataset(f"{path_iwin_data}mobile_AWS_1883/20sec/mobile_AWS_1883_Table_20sec_{day_str}.nc") as ds:
+with xr.open_dataset(f"{path_iwin_data}mobile_AWS_1883/20sec/{day_str[:4]}/{day_str[4:6]}/mobile_AWS_1883_Table_20sec_{day_str}.nc") as ds:
     boat_data = ds.load()
 
 mask = ~((boat_data["latitude"] > 78.22745) & (boat_data["latitude"] < 78.22878) & (boat_data["longitude"] > 15.60521) & (boat_data["longitude"] < 15.61387))
@@ -75,10 +75,10 @@ mask = ~((boat_data["latitude"] > 78.65447) & (boat_data["latitude"] < 78.65518)
 boat_data = xr.where(mask, boat_data, np.nan)
 
     
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
     lighthouse_data = ds.load()
     
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
     bohemanneset_data = ds.load()
     
 #%% plot
@@ -97,7 +97,7 @@ times_drainage_signals = np.array([ pd.Timestamp("2022-10-20 07:57"),
                                     pd.Timestamp("2022-10-20 10:04"),
                                     pd.Timestamp("2022-10-20 11:07")], dtype="datetime64")
 
-# wind_arrow_data = boat_data.sel(time = times_drainage_signals)
+wind_arrow_data = boat_data.sel(time = times_drainage_signals)
 # lighthouse_arrow_data = lighthouse_data.sel(time = times_drainage_signals)
 
 fig, ax = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
@@ -106,7 +106,7 @@ ax.set_yticks([78.4, 78.5, 78.6, 78.7], crs=ccrs.PlateCarree())
 ax.xaxis.set_major_formatter(lon_formatter)
 ax.yaxis.set_major_formatter(lat_formatter)
 # gl = ax.gridlines(draw_labels=False)
-ax.set_facecolor("lightgrey")
+ax.set_facecolor("lightblue")
 df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
 df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
 df_coastline.plot(ax=ax, edgecolor="k", facecolor="none", zorder=20, lw=1.)
@@ -127,22 +127,22 @@ ax.annotate("\\bf Rundodden", (15.7, 78.51), xycoords=ccrs.PlateCarree()._as_mpl
 ax.annotate("\\bf Narveneset", (16., 78.58), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax), c="k", weight="bold", fontsize=8, rotation=0., zorder=1000.)
 ax.annotate("\\bf Pyramiden", (15.98, 78.65), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax), c="k", weight="bold", fontsize=8, rotation=0., zorder=1000.)
 ax.annotate("\\bf Nordenskiöldbreen", (17., 78.63), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax), c="k", weight="bold", fontsize=8, rotation=70., zorder=1000.)
-ax.annotate("\\bf Gåsøyane", (16.135, 78.435), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax), c="k", weight="bold", fontsize=8, rotation=0., zorder=1000.)
+# ax.annotate("\\bf Gåsøyane", (16.135, 78.435), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax), c="k", weight="bold", fontsize=8, rotation=0., zorder=1000.)
 
 
-# df = pd.DataFrame({'latitude': boat_data["latitude"], 'longitude': boat_data["longitude"], "color": boat_data["temperature_Avg"]})
-# gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-# gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
-# pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=1, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
-# cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
-# cbar.ax.set_ylabel("Temperature [°C]")
+df = pd.DataFrame({'latitude': boat_data["latitude"], 'longitude': boat_data["longitude"], "color": boat_data["temperature"]})
+gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=1, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
+cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
+cbar.ax.set_ylabel("Temperature [°C]")
 
-# u = -np.abs(wind_arrow_data["wind_speed_corrected_Avg"]) * np.sin(np.deg2rad(wind_arrow_data["wind_direction_corrected_Avg"]))
-# v = -np.abs(wind_arrow_data["wind_speed_corrected_Avg"]) * np.cos(np.deg2rad(wind_arrow_data["wind_direction_corrected_Avg"]))
-# df = pd.DataFrame({'latitude': wind_arrow_data["latitude"], 'longitude': wind_arrow_data["longitude"], "u": 1.94384*u, "v": 1.94384*v})
-# gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-# gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
-# ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], wind_arrow_data.time.values.astype(float), length=6., linewidth=1., cmap=cmap_barbs, zorder=130)
+u = -np.abs(wind_arrow_data["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data["wind_direction_corrected"]))
+v = -np.abs(wind_arrow_data["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data["wind_direction_corrected"]))
+df = pd.DataFrame({'latitude': wind_arrow_data["latitude"], 'longitude': wind_arrow_data["longitude"], "u": 1.94384*u, "v": 1.94384*v})
+gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], wind_arrow_data.time.values.astype(float), length=6., linewidth=2., color="r", zorder=130)
 
 # u = -np.abs(lighthouse_arrow_data["wind_speed_Avg"]) * np.sin(np.deg2rad(lighthouse_arrow_data["wind_direction_Avg"]))
 # v = -np.abs(lighthouse_arrow_data["wind_speed_Avg"]) * np.cos(np.deg2rad(lighthouse_arrow_data["wind_direction_Avg"]))

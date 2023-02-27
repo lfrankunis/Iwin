@@ -45,7 +45,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/"
+path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_overview_map.pdf"
 
@@ -78,7 +78,6 @@ lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "ab
                1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "abbrev": "\\bf GO", "x_off": 8., "y_off": -5.}}
 
 MET_stations = {"\\bf PYR": {"lat": 78.6557, "lon": 16.3603, "x_off": -30., "y_off": 0.},
-                "\\bf BB":  {"lat": 78.0609, "lon": 14.2103, "x_off": 5., "y_off": 0.},
                 "\\bf LYR": {"lat": 78.2453, "lon": 15.5015, "x_off": -10., "y_off": -15.},
                 "\\bf NS":  {"lat": 78.3313, "lon": 16.6818, "x_off": 5., "y_off": -10.},
                 "\\bf IR":  {"lat": 78.0625, "lon": 13.6192, "x_off": 5., "y_off": -10.}}
@@ -98,7 +97,7 @@ ax_main.set_xticks([13., 14., 15., 16., 17.], crs=ccrs.PlateCarree())
 ax_main.set_yticks([78.1, 78.3, 78.5, 78.7], crs=ccrs.PlateCarree())
 ax_main.xaxis.set_major_formatter(lon_formatter)
 ax_main.yaxis.set_major_formatter(lat_formatter)
-ax_main.set_facecolor("lightgrey")
+ax_main.set_facecolor("lightblue")
 
 df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
 df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
@@ -110,9 +109,9 @@ df_layer_glaciers.plot(ax=ax_main, edgecolor=None, facecolor="#FFFFFF", zorder=1
 
 
 for m, mdata in MET_stations.items():
-    ax_main.scatter([mdata["lon"]], [mdata["lat"]], color="orange", marker='o', s=30, transform=ccrs.PlateCarree(), zorder=2000)
+    ax_main.scatter([mdata["lon"]], [mdata["lat"]], color="darkorange", marker='o', s=30, transform=ccrs.PlateCarree(), zorder=2000)
     ax_main.annotate(m, xy=(mdata["lon"], mdata["lat"]), xytext=(mdata["x_off"], mdata["y_off"]), xycoords=ccrs.PlateCarree()._as_mpl_transform(ax_main), 
-                     textcoords="offset points", fontsize=10, color="orange", zorder=2000)
+                     textcoords="offset points", fontsize=10, color="darkorange", zorder=2000)
 
 
 for l in lighthouses.values():

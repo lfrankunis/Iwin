@@ -37,7 +37,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/"
+path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_sassenjet.pdf"
 
@@ -69,15 +69,15 @@ dem = dem.where(dem > 0.)
 mobile_stations = {1883: "MS_Bard", 1872: "MS_Polargirl"}
 boat_data = {}
 for s, boat in mobile_stations.items():
-    with xr.open_dataset(f"{path_iwin_data}mobile_AWS_{s}/20sec/mobile_AWS_{s}_Table_20sec_{day_str}.nc") as ds:
+    with xr.open_dataset(f"{path_iwin_data}mobile_AWS_{s}/20sec/{day_str[:4]}/{day_str[4:6]}/mobile_AWS_{s}_Table_20sec_{day_str}.nc") as ds:
         boat_data[boat] = ds.load()
 
 
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
     lighthouse_data = ds.load()
 # lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-05 23:59:50", freq="20S"), method="linear")
 
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
+with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
     bohemanneset_data = ds.load()
 
 for b, b_data in boat_data.items():
@@ -111,13 +111,16 @@ times_arrows = {"MS_Bard": list(np.array([ pd.Timestamp("2022-09-20 07:05"),
                                                pd.Timestamp("2022-09-20 13:51"),
                                                pd.Timestamp("2022-09-20 14:00"),
                                                pd.Timestamp("2022-09-20 14:05"),
-                                               pd.Timestamp("2022-09-20 14:10")], dtype="datetime64"))}
+                                               pd.Timestamp("2022-09-20 14:10")], dtype="datetime64")),
+                "MS_Polargirl_2": list(np.array([pd.Timestamp("2022-09-20 07:58"),
+                                                 pd.Timestamp("2022-09-20 08:50"),
+                                                 pd.Timestamp("2022-09-20 13:12")], dtype="datetime64"))}
 
 wind_arrow_data = {}
 for b, b_data in boat_data.items():
     wind_arrow_data[b] = b_data.sel(time = times_arrows[b])
+wind_arrow_data["MS_Polargirl_2"] = boat_data["MS_Polargirl"].sel(time = times_arrows["MS_Polargirl_2"])
     
-# lighthouse_arrow_data = lighthouse_data.sel(time = times_arrows["MS_Bard"]+times_arrows["MS_Polargirl"])
 
 fig, ax = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
 ax.set_xticks([14., 15., 16., 17.], crs=ccrs.PlateCarree())
@@ -125,7 +128,7 @@ ax.set_yticks([78.1, 78.3], crs=ccrs.PlateCarree())
 ax.xaxis.set_major_formatter(lon_formatter)
 ax.yaxis.set_major_formatter(lat_formatter)
 # gl = ax.gridlines(draw_labels=False)
-ax.set_facecolor("lightgrey")
+ax.set_facecolor("lightblue")
 df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
 df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
 df_coastline.plot(ax=ax, edgecolor="k", facecolor="none", zorder=20, lw=1.)
@@ -160,6 +163,13 @@ gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude
 gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
 ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="k", length=6., linewidth=1., zorder=130)
 
+b = "MS_Polargirl_2"
+u = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
+v = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
+df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
+gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="k", length=6., linewidth=1., zorder=130)
 
 
 ax.set_extent(lon_lims+lat_lims, crs=ccrs.PlateCarree())
@@ -188,7 +198,7 @@ ax_FF.set_xticks([15.1, 15.25, 15.4], crs=ccrs.PlateCarree())
 ax_FF.set_yticks([78.17, 78.20, 78.23], crs=ccrs.PlateCarree())
 ax_FF.xaxis.set_major_formatter(lon_formatter)
 ax_FF.yaxis.set_major_formatter(lat_formatter)
-ax_FF.set_facecolor("lightgrey")
+ax_FF.set_facecolor("lightblue")
 df_coastline = gpd.read_file(f"{path_map_data}NP_S250_SHP/S250_Land_l.shp")
 df_coastline = df_coastline.to_crs(ccrs.Mercator().proj4_init)
 df_coastline.plot(ax=ax, edgecolor="k", facecolor="none", zorder=20, lw=1.)
