@@ -1,4 +1,4 @@
 cd /mnt/c/Github/Iwin/
 python ./IWIN_scheduled_restructuring.py
 python ./IWIN_copy_files_for_transfer_MET.py 5
-rsync -avh --delete /mnt/c/Data_transfer_MET unismet@157.249.75.166:/data/unismet/iwin
+rsync -avh -t -O --delete /mnt/c/Data_transfer_MET unismet@157.249.75.166:/data/unismet/iwin

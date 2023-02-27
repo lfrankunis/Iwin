@@ -386,12 +386,12 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         
     if from_time < datetime.datetime(2022,1,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard"
         creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon"
         creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at"
         creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133"
     elif from_time < datetime.datetime(2022,10,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard; The University Centre in Svalbard"
         creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon; A. Stenlund"
         creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at; "
         creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X"
@@ -421,7 +421,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "area": "Svalbard, Isfjorden",
         "time_coverage_start": start_data_coverage,
         "time_coverage_end": end_data_coverage,
-        "Conventions": "CF-1.8",
+        "Conventions": "CF-1.8,ACDD-1.3",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Known bad data has been replaced with null values, ranges applied, data has been scaled using contextual information (wind speed and direction corrected for horizontal movement of boat)",
@@ -439,7 +439,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "iso_topic_category": "atmosphere",
         "principal_investigator": "L. Frank",
         "publisher_name": "MET Norway",
-        "publisher_url": "https://thredds.met.no/thredds/catalog.html",
+        "publisher_url": "https://thredds.met.no/thredds/catalog/met.no/observations/unis/catalog.html",
         "publisher_email": "thredds@met.no",
         "id": "???"}
     
@@ -670,12 +670,12 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     
     if from_time < datetime.datetime(2022,1,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard"
         creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon"
         creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at"
         creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133"
     elif from_time < datetime.datetime(2022,10,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
+        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard; The University Centre in Svalbard"
         creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon; A. Stenlund"
         creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at; "
         creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X"
@@ -708,7 +708,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "area": "Svalbard, Isfjorden",
         "time_coverage_start": start_data_coverage,
         "time_coverage_end": end_data_coverage,
-        "Conventions": "CF-1.8",
+        "Conventions": "CF-1.8,ACDD-1.3",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Known bad data has been replaced with null values, ranges applied",
@@ -727,7 +727,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "iso_topic_category": "atmosphere",
         "principal_investigator": "L. Frank",
         "publisher_name": "MET Norway",
-        "publisher_url": "https://thredds.met.no/thredds/catalog.html",
+        "publisher_url": "https://thredds.met.no/thredds/catalog/met.no/observations/unis/catalog.html",
         "publisher_email": "thredds@met.no",
         "id": "???"}
     

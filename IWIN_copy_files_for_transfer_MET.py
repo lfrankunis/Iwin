@@ -52,7 +52,7 @@ if __name__ == '__main__':
                         os.makedirs(f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/")
                     if not os.path.exists(f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/"):
                         os.makedirs(f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/")
-                    shutil.copyfile(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
+                    shutil.copy2(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
                                     f"{paths['MET_transfer']}mobile_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/mobile_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc")
                     
             for station in lighthouse_stations:
@@ -65,7 +65,7 @@ if __name__ == '__main__':
                         os.makedirs(f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/")
                     if not os.path.exists(f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/"):
                         os.makedirs(f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/")
-                    shutil.copyfile(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
+                    shutil.copy2(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc",
                                     f"{paths['MET_transfer']}lighthouse_AWS_{station}/{resolution}/{d.year}/{d.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{d.year}{d.month:02d}{d.day:02d}.nc")
                         
                         
