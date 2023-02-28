@@ -172,7 +172,12 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
         "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume measurements_impacted_by_exhaust_plume"},
         
-        "positive": {"height": "up"}}
+        "positive": {"height": "up"},
+        
+        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'compass_heading': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
+                                  "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
+                                  "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
+                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
         
     else:
         new_names = {"TIMESTAMP": "time",
@@ -242,7 +247,12 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
         "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume measurements_impacted_by_exhaust_plume"},
         
-        "positive": {"height": "up"}}
+        "positive": {"height": "up"},
+        
+        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'compass_heading': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
+                                  "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
+                                  "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
+                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
         
 
     # transfer timestamps into Python datetime objects
@@ -386,34 +396,34 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         
     if from_time < datetime.datetime(2022,1,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard"
-        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon"
-        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133"
+        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard"
+        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon"
+        creator_types = "person, person, person, person"
+        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133"
     elif from_time < datetime.datetime(2022,10,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard; The University Centre in Svalbard"
-        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon; A. Stenlund"
-        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at; "
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X"
+        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard, The University Centre in Svalbard"
+        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon, Agnes Stenlund"
+        creator_types = "person, person, person, person, person"
+        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at, agnes.stenlund@aces.su.se"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
     else:
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
-        creator_names = "L. Frank; M. O. Jonassen; T. Remes"
-        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute"
+        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes"
+        creator_types = "person, person, person"
+        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X"
     
     
     global_attributes = {"boat": boat_names[station]['name'],
         "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} measured onboard {boat_names[station]['name']} in Isfjorden, Svalbard.",
         "summary": "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. The raw data is only filtered for obviously wrong GPS positions, otherwise the data is made available as is. Wind speed and wind direction are corrected for the horizontal movements of the boat using GPS data.",
-        "keywords": "EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>AIR TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>DEW POINT TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WATER VAPOR>WATER VAPOR INDICATORS>HUMIDITY>RELATIVE HUMIDITY, \
-            EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND DIRECTION, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND SPEED, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC PRESSURE>SURFACE PRESSURE, \
-            ACADEMIC>UNIS, GEOGRAPHIC REGION>POLAR, CONTINENT>EUROPE>NORTHERN EUROPE>SCANDINAVIA>NORWAY, \
-            IN SITU/LABORATORY INSTRUMENTS>CURRENT/WIND METERS>SONIC ANEMOMETER, IN SITU/LABORATORY INSTRUMENTS>PRESSURE/HEIGHT METERS>PRESSURE SENSORS, \
-            IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>TEMPERATURE SENSORS, IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>HUMIDITY SENSORS",
-        "keywords_vocabulary": 'GCMD Science Keywords',
-        "naming_authority": "NMDC",
+        "keywords": "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
+            GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
+            GCMDLOC: GEOGRAPHIC REGION > POLAR, GCMDLOC: CONTINENT > EUROPE > NORTHERN EUROPE > SCANDINAVIA > NORWAY",
+        "keywords_vocabulary": 'GCMDSK: GCMD Science Keywords, GCMDLOC: GCMD Locations',
         "data_type": "netCDF-4",
-        "feature_type": "Time Series",
+        "standard_name_vocabulary": "CF Standard Name Table v80",
         "geospatial_lat_min": 77.95926,
         "geospatial_lat_max": 78.85822,
         "geospatial_lon_min": 13.38286,
@@ -421,27 +431,39 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "area": "Svalbard, Isfjorden",
         "time_coverage_start": start_data_coverage,
         "time_coverage_end": end_data_coverage,
-        "Conventions": "CF-1.8,ACDD-1.3",
+        "Conventions": "CF-1.8, ACDD-1.3",
         'date_created': dtnow,
+        "featureType": "timeSeries",
         'history': f'File created at {dtnow} using xarray in Python3.',
-        "processing_level": "Known bad data has been replaced with null values, ranges applied, data has been scaled using contextual information (wind speed and direction corrected for horizontal movement of boat)",
-        "creator_type": "group",
+        "processing_level": "Basic quality control",
+        "creator_type": creator_types,
         "creator_institution": creator_insts,
         "creator_name": creator_names,
         "creator_email": creator_mails,
         "creator_url": creator_urls,
+        "contributor_name": "Lara Ferrighi",
+        "contributor_role": "Technical contact",
+        "contributor_institution": "Norwegian Meteorological Institute",
+        "contributor_email": "laraf@met.no",
         "institution": "The University Centre in Svalbard (UNIS)",
-        "project": "IWIN: Isfjorden Weather Information Network",
+        "project": "Isfjorden Weather Information Network (IWIN)",
         "source": "Gill MaxiMet GMX 500",
-        "platform": f"WATER-BASED PLATFORMS>VESSELS>SURFACE>{boat_names[station]['name']}",
-        "instrument_type": "Gill MaxiMet GMX 500",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "iso_topic_category": "atmosphere",
-        "principal_investigator": "L. Frank",
-        "publisher_name": "MET Norway",
-        "publisher_url": "https://thredds.met.no/thredds/catalog/met.no/observations/unis/catalog.html",
-        "publisher_email": "thredds@met.no",
-        "id": "???"}
+        "platform": "WATER-BASED PLATFORMS > VESSELS > SURFACE",
+        "platform_vocabulary": 'GCMD Platform Keywords',
+        "instrument": "IN SITU/LABORATORY INSTRUMENTS > CURRENT/WIND METERS > SONIC ANEMOMETER, IN SITU/LABORATORY INSTRUMENTS > PRESSURE/HEIGHT METERS > PRESSURE SENSORS, IN SITU/LABORATORY INSTRUMENTS > TEMPERATURE/HUMIDITY SENSORS > TEMPERATURE SENSORS, IN SITU/LABORATORY INSTRUMENTS > TEMPERATURE/HUMIDITY SENSORS > HUMIDITY SENSORS",
+        "instrument_vocabulary": "GCMD Instrument Keywords",
+        "license": "https://creativecommons.org/licenses/by/4.0/ (CC-BY-4.0)",
+        "iso_topic_category": "climatologyMeteorologyAtmosphere",
+        "operational_status": "Operational",
+        "activity_type": "In Situ Land-based station",
+        "principal_investigator": "Lukas Frank",
+        "publisher_name": "Norwegian Meteorological Institute / Arctic Data Centre",
+        "publisher_institution": "Norwegian Meteorological Institute / Arctic Data Centre (NO/MET/ADC)",
+        "publisher_url": "https://adc.met.no/",
+        "publisher_email": "adc-support@met.no",
+        "publisher_type": "institution",
+        "id": f"iwin_{station}_{resolution}_{start_data_coverage}",
+        "naming_authority": "no.met"}
     
     for a, value in global_attributes.items():
         ds.attrs[a] = value
@@ -594,7 +616,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         
         "valid_range": {"wind_speed": [np.float32(0.), np.float32(80.)], "wind_speed_Max": [np.float32(0.), np.float32(80.)],
                         "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
-                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]}}
+                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]},
+        
+        "coverage_content_type": {"time": "coordinate", "wind_speed": "physicalMeasurement", "wind_direction": "physicalMeasurement", "wind_direction_Std": "physicalMeasurement", "wind_speed_Max": "physicalMeasurement",
+                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
         
     else:
         new_names = {"TIMESTAMP": "time",
@@ -629,7 +654,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         
         "valid_range": {"wind_speed": [np.float32(0.), np.float32(80.)], "wind_speed_Max": [np.float32(0.), np.float32(80.)],
                         "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
-                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]}}
+                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]},
+        
+        "coverage_content_type": {"time": "coordinate", "wind_speed": "physicalMeasurement", "wind_direction": "physicalMeasurement", "wind_direction_Std": "physicalMeasurement", "wind_speed_Max": "physicalMeasurement",
+                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
@@ -670,20 +698,23 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     
     if from_time < datetime.datetime(2022,1,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard"
-        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon"
-        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133"
+        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard"
+        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon"
+        creator_types = "person, person, person, person"
+        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133"
     elif from_time < datetime.datetime(2022,10,1):
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway; The University Centre in Svalbard; The University Centre in Svalbard"
-        creator_names = "L. Frank; M. O. Jonassen; T. Remes; F. Schalamon; A. Stenlund"
-        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no; florina.schalamon@uni-graz.at; "
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X; https://orcid.org/0000-0002-2509-4133; https://orcid.org/0000-0003-4241-735X"
+        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard, The University Centre in Svalbard"
+        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon, Agnes Stenlund"
+        creator_types = "person, person, person, person, person"
+        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at, agnes.stenlund@aces.su.se"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
     else:
-        creator_insts = "The University Centre in Svalbard; The University Centre in Svalbard; MET Norway"
-        creator_names = "L. Frank; M. O. Jonassen; T. Remes"
-        creator_mails = "lukasf@unis.no; mariusj@unis.no; teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967; https://orcid.org/0000-0002-4745-9009; https://orcid.org/0000-0002-6421-859X"
+        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute"
+        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes"
+        creator_types = "person, person, person"
+        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no"
+        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X"
     
     
     
@@ -692,15 +723,12 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "longitude": lighthouses[station]["lon"],
         "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} at {lighthouses[station]['name']} in Isfjorden, Svalbard.",
         "summary": "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. The raw data is only filtered for obviously wrong values, otherwise the data is made available as is.",
-        "keywords": "EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>AIR TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC TEMPERATURE>SURFACE TEMPERATURE>DEW POINT TEMPERATURE, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WATER VAPOR>WATER VAPOR INDICATORS>HUMIDITY>RELATIVE HUMIDITY, \
-            EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND DIRECTION, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC WINDS>SURFACE WINDS>WIND SPEED, EARTH SCIENCE>ATMOSPHERE>ATMOSPHERIC PRESSURE>SURFACE PRESSURE, \
-            ACADEMIC>UNIS, GEOGRAPHIC REGION>POLAR, CONTINENT>EUROPE>NORTHERN EUROPE>SCANDINAVIA>NORWAY, \
-            IN SITU/LABORATORY INSTRUMENTS>CURRENT/WIND METERS>SONIC ANEMOMETER, IN SITU/LABORATORY INSTRUMENTS>PRESSURE/HEIGHT METERS>PRESSURE SENSORS, \
-            IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>TEMPERATURE SENSORS, IN SITU/LABORATORY INSTRUMENTS>TEMPERATURE/HUMIDITY SENSORS>HUMIDITY SENSORS",
-        "keywords_vocabulary": 'GCMD Science Keywords',
-        "naming_authority": "ADC",
+        "keywords": "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
+            GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
+            GCMDLOC: GEOGRAPHIC REGION > POLAR, GCMDLOC: CONTINENT > EUROPE > NORTHERN EUROPE > SCANDINAVIA > NORWAY",
+        "keywords_vocabulary": 'GCMDSK: GCMD Science Keywords, GCMDLOC: GCMD Locations',
         "data_type": "netCDF-4",
-        "feature_type": "Time Series",
+        "standard_name_vocabulary": "CF Standard Name Table v80",
         "geospatial_lat_min": lighthouses[station]["lat"],
         "geospatial_lat_max": lighthouses[station]["lat"],
         "geospatial_lon_min": lighthouses[station]["lon"],
@@ -708,28 +736,39 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "area": "Svalbard, Isfjorden",
         "time_coverage_start": start_data_coverage,
         "time_coverage_end": end_data_coverage,
-        "Conventions": "CF-1.8,ACDD-1.3",
+        "Conventions": "CF-1.8, ACDD-1.3",
+        "featureType": "timeSeries",
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
-        "processing_level": "Known bad data has been replaced with null values, ranges applied",
-        "creator_type": "group",
+        "processing_level": "Basic quality control",
+        "creator_type": creator_types,
         "creator_institution": creator_insts,
         "creator_name": creator_names,
         "creator_email": creator_mails,
         "creator_url": creator_urls,
+        "contributor_name": "Lara Ferrighi",
+        "contributor_role": "Technical contact",
+        "contributor_institution": "Norwegian Meteorological Institute",
+        "contributor_email": "laraf@met.no",
         "institution": "The University Centre in Svalbard (UNIS)",
-        "project": "IWIN: Isfjorden Weather Information Network",
+        "project": "Isfjorden Weather Information Network (IWIN)",
         "source": "Campbell Scientific METSENS 500",
-        "platform": "LAND-BASED PLATFORMS>PERMANENT LAND SITES>METEOROLOGICAL STATIONS, LAND-BASED PLATFORMS>PERMANENT LAND SITES>COASTAL STATIONS",
-        "platform_vocabulary": 'GCMD Science Keywords',
-        "instrument_type": "Campbell Scientific METSENS 500",
-        "license": "https://creativecommons.org/licenses/by/4.0/",
-        "iso_topic_category": "atmosphere",
-        "principal_investigator": "L. Frank",
-        "publisher_name": "MET Norway",
-        "publisher_url": "https://thredds.met.no/thredds/catalog/met.no/observations/unis/catalog.html",
-        "publisher_email": "thredds@met.no",
-        "id": "???"}
+        "platform": "LAND-BASED PLATFORMS > PERMANENT LAND SITES > METEOROLOGICAL STATIONS",
+        "platform_vocabulary": 'GCMD Platform Keywords',
+        "instrument": "IN SITU/LABORATORY INSTRUMENTS > CURRENT/WIND METERS > SONIC ANEMOMETER, IN SITU/LABORATORY INSTRUMENTS > PRESSURE/HEIGHT METERS > PRESSURE SENSORS, IN SITU/LABORATORY INSTRUMENTS > TEMPERATURE/HUMIDITY SENSORS > TEMPERATURE SENSORS, IN SITU/LABORATORY INSTRUMENTS > TEMPERATURE/HUMIDITY SENSORS > HUMIDITY SENSORS",
+        "instrument_vocabulary": "GCMD Instrument Keywords",
+        "license": "https://creativecommons.org/licenses/by/4.0/ (CC-BY-4.0)",
+        "iso_topic_category": "climatologyMeteorologyAtmosphere",
+        "operational_status": "Operational",
+        "activity_type": "In Situ Land-based station",
+        "principal_investigator": "Lukas Frank",
+        "publisher_name": "Norwegian Meteorological Institute / Arctic Data Centre",
+        "publisher_institution": "Norwegian Meteorological Institute / Arctic Data Centre (NO/MET/ADC)",
+        "publisher_url": "https://adc.met.no/",
+        "publisher_email": "adc-support@met.no",
+        "publisher_type": "institution",
+        "id": f"iwin_{station}_{resolution}_{start_data_coverage}",
+        "naming_authority": "no.met"}
     
     for a, value in global_attributes.items():
         ds.attrs[a] = value
