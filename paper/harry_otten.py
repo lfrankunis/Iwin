@@ -176,17 +176,18 @@ ax.set_title(None)
 ax.set_xlabel(None)
 ax.set_ylabel(None)
 
-ax.text(0.3, 0.95, "(b)", transform=ax.transAxes, fontsize=10)
 
 scale_bar(ax, (0.87, 0.03), 10, text_kwargs={"weight": "bold"})
-
-
 
 ax_sv = fig.add_axes([-0.05, .47, .5, .45], projection=ccrs.Mercator())
 ax_sv.set_extent(lon_lims_sv+lat_lims_sv, crs=ccrs.PlateCarree())
 ax_sv.set_facecolor("lightblue")
 bathy.plot.imshow(ax=ax_sv, cmap=cmo.cm.topo, norm=mpl.colors.TwoSlopeNorm(0., 200. * np.floor(np.nanmin(bathy)/200.), 200. * np.ceil(np.nanmax(bathy)/200.)),
                   interpolation="none", add_colorbar=False)
+
+ax_sv.plot([lon_lims[0], lon_lims[1], lon_lims[1], lon_lims[0], lon_lims[0]],
+            [lat_lims[0], lat_lims[0], lat_lims[1], lat_lims[1], lat_lims[0]], "r-", transform=ccrs.PlateCarree())
+
 ax_sv.xaxis.tick_top()
 ax_sv.set_title(None)
 ax_sv.set_xlabel(None)
@@ -197,7 +198,6 @@ lon_formatter = LongitudeFormatter(zero_direction_label=True)
 lat_formatter = LatitudeFormatter()
 ax_sv.xaxis.set_major_formatter(lon_formatter)
 ax_sv.yaxis.set_major_formatter(lat_formatter)
-ax_sv.text(0.03, 0.92, "(a)", transform=ax_sv.transAxes, fontsize=10)
 
 plt.savefig(path_out, dpi=300)
 
