@@ -441,10 +441,6 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "creator_name": creator_names,
         "creator_email": creator_mails,
         "creator_url": creator_urls,
-        "contributor_name": "Lara Ferrighi",
-        "contributor_role": "Technical contact",
-        "contributor_institution": "Norwegian Meteorological Institute",
-        "contributor_email": "laraf@met.no",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "Isfjorden Weather Information Network (IWIN)",
         "source": "Gill MaxiMet GMX 500",
@@ -461,9 +457,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "publisher_institution": "Norwegian Meteorological Institute / Arctic Data Centre (NO/MET/ADC)",
         "publisher_url": "https://adc.met.no/",
         "publisher_email": "adc-support@met.no",
-        "publisher_type": "institution",
-        "id": f"iwin_{station}_{resolution}_{start_data_coverage}",
-        "naming_authority": "no.met"}
+        "publisher_type": "institution"}
+        
+    # "id": f"iwin_{station}_{resolution}_{start_data_coverage}",
+    # "naming_authority": "no.met"
     
     for a, value in global_attributes.items():
         ds.attrs[a] = value
@@ -746,10 +743,6 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "creator_name": creator_names,
         "creator_email": creator_mails,
         "creator_url": creator_urls,
-        "contributor_name": "Lara Ferrighi",
-        "contributor_role": "Technical contact",
-        "contributor_institution": "Norwegian Meteorological Institute",
-        "contributor_email": "laraf@met.no",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "Isfjorden Weather Information Network (IWIN)",
         "source": "Campbell Scientific METSENS 500",
@@ -766,9 +759,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "publisher_institution": "Norwegian Meteorological Institute / Arctic Data Centre (NO/MET/ADC)",
         "publisher_url": "https://adc.met.no/",
         "publisher_email": "adc-support@met.no",
-        "publisher_type": "institution",
-        "id": f"iwin_{station}_{resolution}_{start_data_coverage}",
-        "naming_authority": "no.met"}
+        "publisher_type": "institution"}
+        
+        #        "id": f"iwin_{station}_{resolution}_{start_data_coverage}",
+                # "naming_authority": "no.met"
     
     for a, value in global_attributes.items():
         ds.attrs[a] = value
