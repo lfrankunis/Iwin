@@ -46,7 +46,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_location/"
+path_iwin_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/lighthouse_AWS"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/"
 
@@ -85,7 +85,7 @@ lighthouses = {"Narveneset": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29
 lighthouse_data = {}
 for s in lighthouses.keys():
     print(s)
-    with xr.open_mfdataset(f"{path_iwin_data}lighthouse_AWS_{s}/1min/20??/*/lighthouse_AWS_{s}_Table_1min_*.nc") as ds:
+    with xr.open_dataset(f"{path_iwin_data}_{s}_1min") as ds:
         lighthouse_data[s] = ds.to_dataframe()
         lighthouse_data[s].set_index(ds.time.values, inplace=True)
 

@@ -39,7 +39,8 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
+path_boat_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS"
+path_bhn_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/lighthouse_AWS_Bohemanneset_1min"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_glaciermicroclimate.pdf"
 
@@ -64,17 +65,18 @@ dem = dem.where(dem > 0.)
 
 
 #%% read data
-mobile_stations = {1883: "MS_Bard", 1872: "MS_Polargirl"}
+mobile_stations = ["MSBard", "MSPolargirl"]
 boat_data = {}
-for s, boat in mobile_stations.items():
-    with xr.open_dataset(f"{path_iwin_data}mobile_AWS_{s}/20sec/{day_str[:4]}/{day_str[4:6]}/mobile_AWS_{s}_Table_20sec_{day_str}.nc") as ds:
-        boat_data[boat] = ds.load()
+for s in mobile_stations:
+    print(s)
+    with xr.open_dataset(f"{path_boat_data}_{s}_20sec") as ds:
+        boat_data[s] = ds.sel(time=slice("2022-08-05T00:00:00", "2022-08-06T00:00:00")).load()
 
 
 
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
-    lighthouse_data = ds.load()
-lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-05 23:59:50", freq="20S"), method="linear")
+with xr.open_dataset(path_bhn_data) as ds:
+    lighthouse_data = ds.sel(time=slice("2022-08-05T00:00:00", "2022-08-06T00:00:00")).load()
+lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-06 00:00:00", freq="20S"), method="linear")
 
 for b, b_data in boat_data.items():
     boat_data[b]["temperature"] -= lighthouse_data["temperature"]
@@ -85,14 +87,14 @@ for b, b_data in boat_data.items():
     mask = ~((b_data["latitude"] > 78.65447) & (b_data["latitude"] < 78.65518) & (b_data["longitude"] > 16.37723) & (b_data["longitude"] < 16.38635))
     boat_data[b] = xr.where(mask, b_data, np.nan)
 
-boat_data["MS_Bard"] = boat_data["MS_Bard"].sel(time=slice(pd.Timestamp("2022-08-05 12:30"), pd.Timestamp("2022-08-05 17:00")))
-boat_data["MS_Polargirl"] = boat_data["MS_Polargirl"].sel(time=slice(pd.Timestamp("2022-08-05 06:00"), pd.Timestamp("2022-08-05 17:00")))
+boat_data["MSBard"] = boat_data["MSBard"].sel(time=slice(pd.Timestamp("2022-08-05 12:30"), pd.Timestamp("2022-08-05 17:00")))
+boat_data["MSPolargirl"] = boat_data["MSPolargirl"].sel(time=slice(pd.Timestamp("2022-08-05 06:00"), pd.Timestamp("2022-08-05 17:00")))
 
 
 #%% times for arrows
 
-times_arrows = {"MS_Bard": list(np.array([pd.Timestamp("2022-08-05 14:15")])),
-                "MS_Polargirl": list(np.array([pd.Timestamp("2022-08-05 10:00")], dtype="datetime64"))}
+times_arrows = {"MSBard": list(np.array([pd.Timestamp("2022-08-05 14:15")])),
+                "MSPolargirl": list(np.array([pd.Timestamp("2022-08-05 10:00")], dtype="datetime64"))}
 
 wind_arrow_data = {}
 for b, b_data in boat_data.items():
@@ -141,7 +143,7 @@ for b, b_data in boat_data.items():
     df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
     gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
-    ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="red", length=8., linewidth=2., zorder=130)
+    ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="deepskyblue", length=8., linewidth=2., zorder=130)
 
 cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
 cbar.ax.set_ylabel("Temperature [°C]")

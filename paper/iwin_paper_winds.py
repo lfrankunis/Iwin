@@ -37,7 +37,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
+path_boat_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_sassenjet.pdf"
 
@@ -66,19 +66,13 @@ dem = dem.where(dem > 0.)
 
 
 #%% read data
-mobile_stations = {1883: "MS_Bard", 1872: "MS_Polargirl"}
+mobile_stations = ["MSBard", "MSPolargirl"]
 boat_data = {}
-for s, boat in mobile_stations.items():
-    with xr.open_dataset(f"{path_iwin_data}mobile_AWS_{s}/20sec/{day_str[:4]}/{day_str[4:6]}/mobile_AWS_{s}_Table_20sec_{day_str}.nc") as ds:
-        boat_data[boat] = ds.load()
+for s in mobile_stations:
+    print(s)
+    with xr.open_dataset(f"{path_boat_data}_{s}_20sec") as ds:
+        boat_data[s] = ds.sel(time=slice("2022-09-20T00:00:00", "2022-09-21T00:00:00")).load()
 
-
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1887/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1887_Table_1min_{day_str}.nc") as ds:
-    lighthouse_data = ds.load()
-# lighthouse_data = lighthouse_data.interp(time=pd.date_range("2022-08-05 00:00:00", "2022-08-05 23:59:50", freq="20S"), method="linear")
-
-with xr.open_dataset(f"{path_iwin_data}lighthouse_AWS_1885/1min/{day_str[:4]}/{day_str[4:6]}/lighthouse_AWS_1885_Table_1min_{day_str}.nc") as ds:
-    bohemanneset_data = ds.load()
 
 for b, b_data in boat_data.items():
     # boat_data[b]["temperature"] -= lighthouse_data["temperature"]
@@ -90,7 +84,7 @@ for b, b_data in boat_data.items():
     boat_data[b] = xr.where(mask, b_data, np.nan)
 
 
-boat_data_hr = boat_data["MS_Polargirl"].sel(time =slice(pd.Timestamp("2022-09-20 12:30"), pd.Timestamp("2022-09-20 17:00")))
+boat_data_hr = boat_data["MSPolargirl"].sel(time =slice(pd.Timestamp("2022-09-20 12:30"), pd.Timestamp("2022-09-20 17:00")))
 
     
 #%% plot
@@ -100,26 +94,26 @@ vmax = 20.
 
 cmap = cmo.cm.amp
 
-times_arrows = {"MS_Bard": list(np.array([ pd.Timestamp("2022-09-20 07:05"),
+times_arrows = {"MSBard": list(np.array([ pd.Timestamp("2022-09-20 07:05"),
                                     pd.Timestamp("2022-09-20 07:40"),
                                     pd.Timestamp("2022-09-20 09:00"),
                                     pd.Timestamp("2022-09-20 09:58"),
                                     pd.Timestamp("2022-09-20 10:26"),
                                     pd.Timestamp("2022-09-20 10:50"),
                                     pd.Timestamp("2022-09-20 11:30")], dtype="datetime64")),
-                "MS_Polargirl": list(np.array([pd.Timestamp("2022-09-20 13:48"),
+                "MSPolargirl": list(np.array([pd.Timestamp("2022-09-20 13:48"),
                                                pd.Timestamp("2022-09-20 13:51"),
                                                pd.Timestamp("2022-09-20 14:00"),
                                                pd.Timestamp("2022-09-20 14:05"),
                                                pd.Timestamp("2022-09-20 14:10")], dtype="datetime64")),
-                "MS_Polargirl_2": list(np.array([pd.Timestamp("2022-09-20 07:58"),
+                "MSPolargirl_2": list(np.array([pd.Timestamp("2022-09-20 07:58"),
                                                  pd.Timestamp("2022-09-20 08:50"),
                                                  pd.Timestamp("2022-09-20 13:12")], dtype="datetime64"))}
 
 wind_arrow_data = {}
 for b, b_data in boat_data.items():
     wind_arrow_data[b] = b_data.sel(time = times_arrows[b])
-wind_arrow_data["MS_Polargirl_2"] = boat_data["MS_Polargirl"].sel(time = times_arrows["MS_Polargirl_2"])
+wind_arrow_data["MSPolargirl_2"] = boat_data["MSPolargirl"].sel(time = times_arrows["MSPolargirl_2"])
     
 
 fig, ax = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
@@ -155,7 +149,7 @@ cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
 cbar.ax.set_ylabel("Wind Speed [m s-1]")
 
 
-b = "MS_Bard"
+b = "MSBard"
 u = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 v = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
@@ -163,7 +157,7 @@ gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude
 gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
 ax.barbs(gdf['geometry'].x, gdf['geometry'].y, gdf['u'], gdf['v'], color="k", length=6., linewidth=1., zorder=130)
 
-b = "MS_Polargirl_2"
+b = "MSPolargirl_2"
 u = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 v = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})
@@ -212,7 +206,7 @@ gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude
 gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
 ax_FF.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=2, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
 
-b = "MS_Polargirl"
+b = "MSPolargirl"
 u = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.sin(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 v = -np.abs(wind_arrow_data[b]["wind_speed_corrected"]) * np.cos(np.deg2rad(wind_arrow_data[b]["wind_direction_corrected"]))
 df = pd.DataFrame({'latitude': wind_arrow_data[b]["latitude"], 'longitude': wind_arrow_data[b]["longitude"], "u": 1.94384*u, "v": 1.94384*v})

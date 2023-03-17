@@ -46,7 +46,7 @@ mpl.rcParams.update({
 
 #%% input
 
-path_iwin_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/IWIN/Storage/sorted_by_sensor/"
+path_iwin_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
 path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_boat_tracks.pdf"
 
@@ -71,11 +71,11 @@ dem = dem.where(dem > 0.)
 
 #%% read data
 
-mobile_stations = [1883, 1872, 1924]
+mobile_stations = ["MSBard", "MSPolargirl", "MSBillefjord"]
 boat_data = {}
 for s in mobile_stations:
     print(s)
-    with xr.open_mfdataset(f"{path_iwin_data}mobile_AWS_{s}/1min/20??/??/mobile_AWS_{s}_Table_1min_*.nc") as ds:
+    with xr.open_dataset(f"{path_iwin_data}_{s}_1min") as ds:
         boat_data[s] = ds.load()
 
 
