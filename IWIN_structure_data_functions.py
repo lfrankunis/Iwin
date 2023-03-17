@@ -162,9 +162,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                            'latitude': "latitude", 'longitude': "longitude", 'height': "height",
                            "exhaust_plume_influence": "status_flag"},
         
-        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(80.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(80.)],
+        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(50.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(50.)],
                         "wind_direction_raw": [np.float32(0.), np.float32(360.)], "wind_direction_raw_Std": [np.float32(0.), np.float32(360.)],
-                        "wind_speed_corrected": [np.float32(0.), np.float32(80.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_speed_corrected": [np.float32(0.), np.float32(50.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(50.)],
                         "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
                         "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
                         "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
@@ -174,7 +174,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         
         "positive": {"height": "up"},
         
-        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'compass_heading': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
+        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
                                   "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
                                   "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
                                   "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
@@ -193,7 +193,6 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                      'relative_humidity': 'relative_humidity',
                      'air_pressure': 'air_pressure',
                      'GPS_location': 'GPS_location',
-                     'compass_heading': 'compass_heading',
                      "GPS_speed": "GPS_speed",
                      "GPS_heading": "GPS_heading"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
@@ -207,7 +206,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                   'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree",
                   'wind_speed_corrected_Max': "m s-1",
                   'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
-                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'compass_heading': "degree", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
+                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
         
         "long_name" : {'time': "UTC time",
                         'wind_speed_raw': "raw wind speed averaged over the sampling interval",
@@ -222,7 +221,6 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                         'relative_humidity': "air relative humidity averaged over the sampling interval",
                         'air_pressure': "air pressure averaged over the sampling interval",
                         'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
-                        'compass_heading': "heading of the boat, retrieved from the compass",
                         'latitude': "latitude", 'longitude': "longitude", 'height': "height of the sensor over ground, retrieved from the GPS",
                         "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
         
@@ -234,12 +232,12 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                            'temperature': "air_temperature",
                            'relative_humidity': 'relative_humidity',
                            'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
-                           'compass_heading': "platform_azimuth_angle", 'latitude': "latitude", 'longitude': "longitude", "height": "height",
+                           'latitude': "latitude", 'longitude': "longitude", "height": "height",
                            "exhaust_plume_influence": "status_flag"},
         
-        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(80.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(80.)],
+        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(50.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(50.)],
                         "wind_direction_raw": [np.float32(0.), np.float32(360.)], "wind_direction_raw_Std": [np.float32(0.), np.float32(360.)],
-                        "wind_speed_corrected": [np.float32(0.), np.float32(80.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(80.)],
+                        "wind_speed_corrected": [np.float32(0.), np.float32(50.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(50.)],
                         "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
                         "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
                         "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
@@ -249,7 +247,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         
         "positive": {"height": "up"},
         
-        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'compass_heading': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
+        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
                                   "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
                                   "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
                                   "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
@@ -295,7 +293,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         data["GPS_heading"] = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
 
     boat_speed = data["GPS_speed"] 
-    boat_heading = data["GPS_heading"] # OR boat_heading = data["compass_heading"]
+    boat_heading = data["GPS_heading"]
     
     # average wind 
     u = -np.abs(data["wind_speed_corrected"]) * np.sin(np.deg2rad(data["wind_direction_corrected"]))
@@ -394,26 +392,13 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     # Assign global attributes
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        
-    if from_time < datetime.datetime(2022,1,1):
-        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard"
-        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon"
-        creator_types = "person, person, person, person"
-        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133"
-    elif from_time < datetime.datetime(2022,10,1):
-        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard, The University Centre in Svalbard"
-        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon, Agnes Stenlund"
-        creator_types = "person, person, person, person, person"
-        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at, agnes.stenlund@aces.su.se"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
-    else:
-        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute"
-        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes"
-        creator_types = "person, person, person"
-        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X"
-    
+
+    # creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard, The University Centre in Svalbard"
+    # creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon, Agnes Stenlund"
+    # creator_types = "person, person, person, person, person"
+    # creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at, agnes.stenlund@aces.su.se"
+    # creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
+
     
     global_attributes = {"boat": boat_names[station]['name'],
         "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} measured onboard {boat_names[station]['name']} in Isfjorden, Svalbard.",
@@ -436,11 +421,11 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         "featureType": "timeSeries",
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Basic quality control",
-        "creator_type": creator_types,
-        "creator_institution": creator_insts,
-        "creator_name": creator_names,
-        "creator_email": creator_mails,
-        "creator_url": creator_urls,
+        "creator_type": "person, person, person",
+        "creator_institution": "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute",
+        "creator_name": "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes",
+        "creator_email": "lukasf@unis.no, mariusj@unis.no, teresav@met.no",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "Isfjorden Weather Information Network (IWIN)",
         "source": "Gill MaxiMet GMX 500",
@@ -611,7 +596,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                           'temperature': "air_temperature",
                           'wind_speed': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction"},
         
-        "valid_range": {"wind_speed": [np.float32(0.), np.float32(80.)], "wind_speed_Max": [np.float32(0.), np.float32(80.)],
+        "valid_range": {"wind_speed": [np.float32(0.), np.float32(50.)], "wind_speed_Max": [np.float32(0.), np.float32(50.)],
                         "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
                         "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]},
         
@@ -649,7 +634,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
                   'wind_speed_Max': "wind_speed", 'air_pressure': "air_pressure",
                   'relative_humidity': "relative_humidity", 'temperature': "air_temperature"},
         
-        "valid_range": {"wind_speed": [np.float32(0.), np.float32(80.)], "wind_speed_Max": [np.float32(0.), np.float32(80.)],
+        "valid_range": {"wind_speed": [np.float32(0.), np.float32(50.)], "wind_speed_Max": [np.float32(0.), np.float32(50.)],
                         "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
                         "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]},
         
@@ -694,24 +679,13 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     # Assign global attributes
     dtnow = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     
-    if from_time < datetime.datetime(2022,1,1):
-        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard"
-        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon"
-        creator_types = "person, person, person, person"
-        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133"
-    elif from_time < datetime.datetime(2022,10,1):
-        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard, The University Centre in Svalbard"
-        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon, Agnes Stenlund"
-        creator_types = "person, person, person, person, person"
-        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at, agnes.stenlund@aces.su.se"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
-    else:
-        creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute"
-        creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes"
-        creator_types = "person, person, person"
-        creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no"
-        creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X"
+
+    # creator_insts = "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute, The University Centre in Svalbard, The University Centre in Svalbard"
+    # creator_names = "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes, Florina Schalamon, Agnes Stenlund"
+    # creator_types = "person, person, person, person, person"
+    # creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at, agnes.stenlund@aces.su.se"
+    # creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
+
     
     
     
@@ -738,11 +712,11 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         'date_created': dtnow,
         'history': f'File created at {dtnow} using xarray in Python3.',
         "processing_level": "Basic quality control",
-        "creator_type": creator_types,
-        "creator_institution": creator_insts,
-        "creator_name": creator_names,
-        "creator_email": creator_mails,
-        "creator_url": creator_urls,
+        "creator_type": "person, person, person",
+        "creator_institution": "The University Centre in Svalbard, The University Centre in Svalbard, Norwegian Meteorological Institute",
+        "creator_name": "Lukas Frank, Marius Opsanger Jonassen, Teresa Remes",
+        "creator_email": "lukasf@unis.no, mariusj@unis.no, teresav@met.no",
+        "creator_url": "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X",
         "institution": "The University Centre in Svalbard (UNIS)",
         "project": "Isfjorden Weather Information Network (IWIN)",
         "source": "Campbell Scientific METSENS 500",
