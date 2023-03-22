@@ -48,7 +48,7 @@ mpl.rcParams.update({
 
 path_iwin_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
-path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_boat_tracks.pdf"
+path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_09.pdf"
 
 
 lat_lims = [78.0, 78.8]

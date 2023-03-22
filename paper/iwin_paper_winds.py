@@ -39,7 +39,7 @@ mpl.rcParams.update({
 
 path_boat_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
-path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_sassenjet.pdf"
+path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_12.pdf"
 
 day_str = "20220920"
 day = pd.to_datetime(day_str)

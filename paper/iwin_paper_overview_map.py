@@ -46,7 +46,7 @@ mpl.rcParams.update({
 #%% input
 
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
-path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_overview_map.pdf"
+path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_01.pdf"
 
 
 lat_lims = [78.0, 78.8]

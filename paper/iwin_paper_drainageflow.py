@@ -41,7 +41,7 @@ mpl.rcParams.update({
 path_msbard_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS_MSBard_20sec"
 path_bhn_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/lighthouse_AWS_Bohemanneset_1min"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
-path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_drainageflow.pdf"
+path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_13.pdf"
 
 day_str = "20221020"
 day = pd.to_datetime(day_str)
