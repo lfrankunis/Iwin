@@ -9,7 +9,7 @@ import datetime
 import yaml
 
 # define for which stations the program should run
-mobile_switches = {1883: False, 
+mobile_switches = {1883: True, 
                    1872: False,
                    1924: False}
 

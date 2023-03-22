@@ -27,6 +27,8 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
     # define constants
     with open("./config_paths.yaml", "r", encoding='utf-8') as f:
         paths = yaml.safe_load(f)
+        
+    update_time = datetime.datetime.now().replace(second=0, microsecond=0)
 
 
     lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
@@ -34,14 +36,17 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
                    1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685},
                    1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082}}
 
-    boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
+    if update_time < datetime.datetime(2023,3,22,0,0,0):
+        boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
+    else:
+        boat_names = {1883: "MS_Billefjord"}
 
     status = "live"
 
     map_vari = "temperature"
     min_cbar_range = 3.
     
-    update_time = datetime.datetime.now().replace(second=0, microsecond=0)
+    
     
     
     ####################################################################################
@@ -75,6 +80,7 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
         
         # add info to the class instance
         boat[b].boat_name = boat_names[b]
+        
     
     ####################################################################################
     ####################################################################################
@@ -120,8 +126,8 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
             plot_MET_station_on_map(m, met_stations[m], ax_map, sc_map)
         plot_boat_timeseries(boat[b], fig, gs, status)
         
-        local_output_path = f"{paths['local_desktop']}liveplot_{b}.png".format(b=boat[b].boat_name)
-        
+        local_output_path = f"{paths['local_desktop']}liveplot_{boat[b].boat_name}.png"
+                
         plt.savefig(local_output_path)
         plt.close("all")
         
@@ -183,7 +189,7 @@ def upload_picture(local_file, online_file_name):
 if __name__ == '__main__':
     
     # define which stations the program should plot
-    mobile_switches = {1883: False, 
+    mobile_switches = {1883: True, 
                        1872: False,
                        1924: False}
 

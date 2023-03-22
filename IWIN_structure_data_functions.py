@@ -37,7 +37,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
 
     threshold = 0.25
     
-    if ((from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
+    if (from_time > datetime.datetime(2023,3,20)):
+        boat_names = {"1883": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+        assignment_sensor_location = {"1883": "MSBillefjord"}
+    elif ((from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
         boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                       "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
                       "1924": {"name": "MS Bard", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
@@ -319,8 +322,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     data.loc[~np.isfinite(data["wind_speed_corrected"]), "wind_speed_corrected"] = np.nan
     data.loc[~np.isfinite(data["wind_direction_corrected"]), "wind_direction_corrected"] = np.nan
     
-    if ((station == "1924") & (from_time < datetime.datetime(2022,8,31))):
-        data.loc[boat_speed <= threshold, "wind_direction_corrected"] = np.nan
+    data.loc[boat_speed <= threshold, "wind_direction_corrected"] = np.nan
     
     # maximum wind speed
     u = -np.abs(data["wind_speed_corrected_Max"]) * np.sin(np.deg2rad(data["wind_direction_corrected"]))
@@ -359,16 +361,12 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
             data.loc[data[vari]>variable_attributes["valid_range"][vari][1], vari] = np.nan
     
     # determine exhaust plume flag
-    exhaust_sectors = {"1872": (215., 235.),
-                       "1924": (170., 190.),
-                       "1883": (-3., -2.)}      # dummy for MS Bard
+    exhaust_sectors = {"MS Polargirl": (215., 235.),
+                       "MS Billefjord": (170., 190.),
+                       "MS Bard": (-3., -2.)}      # dummy for MS Bard
 
-    if ((station == "1924") & (from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
-        data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors["1883"][1]) & 
-                                                      (data['wind_direction_raw'] > exhaust_sectors["1883"][0])), dtype=int)
-    else:
-        data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors[station][1]) & 
-                                                      (data['wind_direction_raw'] > exhaust_sectors[station][0])), dtype=int)
+    data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors[boat_names[station]['name']][1]) & 
+                                                  (data['wind_direction_raw'] > exhaust_sectors[boat_names[station]['name']][0])), dtype=int)
     
     data.fillna(-99999., inplace=True)
     
