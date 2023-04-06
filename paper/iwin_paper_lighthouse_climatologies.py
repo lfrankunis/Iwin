@@ -73,10 +73,10 @@ dem = dem.where(dem > 0.)
 #%% read data
 
 
-lighthouses = {"Narveneset": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "abbrev": "\\bf NN", "x_off": -23., "y_off": 0., "map_lon_lims": [15.5, 17.4], "map_lat_lims": [78.46, 78.7], "lonticks": [15.7, 16.2, 16.7, 17.2], "latticks": [78.46, 78.52, 78.58, 78.64, 78.7], "scale_position": (0.75, 0.03), "fig_name": "04"},
-                "Bohemanneset": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "abbrev": "\\bf BHN", "x_off": -28., "y_off": 7., "map_lon_lims": [13.5, 16.2], "map_lat_lims": [78.21, 78.55], "lonticks": [13.6, 14.1, 14.6, 15.1, 15.6, 16.1], "latticks": [78.22, 78.3, 78.38, 78.46, 78.54], "scale_position": (0.8, 0.03), "fig_name": "03"},
-                "Daudmannsodden": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "abbrev": "\\bf DMO", "x_off": -25., "y_off": -15., "map_lon_lims": [11.8, 14.5], "map_lat_lims": [78.01, 78.36], "lonticks": [11.9, 12.4, 12.9, 13.4, 13.9, 14.4], "latticks": [78.01, 78.08, 78.15, 78.22, 78.29, 78.36], "scale_position": (0.03, 0.03), "fig_name": "05"},
-                "Gasoyane": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "abbrev": "\\bf GO", "x_off": 8., "y_off": -5., "map_lon_lims": [15.25, 17.45], "map_lat_lims": [78.32, 78.6], "lonticks": [15.35, 15.85, 16.35, 16.85, 17.35], "latticks": [78.34, 78.40, 78.46, 78.52, 78.58], "scale_position": (0.03, 0.03), "fig_name": "06"}}
+lighthouses = {"Narveneset": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "abbrev": "\\bf NN", "x_off": -23., "y_off": 0., "map_lon_lims": [15.5, 17.4], "map_lat_lims": [78.46, 78.7], "lonticks": [15.7, 16.2, 16.7, 17.2], "latticks": [78.46, 78.52, 78.58, 78.64, 78.7], "fig_name": "04"},
+                "Bohemanneset": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "abbrev": "\\bf BHN", "x_off": -28., "y_off": 7., "map_lon_lims": [13.5, 16.2], "map_lat_lims": [78.21, 78.55], "lonticks": [13.6, 14.1, 14.6, 15.1, 15.6, 16.1], "latticks": [78.22, 78.3, 78.38, 78.46, 78.54], "fig_name": "03"},
+                "Daudmannsodden": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "abbrev": "\\bf DMO", "x_off": -25., "y_off": -15., "map_lon_lims": [11.8, 14.5], "map_lat_lims": [78.01, 78.36], "lonticks": [11.9, 12.4, 12.9, 13.4, 13.9, 14.4], "latticks": [78.01, 78.08, 78.15, 78.22, 78.29, 78.36], "fig_name": "05"},
+                "Gasoyane": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "abbrev": "\\bf GO", "x_off": 8., "y_off": -5., "map_lon_lims": [15.25, 17.45], "map_lat_lims": [78.32, 78.6], "lonticks": [15.35, 15.85, 16.35, 16.85, 17.35], "latticks": [78.34, 78.40, 78.46, 78.52, 78.58], "fig_name": "06"}}
 
 
 
@@ -161,8 +161,10 @@ for l, ldata in lighthouses.items():
     # plot data
     polar_inset.bar(lighthouse_data[l]["wind_direction"], lighthouse_data[l]["wind_speed"], bins=wspeed_bins, normed=True, opening=0.8, cmap=cmo.cm.thermal)
     
-    scale_bar(ax_main, ldata["scale_position"], 10, text_kwargs={"weight": "bold"}, zorder=400)
+    scale_bar(ax_main, (0.03, 0.03), 10, text_kwargs={"weight": "bold"}, zorder=400)
     
+    ax_main.text(0.72, 0.015, "© Norwegian Polar Institute", fontsize=7, weight='bold', transform=ax_main.transAxes, zorder=1000)
+
     
     plt.savefig(f"{path_out}_{lighthouses[l]['fig_name']}.pdf", dpi=300)
     

@@ -155,7 +155,10 @@ ax.set_title(None)
 ax.set_xlabel(None)
 ax.set_ylabel(None)
 
-scale_bar(ax, (0.8, 0.03), 5, text_kwargs={"weight": "bold"})
+scale_bar(ax, (0.02, 0.02), 5, text_kwargs={"weight": "bold"})
+
+ax.text(0.65, 0.015, "© Norwegian Polar Institute", fontsize=7, weight='bold', transform=ax.transAxes, zorder=1001)
+
 
 plt.savefig(path_out, dpi=300)
 

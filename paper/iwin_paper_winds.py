@@ -181,7 +181,7 @@ ax.plot([15.33, lon_lims_FF[1]], [78.41014, lat_lims_FF[1]], "k--", lw=1.5, tran
 
 ax.text(0.94, 0.95, "(a)", transform=ax.transAxes, fontsize=10)
 
-scale_bar(ax, (0.87, 0.03), 10, text_kwargs={"weight": "bold"})
+scale_bar(ax, (0.02, 0.02), 10, text_kwargs={"weight": "bold"})
 
 
 
@@ -223,6 +223,9 @@ ax_FF.xaxis.tick_top()
 ax_FF.text(0.03, 0.9, "(b)", transform=ax_FF.transAxes, fontsize=10)
 
 scale_bar(ax_FF, (0.78, 0.03), 2, text_kwargs={"weight": "bold"})
+
+ax.text(0.67, 0.015, "© Norwegian Polar Institute", fontsize=7, weight='bold', transform=ax.transAxes, zorder=1001)
+
 
 plt.savefig(path_out, dpi=300)
 
