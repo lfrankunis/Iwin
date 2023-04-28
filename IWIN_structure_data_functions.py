@@ -194,7 +194,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                      'wind_speed_corrected_Max': 'wind_speed_corrected_Max',
                      'temperature': 'temperature',
                      'relative_humidity': 'relative_humidity',
-                     'air_pressure': 'air_pressure',
+                     'air_pressure_Avg': 'air_pressure',
                      'GPS_location': 'GPS_location',
                      "GPS_speed": "GPS_speed",
                      "GPS_heading": "GPS_heading"}
@@ -254,7 +254,6 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                                   "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
                                   "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
                                   "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
-        
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
