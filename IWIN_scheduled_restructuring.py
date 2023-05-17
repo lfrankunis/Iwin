@@ -19,9 +19,11 @@ def restructure_AWS(stat, res, latest_day, new_day):
     mobile_stations = ["MSBard", "MSBillefjord", "MSPolargirl", "RVHannaResvoll"]
     lighthouse_stations = ["Narveneset", "Bohemanneset", "Daudmannsodden", "Gasoyane", "KappThordsen"]
     
-    now = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
+    now = datetime.datetime.now()
+    now = now.replace(tzinfo=datetime.timezone.utc)
     
     midnight = datetime.datetime.combine(now, datetime.datetime.min.time())
+    midnight = midnight.replace(tzinfo=datetime.timezone.utc)
     if stat in mobile_stations:
         latest_avail_time = restructure_mobile_AWS(midnight, now, station=str(stat), resolution=res)
     elif stat in lighthouse_stations:
