@@ -16,10 +16,10 @@ from IWIN_structure_data_functions import restructure_mobile_AWS, restructure_li
 
 def restructure_AWS(stat, res, latest_day, new_day):
     
-    mobile_stations = [1883, 1872, 1924]
-    lighthouse_stations = [1884, 1885, 1886, 1887]
+    mobile_stations = ["MSBard", "MSBillefjord", "MSPolargirl", "RVHannaResvoll"]
+    lighthouse_stations = ["Narveneset", "Bohemanneset", "Daudmannsodden", "Gasoyane", "KappThordsen"]
     
-    now = datetime.datetime.now()
+    now = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
     
     midnight = datetime.datetime.combine(now, datetime.datetime.min.time())
     if stat in mobile_stations:

@@ -29,17 +29,19 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
         paths = yaml.safe_load(f)
         
     update_time = datetime.datetime.now().replace(second=0, microsecond=0)
+    
+    with open("./config_metadata.yaml", "r", encoding='utf-8') as f:
+        station_metadata = yaml.safe_load(f)
+        
+    lighthouses = station_metadata["lighthouse_stations"]
 
 
-    lighthouses = {1884: {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687},
-                   1885: {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300},
-                   1886: {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685},
-                   1887: {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082}}
-
-    if update_time < datetime.datetime(2023,3,22,0,0,0):
-        boat_names = {1883: "MS_Bard", 1872: "MS_Polargirl", 1924: "MS_Billefjord"}
-    else:
-        boat_names = {1883: "MS_Billefjord"}
+    boats = station_metadata["mobile_stations"]
+    
+    
+    with open("./config_sensors.yaml", "r", encoding='utf-8') as f:
+        sensors = yaml.safe_load(f)
+    
 
     status = "live"
 
@@ -79,7 +81,7 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
         boat[b].calculate_wind_in_knots(corrected=True)
         
         # add info to the class instance
-        boat[b].boat_name = boat_names[b]
+        boat[b].boat_name = boats[b]["name"]
         
     
     ####################################################################################
@@ -126,7 +128,7 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
             plot_MET_station_on_map(m, met_stations[m], ax_map, sc_map)
         plot_boat_timeseries(boat[b], fig, gs, status)
         
-        local_output_path = f"{paths['local_desktop']}liveplot_{boat[b].boat_name}.png"
+        local_output_path = f"{paths['local_desktop']}liveplot_{b}.png"
                 
         plt.savefig(local_output_path)
         plt.close("all")
@@ -147,7 +149,7 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
     for m in MET_stations_to_plot:
         plot_MET_station_on_map(m, met_stations[m], ax_map, sc_map)
     if len(boats_to_plot) > 0:
-        combined_legend_positions(ax_map, boat, boat_names) # combined legend
+        combined_legend_positions(ax_map, boat, boats) # combined legend
     
     local_output_path = f"{paths['local_desktop']}liveplot_overview_map.png"
     
@@ -188,15 +190,18 @@ def upload_picture(local_file, online_file_name):
 
 if __name__ == '__main__':
     
-    # define which stations the program should plot
-    mobile_switches = {1883: True, 
-                       1872: False,
-                       1924: False}
+    # read config file
+    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
+        paths = yaml.safe_load(f)
+    
+    with open("./config_processing_plotting.yaml", "r", encoding='utf-8') as f:
+        stations_to_plot = yaml.safe_load(f)
+    
+    
+    for k in stations_to_plot.keys():
+        if stations_to_plot[k] is None:
+            stations_to_plot[k] = []
 
-    lighthouse_switches = {1884: True,
-                           1885: True,
-                           1886: True,
-                           1887: True}
     
     MET_switches = {"LYR": True,
                     "IR":  True,
@@ -207,13 +212,9 @@ if __name__ == '__main__':
     ###########################################################################
     ###########################################################################
     
-    mobile_stations = [s for s, sw in mobile_switches.items() if sw]
-    lighthouse_stations = [s for s, sw in lighthouse_switches.items() if sw]
+
     MET_stations = [s for s, sw in MET_switches.items() if sw]
 
-    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
-        paths = yaml.safe_load(f)
-
-    proc=mp.Process(target=update_all_plots, args=[mobile_stations, lighthouse_stations, MET_stations])
+    proc=mp.Process(target=update_all_plots, args=[stations_to_plot["mobile_stations"], stations_to_plot["lighthouse_stations"], MET_stations])
     proc.start()
     proc.join()

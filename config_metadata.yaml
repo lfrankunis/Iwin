@@ -1,0 +1,45 @@
+mobile_stations:
+  MSBard:
+    name: MS Bard
+    installation_date: 20210506
+  MSBerg:
+    name: MS Berg
+    installation_date: 20230516
+  MSBard2:
+    name: MS Bard 2
+    installation_date: 20220830
+  MSBillefjord:
+    name: MS Billefjord
+    installation_date: 20220321
+  MSPolargirl:
+    name: MS Polargirl
+    installation_date: 20210529
+  RVHannaResvoll:
+    name: RV Hanna Resvoll
+    installation_date: 20230517
+lighthouse_stations:
+  Narveneset:
+    name: Narveneset
+    installation_date: 20220617
+    lat: 78.56343
+    lon: 16.29687
+  Bohemanneset:
+    name: Bohemanneset
+    installation_date: 20210819
+    lat: 78.38166
+    lon: 14.75300
+  Daudmannsodden:
+    name: Daudmannsodden
+    installation_date: 20220708
+    lat: 78.21056
+    lon: 12.98685
+  Gasoyane:
+    name: Gasoyane
+    installation_date: 20220902
+    lat: 78.45792
+    lon: 16.20082
+  KappThordsen:
+    name: Kapp Thordsen
+    installation_date: 20230517
+    lat: 78.45632
+    lon: 15.46768

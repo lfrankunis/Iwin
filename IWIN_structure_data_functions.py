@@ -15,249 +15,11 @@ import os
 import json
 
 
-def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min"):
-    """
-    Function to restructure the mobile AWS data into e.g. daily files
-    Parameters
-    ----------
-    path : str
-        string defining the path where to find the input data and save the output data
-    station : str
-        string specifying the station ("1883" or "1872" or "1924")
-    resolution : str
-        string specifying the resolution of the data ("20sec", "1min", or "10min")
-    from_time : datetime object
-        start time of the restructured file
-    to_time : datetime object
-        end time of the restructured file
-    Returns a netCDF4 file
-    -------
-    In case the restructured interval is not one day, remember to change the output file names
-    """
 
+def correct_mobile_winds_v1(data):
+    
     threshold = 0.25
     
-    if (from_time > datetime.datetime(2023,3,20)):
-        boat_names = {"1883": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
-        assignment_sensor_location = {"1883": "MSBillefjord"}
-    elif ((from_time > datetime.datetime(2022,8,30)) & (from_time < datetime.datetime(2022,11,20))):
-        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1924": {"name": "MS Bard", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
-        assignment_sensor_location = {"1883": "MSBard", "1872": "MSPolargirl"}
-        
-    else:
-        boat_names = {"1883": {"name": "MS Bard", "installation":  datetime.datetime(2021,5,6,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1872": {"name": "MS Polargirl", "installation":  datetime.datetime(2021,5,29,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                      "1924": {"name": "MS Billefjord", "installation":  datetime.datetime(2022,3,21,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
-        assignment_sensor_location = {"1883": "MSBard", "1872": "MSPolargirl", "1924": "MSBillefjord"}
-    
-    # define path to the data folder
-    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
-        paths = yaml.safe_load(f)
-
-    if from_time < datetime.datetime(2022,5,17):
-        infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
-    elif from_time < datetime.datetime(2023,1,1):
-        infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
-    else:
-        infile = f"{paths['local_data']}mobile_AWS_{station}/mobile_AWS_{station}_Table_{resolution}.dat"
-        
-        
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/")
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/")
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/")
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-        
-    outfile_sensor_nc = f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-    backup_sensor_nc = f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-
-
-    if station in assignment_sensor_location.keys():
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/")
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/")
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-            
-        outfile_location_nc = f"{paths['local_storage']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-        backup_location_nc = f"{paths['harddrive']}sorted_by_location/mobile_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-
-
-
-    print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
-
-    col_names = pd.read_csv(infile, header=1, sep=",", nrows=1).to_dict('records')[0]
-
-    time_avail = pd.to_datetime(pd.read_csv(infile, header=3, sep=",", usecols=[0], na_values="NAN").iloc[:,0]).dt.to_pydatetime()
-    ind = np.where((time_avail >= from_time) & (time_avail < to_time))[0]
-    
-    if len(ind) == 0:
-        return time_avail[-1]
-    
-    data = pd.read_csv(infile, header=3+ind[0], nrows=len(ind), sep=",", na_values="NAN", names=list(col_names.keys()))
-    
-    if from_time < datetime.datetime(2022,5,17):
-        new_names = {"TIMESTAMP": "time",
-                     'Wind_Speed_S_WVT': 'wind_speed_raw',
-                     'Wind_Direction_D1_WVT': 'wind_direction_raw',
-                     'Wind_Direction_SDI_WVT': 'wind_direction_raw_Std',
-                     'Wind_Speed_raw_Max': 'wind_speed_raw_Max',
-                     'Wind_Speed_Corrected_S_WVT': 'wind_speed_corrected',
-                     'Wind_Direction_Corrected_D1_WVT': 'wind_direction_corrected',
-                     'Wind_Direction_Corrected_SDI_WVT': 'wind_direction_corrected_Std',
-                     'Wind_Speed_corrected_Max': 'wind_speed_corrected_Max',
-                     'Ambient_Temperature': 'temperature',
-                     'Relative_Humidity': 'relative_humidity',
-                     'Barometric_Pressure': 'air_pressure',
-                     'GPS_Location': 'GPS_location',
-                     "GPS_speed": "GPS_speed",
-                     "GPS_heading": "GPS_heading"}
-        cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
-        data.drop(columns=cols_to_drop, inplace=True)
-        data.rename(new_names, axis=1, inplace=True)
-
-        
-        variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw': "m s-1",
-                  'wind_direction_raw': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
-                  'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree", 'wind_speed_corrected_Max': "m s-1",
-                  'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
-                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
-        
-        "long_names" : {'time': "UTC time",
-                        'wind_speed_raw': "raw wind speed averaged over the sampling interval",
-                        'wind_direction_raw': "raw wind direction averaged over the sampling interval",
-                        'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
-                        'wind_speed_raw_Max': "maximum raw wind speed during the sampling interval",
-                        'wind_speed_corrected': "wind speed averaged over the sampling interval, corrected for the movement of the boat",
-                        'wind_direction_corrected': "wind direction averaged over the sampling interval, corrected for the movement of the boat",
-                        'wind_direction_corrected_Std': "standard deviation of the wind direction during the sampling interval, corrected for the movement of the boat",
-                        'wind_speed_corrected_Max': "maximum wind speed during the sampling interval, corrected for the movement of the boat",
-                        'temperature': "air temperature sampled at the respective timestamp",
-                        'relative_humidity': "air relative humidity sampled at the respective timestamp",
-                        'air_pressure': "air pressure sampled at the respective timestamp",
-                        'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
-                        'latitude': "latitude", 'longitude': "longitude", 'height': "height of the sensor over ground, retrieved from the GPS",
-                        "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
-        
-        "standard_names": {'time': "time", 'wind_speed_raw': "wind_speed", 'wind_direction_raw': "wind_from_direction",
-                           'wind_speed_raw_Max': "wind_speed", 
-                           'wind_speed_corrected': "wind_speed", 'wind_direction_corrected': "wind_from_direction",
-                           'wind_speed_corrected_Max': "wind_speed",
-                           'temperature': "air_temperature", 'relative_humidity': 'relative_humidity', 'air_pressure': "air_pressure",
-                           'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
-                           'latitude': "latitude", 'longitude': "longitude", 'height': "height",
-                           "exhaust_plume_influence": "status_flag"},
-        
-        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(50.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(50.)],
-                        "wind_direction_raw": [np.float32(0.), np.float32(360.)], "wind_direction_raw_Std": [np.float32(0.), np.float32(360.)],
-                        "wind_speed_corrected": [np.float32(0.), np.float32(50.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(50.)],
-                        "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
-                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
-                        "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
-        
-        "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
-        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume measurements_impacted_by_exhaust_plume"},
-        
-        "positive": {"height": "up"},
-        
-        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
-                                  "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
-                                  "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
-                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
-        
-    else:
-        new_names = {"TIMESTAMP": "time",
-                     'wind_speed_raw_Avg': 'wind_speed_raw',
-                     'wind_direction_raw_Avg': 'wind_direction_raw',
-                     'wind_direction_raw_Std': 'wind_direction_raw_Std',
-                     'wind_speed_raw_Max': 'wind_speed_raw_Max',
-                     'wind_speed_corrected_Avg': 'wind_speed_corrected',
-                     'wind_direction_corrected_Avg': 'wind_direction_corrected',
-                     'wind_direction_corrected_Std': 'wind_direction_corrected_Std',
-                     'wind_speed_corrected_Max': 'wind_speed_corrected_Max',
-                     'temperature': 'temperature',
-                     'relative_humidity': 'relative_humidity',
-                     'air_pressure_Avg': 'air_pressure',
-                     'GPS_location': 'GPS_location',
-                     "GPS_speed": "GPS_speed",
-                     "GPS_heading": "GPS_heading"}
-        cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
-        data.drop(columns=cols_to_drop, inplace=True)
-        data.rename(new_names, axis=1, inplace=True)
-
-        
-        variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw': "m s-1",
-                  'wind_direction_raw': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
-                  'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree",
-                  'wind_speed_corrected_Max': "m s-1",
-                  'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
-                  'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
-        
-        "long_name" : {'time': "UTC time",
-                        'wind_speed_raw': "raw wind speed averaged over the sampling interval",
-                        'wind_direction_raw': "raw wind direction averaged over the sampling interval",
-                        'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
-                        'wind_speed_raw_Max': "maximum raw wind speed during the sampling interval",
-                        'wind_speed_corrected': "wind speed averaged over the sampling interval, corrected for the movement of the boat",
-                        'wind_direction_corrected': "wind direction averaged over the sampling interval, corrected for the movement of the boat",
-                        'wind_direction_corrected_Std': "standard deviation of the wind direction during the sampling interval, corrected for the movement of the boat",
-                        'wind_speed_corrected_Max': "maximum wind speed during the sampling interval, corrected for the movement of the boat",
-                        'temperature': "air temperature averaged over the sampling interval",
-                        'relative_humidity': "air relative humidity averaged over the sampling interval",
-                        'air_pressure': "air pressure averaged over the sampling interval",
-                        'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
-                        'latitude': "latitude", 'longitude': "longitude", 'height': "height of the sensor over ground, retrieved from the GPS",
-                        "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
-        
-        "standard_name": {'time': "time",
-                           'wind_speed_raw_Max': "wind_speed", 'wind_speed_raw': "wind_speed",
-                           'wind_direction_raw': "wind_from_direction",
-                           'wind_speed_corrected_Max': "wind_speed", 'wind_speed_corrected': "wind_speed",
-                           'wind_direction_corrected': "wind_from_direction",
-                           'temperature': "air_temperature",
-                           'relative_humidity': 'relative_humidity',
-                           'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
-                           'latitude': "latitude", 'longitude': "longitude", "height": "height",
-                           "exhaust_plume_influence": "status_flag"},
-        
-        "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(50.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(50.)],
-                        "wind_direction_raw": [np.float32(0.), np.float32(360.)], "wind_direction_raw_Std": [np.float32(0.), np.float32(360.)],
-                        "wind_speed_corrected": [np.float32(0.), np.float32(50.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(50.)],
-                        "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
-                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
-                        "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
-        
-        "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
-        "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume measurements_impacted_by_exhaust_plume"},
-        
-        "positive": {"height": "up"},
-        
-        "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
-                                  "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
-                                  "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
-                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
-
-    # transfer timestamps into Python datetime objects
-    data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
-
     # extract lat, lon and lat from GPS Location
     latitude = np.ones((len(data["time"]))) * np.nan
     longitude = np.ones((len(data["time"]))) * np.nan
@@ -290,9 +52,9 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     x, y = myProj(longitude, latitude)
     boat_u = np.gradient(x)/np.asarray(np.gradient(data["time"].values.astype("datetime64[s]")), dtype=float)
     boat_v = np.gradient(y)/np.asarray(np.gradient(data["time"].values.astype("datetime64[s]")), dtype=float)
-    if from_time < datetime.datetime(2022,5,17):
-        data["GPS_speed"]  = np.sqrt(boat_u**2. + boat_v**2.)
-        data["GPS_heading"] = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
+
+    data["GPS_speed"]  = np.sqrt(boat_u**2. + boat_v**2.)
+    data["GPS_heading"] = (((np.rad2deg(np.arctan2(-boat_u, -boat_v)) + 360.) % 360.) + 180.) % 360.
 
     boat_speed = data["GPS_speed"] 
     boat_heading = data["GPS_heading"]
@@ -344,8 +106,363 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     
     data.loc[~np.isfinite(data["wind_speed_corrected_Max"]), "wind_speed_corrected_Max"] = np.nan
 
-    data.set_index("time", inplace=True)
     data.drop(columns=["GPS_location"], inplace=True)
+    
+    
+    return data
+
+
+def correct_mobile_winds_v2(data):
+    
+    threshold = 0.25
+    
+    # extract lat, lon and lat from GPS Location
+    latitude = np.ones((len(data["time"]))) * np.nan
+    longitude = np.ones((len(data["time"]))) * np.nan
+    height = np.ones((len(data["time"]))) * np.nan
+    for c, gps in enumerate(data["GPS_location"]):
+        if type(gps) == float:
+            latitude[c] = np.nan
+            longitude[c] = np.nan
+            height[c] = np.nan
+        else:
+            latitude[c] = float(gps.split(":")[0])
+            longitude[c] = float(gps.split(":")[1])
+            height[c] = float(gps.split(":")[2])
+            
+            # filter data with erroneous GPS positions
+            if ((latitude[c] < 77.95926) or (latitude[c] > 78.85822) or (longitude[c] < 13.38286) or (longitude[c] > 17.46182)):
+                latitude[c] = np.nan
+                longitude[c] = np.nan
+                height[c] = np.nan
+                
+                
+    # add lon, lat and alt to dataframe
+    data["latitude"] = latitude
+    data["longitude"] = longitude
+    data["height"] = height
+
+
+    # correct wind data for motion of the boat
+    myProj = Proj("+proj=utm +zone=33 +north +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+    x, y = myProj(longitude, latitude)
+    boat_u = np.gradient(x)/np.asarray(np.gradient(data["time"].values.astype("datetime64[s]")), dtype=float)
+    boat_v = np.gradient(y)/np.asarray(np.gradient(data["time"].values.astype("datetime64[s]")), dtype=float)
+
+    boat_speed = data["GPS_speed"] 
+    boat_heading = data["GPS_heading"]
+    
+    # average wind 
+    u = -np.abs(data["wind_speed_corrected"]) * np.sin(np.deg2rad(data["wind_direction_corrected"]))
+    v = -np.abs(data["wind_speed_corrected"]) * np.cos(np.deg2rad(data["wind_direction_corrected"]))
+    u_raw = -np.abs(data["wind_speed_raw"]) * np.sin(np.deg2rad(data["wind_direction_raw"]))
+    v_raw = -np.abs(data["wind_speed_raw"]) * np.cos(np.deg2rad(data["wind_direction_raw"]))
+
+    u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
+    v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
+
+    u_shipcorrected = u_georef + boat_u
+    v_shipcorrected = v_georef + boat_v
+
+    u_true = copy.deepcopy(u)
+    v_true = copy.deepcopy(v)
+    u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
+    v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
+    
+
+    data["wind_speed_corrected"] = np.sqrt(u_true**2. + v_true**2.)
+    data["wind_direction_corrected"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
+    
+    data.loc[~np.isfinite(data["wind_speed_corrected"]), "wind_speed_corrected"] = np.nan
+    data.loc[~np.isfinite(data["wind_direction_corrected"]), "wind_direction_corrected"] = np.nan
+    
+    data.loc[boat_speed <= threshold, "wind_direction_corrected"] = np.nan
+    
+    # maximum wind speed
+    u = -np.abs(data["wind_speed_corrected_Max"]) * np.sin(np.deg2rad(data["wind_direction_corrected"]))
+    v = -np.abs(data["wind_speed_corrected_Max"]) * np.cos(np.deg2rad(data["wind_direction_corrected"]))
+    u_raw = -np.abs(data["wind_speed_raw_Max"]) * np.sin(np.deg2rad(data["wind_direction_raw"])) 
+    v_raw = -np.abs(data["wind_speed_raw_Max"]) * np.cos(np.deg2rad(data["wind_direction_raw"]))
+
+    u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
+    v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
+
+    u_shipcorrected = u_georef + boat_u
+    v_shipcorrected = v_georef + boat_v
+
+    u_true = copy.deepcopy(u)
+    v_true = copy.deepcopy(v)
+    u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
+    v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
+
+    data["wind_speed_corrected_Max"] = np.sqrt(u_true**2. + v_true**2.)
+    
+    data.loc[~np.isfinite(data["wind_speed_corrected_Max"]), "wind_speed_corrected_Max"] = np.nan
+
+    data.drop(columns=["GPS_location"], inplace=True)
+    
+    
+    return data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min"):
+    """
+    Function to restructure the mobile AWS data into e.g. daily files
+    Parameters
+    ----------
+    path : str
+        string defining the path where to find the input data and save the output data
+    station : str
+        string specifying the station ("1883" or "1872" or "1924")
+    resolution : str
+        string specifying the resolution of the data ("20sec", "1min", or "10min")
+    from_time : datetime object
+        start time of the restructured file
+    to_time : datetime object
+        end time of the restructured file
+    Returns a netCDF4 file
+    -------
+    In case the restructured interval is not one day, remember to change the output file names
+    """
+    
+    # define path to the data folder
+    with open("./config_paths.yaml", "r", encoding='utf-8') as f:
+        paths = yaml.safe_load(f)
+        
+    with open("./config_data_files.yaml", "r", encoding='utf-8') as f:
+        data_infiles = yaml.safe_load(f)
+
+    infiles_station = data_infiles["mobile_stations"][station]
+    for d, f in infiles_station.items():
+        d1 = datetime.datetime.strptime(str(d)[:8], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        d2 = datetime.datetime.strptime(str(d)[8:], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        if ((from_time >= d1) & (from_time <= d2)):
+            infile = f
+            
+    replace_settings = {"path": paths['local_data'], "resolution": resolution}
+    for placeholder, value in replace_settings.items():
+        infile = infile.replace(placeholder, value)
+        
+    
+    with open("./config_metadata.yaml", "r", encoding='utf-8') as f:
+        station_metadata = yaml.safe_load(f)
+        
+    station_metadata = station_metadata["mobile_stations"][station]
+    station_metadata["installation_date"] = datetime.datetime.strptime(str(station_metadata["installation_date"]), "%Y%m%d").replace(tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    with open("./config_sensors.yaml", "r", encoding='utf-8') as f:
+        sensors = yaml.safe_load(f)
+
+    sensors = sensors["mobile_stations"][station]
+    for d, s in sensors.items():
+        d1 = datetime.datetime.strptime(str(d)[:8], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        d2 = datetime.datetime.strptime(str(d)[8:], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        if ((from_time >= d1) & (from_time <= d2)):
+            sensor = s
+        
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{station}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{station}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        
+    outfile_location_nc = f"{paths['local_storage']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_location_nc = f"{paths['harddrive']}sorted_by_location/mobile_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+        
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{sensor}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+    
+    outfile_sensor_nc = f"{paths['local_storage']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{sensor}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_sensor_nc = f"{paths['harddrive']}sorted_by_sensor/mobile_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/mobile_AWS_{sensor}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    
+   
+
+    print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
+
+    col_names = pd.read_csv(infile, header=1, sep=",", nrows=1).to_dict('records')[0]
+
+    time_avail = pd.to_datetime(pd.read_csv(infile, header=3, sep=",", usecols=[0], na_values="NAN").iloc[:,0]).dt.to_pydatetime()
+    time_avail = np.asarray([d.replace(tzinfo=datetime.timezone.utc) for d in time_avail])
+    
+    ind = np.where((time_avail >= from_time) & (time_avail < to_time))[0]
+    
+    if len(ind) == 0:
+        return time_avail[-1]
+    
+    data = pd.read_csv(infile, header=3+ind[0], nrows=len(ind), sep=",", na_values="NAN", names=list(col_names.keys()))
+    
+    if "v1" in infile:
+        new_names = {"TIMESTAMP": "time",
+                     'Wind_Speed_S_WVT': 'wind_speed_raw',
+                     'Wind_Direction_D1_WVT': 'wind_direction_raw',
+                     'Wind_Direction_SDI_WVT': 'wind_direction_raw_Std',
+                     'Wind_Speed_raw_Max': 'wind_speed_raw_Max',
+                     'Wind_Speed_Corrected_S_WVT': 'wind_speed_corrected',
+                     'Wind_Direction_Corrected_D1_WVT': 'wind_direction_corrected',
+                     'Wind_Direction_Corrected_SDI_WVT': 'wind_direction_corrected_Std',
+                     'Wind_Speed_corrected_Max': 'wind_speed_corrected_Max',
+                     'Ambient_Temperature': 'temperature',
+                     'Relative_Humidity': 'relative_humidity',
+                     'Barometric_Pressure': 'air_pressure',
+                     'GPS_Location': 'GPS_location',
+                     "GPS_speed": "GPS_speed",
+                     "GPS_heading": "GPS_heading"}
+        cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
+        data.drop(columns=cols_to_drop, inplace=True)
+        data.rename(new_names, axis=1, inplace=True)
+        
+        
+    elif "v2" in infile:
+        new_names = {"TIMESTAMP": "time",
+                     'wind_speed_raw_Avg': 'wind_speed_raw',
+                     'wind_direction_raw_Avg': 'wind_direction_raw',
+                     'wind_direction_raw_Std': 'wind_direction_raw_Std',
+                     'wind_speed_raw_Max': 'wind_speed_raw_Max',
+                     'wind_speed_corrected_Avg': 'wind_speed_corrected',
+                     'wind_direction_corrected_Avg': 'wind_direction_corrected',
+                     'wind_direction_corrected_Std': 'wind_direction_corrected_Std',
+                     'wind_speed_corrected_Max': 'wind_speed_corrected_Max',
+                     'temperature': 'temperature',
+                     'relative_humidity': 'relative_humidity',
+                     'air_pressure_Avg': 'air_pressure',
+                     'GPS_location': 'GPS_location',
+                     "GPS_speed": "GPS_speed",
+                     "GPS_heading": "GPS_heading"}
+        cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
+        data.drop(columns=cols_to_drop, inplace=True)
+        data.rename(new_names, axis=1, inplace=True)
+        
+        
+    elif "v3" in infile:
+        # has to be fixed once data is available
+        new_names = {"TIMESTAMP": "time",
+                     'wind_speed_raw_Avg': 'wind_speed_raw',
+                     'wind_direction_raw_Avg': 'wind_direction_raw',
+                     'wind_direction_raw_Std': 'wind_direction_raw_Std',
+                     'wind_speed_raw_Max': 'wind_speed_raw_Max',
+                     'wind_speed_corrected_Avg': 'wind_speed_corrected',
+                     'wind_direction_corrected_Avg': 'wind_direction_corrected',
+                     'wind_direction_corrected_Std': 'wind_direction_corrected_Std',
+                     'wind_speed_corrected_Max': 'wind_speed_corrected_Max',
+                     'temperature': 'temperature',
+                     'relative_humidity': 'relative_humidity',
+                     'air_pressure_Avg': 'air_pressure',
+                     'GPS_location': 'GPS_location',
+                     "GPS_speed": "GPS_speed",
+                     "GPS_heading": "GPS_heading"}
+        cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
+        data.drop(columns=cols_to_drop, inplace=True)
+        data.rename(new_names, axis=1, inplace=True)
+
+        
+    variable_attributes = {
+    "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw': "m s-1",
+              'wind_direction_raw': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
+              'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree",
+              'wind_speed_corrected_Max': "m s-1",
+              'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
+              'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
+    
+    "long_name" : {'time': "UTC time",
+                    'wind_speed_raw': "raw wind speed averaged over the sampling interval",
+                    'wind_direction_raw': "raw wind direction averaged over the sampling interval",
+                    'wind_direction_raw_Std': "standard devitation of the raw wind speed during the sampling interval",
+                    'wind_speed_raw_Max': "maximum raw wind speed during the sampling interval",
+                    'wind_speed_corrected': "wind speed averaged over the sampling interval, corrected for the movement of the boat",
+                    'wind_direction_corrected': "wind direction averaged over the sampling interval, corrected for the movement of the boat",
+                    'wind_direction_corrected_Std': "standard deviation of the wind direction during the sampling interval, corrected for the movement of the boat",
+                    'wind_speed_corrected_Max': "maximum wind speed during the sampling interval, corrected for the movement of the boat",
+                    'temperature': "air temperature averaged over the sampling interval",
+                    'relative_humidity': "air relative humidity averaged over the sampling interval",
+                    'air_pressure': "air pressure averaged over the sampling interval",
+                    'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
+                    'latitude': "latitude", 'longitude': "longitude", 'height': "height of the sensor over ground, retrieved from the GPS",
+                    "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
+    
+    "standard_name": {'time': "time",
+                       'wind_speed_raw_Max': "wind_speed", 'wind_speed_raw': "wind_speed",
+                       'wind_direction_raw': "wind_from_direction",
+                       'wind_speed_corrected_Max': "wind_speed", 'wind_speed_corrected': "wind_speed",
+                       'wind_direction_corrected': "wind_from_direction",
+                       'temperature': "air_temperature",
+                       'relative_humidity': 'relative_humidity',
+                       'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
+                       'latitude': "latitude", 'longitude': "longitude", "height": "height",
+                       "exhaust_plume_influence": "status_flag"},
+    
+    "valid_range": {"wind_speed_raw": [np.float32(0.), np.float32(50.)], "wind_speed_raw_Max": [np.float32(0.), np.float32(50.)],
+                    "wind_direction_raw": [np.float32(0.), np.float32(360.)], "wind_direction_raw_Std": [np.float32(0.), np.float32(360.)],
+                    "wind_speed_corrected": [np.float32(0.), np.float32(50.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(50.)],
+                    "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
+                    "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
+                    "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
+    
+    "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
+    "flag_meanings": {"exhaust_plume_influence": "measurements_not_impacted_by_exhaust_plume measurements_impacted_by_exhaust_plume"},
+    
+    "positive": {"height": "up"},
+    
+    "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
+                              "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
+                              "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
+                              "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
+
+    # transfer timestamps into Python datetime objects
+    data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
+
+
+    if "v1" in infile:
+        data = correct_mobile_winds_v1(data)
+    elif "v2" in infile:
+        data = correct_mobile_winds_v2(data)
+    elif "v3" in infile:
+        pass
+
+    
+    
+    
+    data.set_index("time", inplace=True)
     
     data = data[~data.index.duplicated(keep='first')]
     
@@ -364,8 +481,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                        "MS Billefjord": (170., 190.),
                        "MS Bard": (-3., -2.)}      # dummy for MS Bard
 
-    data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors[boat_names[station]['name']][1]) & 
-                                                  (data['wind_direction_raw'] > exhaust_sectors[boat_names[station]['name']][0])), dtype=int)
+    data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors[station_metadata['name']][1]) & 
+                                                  (data['wind_direction_raw'] > exhaust_sectors[station_metadata['name']][0])), dtype=int)
     
     data.fillna(-99999., inplace=True)
     
@@ -397,8 +514,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     # creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
 
     
-    global_attributes = {"boat": boat_names[station]['name'],
-        "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} measured onboard {boat_names[station]['name']} in Isfjorden, Svalbard.",
+    global_attributes = {"boat": station_metadata['name'],
+        "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} measured onboard {station_metadata['name']} in Isfjorden, Svalbard.",
         "summary": "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. The raw data is only filtered for obviously wrong GPS positions, otherwise the data is made available as is. Wind speed and wind direction are corrected for the horizontal movements of the boat using GPS data.",
         "keywords": "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
             GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
@@ -457,19 +574,18 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         os.remove(backup_sensor_nc)
     shutil.copyfile(outfile_sensor_nc, backup_sensor_nc)
     
-    if station in assignment_sensor_location.keys():
-        ds.to_netcdf(outfile_location_nc, unlimited_dims=["time"], encoding=myencoding)
-        
-        if os.path.isfile(backup_location_nc):
-            os.remove(backup_location_nc)
-        shutil.copyfile(outfile_location_nc, backup_location_nc)
+    ds.to_netcdf(outfile_location_nc, unlimited_dims=["time"], encoding=myencoding)
+    
+    if os.path.isfile(backup_location_nc):
+        os.remove(backup_location_nc)
+    shutil.copyfile(outfile_location_nc, backup_location_nc)
 
     return time_avail[-1]
 
 
 
 
-def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="10min"):
+def restructure_lighthouse_AWS(from_time, to_time, station="Bohemanneset", resolution="10min"):
     """
     Function to restructure the lighthouse AWS data into e.g. daily files
     Parameters
@@ -477,7 +593,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     path : str
         string defining the path where to find the input data and save the output data
     station : str
-        string specifying the station (e.g. "1885")
+        string specifying the station (e.g. "Bohemanneset")
     resolution : str
         string specifying the resolution of the data ("1min" or "10min")
     from_time : datetime object
@@ -489,58 +605,73 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     In case the restructured interval is not one day, remember to change the output file names
     """
     
-    if from_time > datetime.datetime(2020,1,1):         # dummy for the moment
-        lighthouses = {"1884": {"name": "Narveneset", 'lat': 78.56343,'lon': 16.29687, "installation": datetime.datetime(2022,6,18,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                       "1885": {"name": "Bohemanneset", 'lat': 78.38166, 'lon': 14.75300, "installation": datetime.datetime(2021,8,20,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                       "1886": {"name": "Daudmannsodden", 'lat': 78.21056,'lon': 12.98685, "installation": datetime.datetime(2022,7,8,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")},
-                       "1887": {"name": "Gasoyane", 'lat': 78.45792,'lon': 16.20082, "installation": datetime.datetime(2022,9,3,0,0,0,tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}}
-        assignment_sensor_location = {"1884": "Narveneset", "1885": "Bohemanneset", "1886": "Daudmannsodden", "1887": "Gasoyane"}
-        
-    
     # define path to the data folder
     with open("./config_paths.yaml", "r", encoding='utf-8') as f:
         paths = yaml.safe_load(f)
+        
+    with open("./config_data_files.yaml", "r", encoding='utf-8') as f:
+        data_infiles = yaml.safe_load(f)
 
-    if from_time < datetime.datetime(2022,5,8):
-        infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v1_{from_time.year}.dat"
-    elif from_time < datetime.datetime(2023,1,1):
-        infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}_v2_{from_time.year}.dat"
-    else:
-        infile = f"{paths['local_data']}lighthouse_AWS_{station}/lighthouse_AWS_{station}_Table_{resolution}.dat"
+    infiles_station = data_infiles["lighthouse_stations"][station]
+    for d, f in infiles_station.items():
+        d1 = datetime.datetime.strptime(str(d)[:8], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        d2 = datetime.datetime.strptime(str(d)[8:], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        if ((from_time >= d1) & (from_time <= d2)):
+            infile = f
+            
+    replace_settings = {"path": paths['local_data'], "resolution": resolution}
+    for placeholder, value in replace_settings.items():
+        infile = infile.replace(placeholder, value)
         
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/")
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/")
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
-    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
-        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+    
+    with open("./config_metadata.yaml", "r", encoding='utf-8') as f:
+        station_metadata = yaml.safe_load(f)
         
-    outfile_sensor_nc = f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-    backup_sensor_nc = f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    station_metadata = station_metadata["lighthouse_stations"][station]
+    station_metadata["installation_date"] = datetime.datetime.strptime(str(station_metadata["installation_date"]), "%Y%m%d").replace(tzinfo=datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    with open("./config_sensors.yaml", "r", encoding='utf-8') as f:
+        sensors = yaml.safe_load(f)
+
+    sensors = sensors["lighthouse_stations"][station]
+    for d, s in sensors.items():
+        d1 = datetime.datetime.strptime(str(d)[:8], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        d2 = datetime.datetime.strptime(str(d)[8:], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        if ((from_time >= d1) & (from_time <= d2)):
+            sensor = s
         
-    if station in assignment_sensor_location.keys():
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/")
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/")
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/")
-        if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
-            os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
-            os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{station}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/")
         
-        outfile_location_nc = f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
-        backup_location_nc = f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{assignment_sensor_location[station]}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{assignment_sensor_location[station]}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    outfile_location_nc = f"{paths['local_storage']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_location_nc = f"{paths['harddrive']}sorted_by_location/lighthouse_AWS_{station}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{station}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
         
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{sensor}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/")
+    if not os.path.exists(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/"):
+        os.makedirs(f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+        os.makedirs(f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/")
+    
+    outfile_sensor_nc = f"{paths['local_storage']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{sensor}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    backup_sensor_nc = f"{paths['harddrive']}sorted_by_sensor/lighthouse_AWS_{sensor}/{resolution}/{from_time.year}/{from_time.month:02d}/lighthouse_AWS_{sensor}_Table_{resolution}_{from_time.year}{from_time.month:02d}{from_time.day:02d}.nc"
+    
    
 
     print("restructuring {r} data from AWS {s}...".format(r=resolution, s=station))
@@ -548,6 +679,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     col_names = pd.read_csv(infile, header=1, sep=",", nrows=1).to_dict('records')[0]
 
     time_avail = pd.to_datetime(pd.read_csv(infile, header=3, sep=",", usecols=[0], na_values="NAN").iloc[:,0]).dt.to_pydatetime()
+    time_avail = np.asarray([d.replace(tzinfo=datetime.timezone.utc) for d in time_avail])
     ind = np.where((time_avail >= from_time) & (time_avail < to_time))[0]
     
     if len(ind) == 0:
@@ -555,10 +687,8 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     
     data = pd.read_csv(infile, header=3+ind[0], nrows=len(ind), sep=",", na_values="NAN", names=list(col_names.keys()))
     
-    if ((station == "1887") & (from_time < datetime.datetime(2022,11,6))):
-        data['wind_direction_Avg'] -= 65.
     
-    if from_time < datetime.datetime(2022,5,8):
+    if "v1" in infile:
         new_names = {'TIMESTAMP': "time",
                      'BP_mbar_Avg': "air_pressure",
                      'RH_Avg': "relative_humidity",
@@ -570,37 +700,8 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
         data.drop(columns=cols_to_drop, inplace=True)
         data.rename(new_names, axis=1, inplace=True)
-
         
-        variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01T00:00:00Z",
-                  'air_pressure': "hPa", 'relative_humidity': "percent",
-                  'temperature': "degree_C", 
-                  'wind_speed': "m s-1", 'wind_speed_Max': "m s-1", 'wind_direction': "degree",
-                  'wind_direction_Std': "degree"},
-        
-        "long_name": {'time': "UTC time",
-                      'air_pressure': "air pressure averaged over the sampling interval",
-                      'relative_humidity': "air relative humidity averaged over the sampling interval",
-                      'temperature': "air temperature sampled at the respective timestamp",
-                      'wind_speed_Max': "maximum wind speed during the sampling interval",
-                      'wind_speed': "wind speed averaged over the sampling interval",
-                      'wind_direction': "wind direction averaged over the sampling interval",
-                      'wind_direction_Std': "standard deviation of the wind direction during the sampling interval"},
-        
-        "standard_name": {'time': "time", 'air_pressure': "air_pressure",
-                          'relative_humidity': "relative_humidity",
-                          'temperature': "air_temperature",
-                          'wind_speed': "wind_speed", 'wind_speed_Max': "wind_speed", 'wind_direction': "wind_from_direction"},
-        
-        "valid_range": {"wind_speed": [np.float32(0.), np.float32(50.)], "wind_speed_Max": [np.float32(0.), np.float32(50.)],
-                        "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
-                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]},
-        
-        "coverage_content_type": {"time": "coordinate", "wind_speed": "physicalMeasurement", "wind_direction": "physicalMeasurement", "wind_direction_Std": "physicalMeasurement", "wind_speed_Max": "physicalMeasurement",
-                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
-        
-    else:
+    elif "v2" in infile:
         new_names = {"TIMESTAMP": "time",
                      'air_pressure_Avg': "air_pressure",
                      'relative_humidity_Avg': "relative_humidity",
@@ -614,29 +715,34 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         data.rename(new_names, axis=1, inplace=True)
 
         
-        variable_attributes = {
-        "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed': "m s-1", 'wind_direction': "degree", 'wind_direction_Std': "degree",
-                  'wind_speed_Max': "m s-1", 'air_pressure': "hPa",
-                  'relative_humidity': "percent", 'temperature': "degree_C"},
-        
-        "long_name": {'time': "UTC time", 'wind_speed': "wind speed averaged over the sampling interval",
-                      'wind_direction': "wind direction averaged over the sampling interval",
-                      'wind_direction_Std': "standard deviation of the wind direction during the sampling interval",
-                      'wind_speed_Max': "maximum wind speed during the sampling interval",
-                      'air_pressure': "air pressure averaged over the sampling interval",
-                      'relative_humidity': "air relative humidity averaged over the sampling interval",
-                      'temperature': "air temperature averaged over the sampling interval"},
-        
-        "standard_name": {'time': "time", 'wind_speed': "wind_speed", 'wind_direction': "wind_from_direction",
-                  'wind_speed_Max': "wind_speed", 'air_pressure': "air_pressure",
-                  'relative_humidity': "relative_humidity", 'temperature': "air_temperature"},
-        
-        "valid_range": {"wind_speed": [np.float32(0.), np.float32(50.)], "wind_speed_Max": [np.float32(0.), np.float32(50.)],
-                        "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
-                        "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]},
-        
-        "coverage_content_type": {"time": "coordinate", "wind_speed": "physicalMeasurement", "wind_direction": "physicalMeasurement", "wind_direction_Std": "physicalMeasurement", "wind_speed_Max": "physicalMeasurement",
-                                  "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
+    variable_attributes = {
+    "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed': "m s-1", 'wind_direction': "degree", 'wind_direction_Std': "degree",
+              'wind_speed_Max': "m s-1", 'air_pressure': "hPa",
+              'relative_humidity': "percent", 'temperature': "degree_C"},
+    
+    "long_name": {'time': "UTC time", 'wind_speed': "wind speed averaged over the sampling interval",
+                  'wind_direction': "wind direction averaged over the sampling interval",
+                  'wind_direction_Std': "standard deviation of the wind direction during the sampling interval",
+                  'wind_speed_Max': "maximum wind speed during the sampling interval",
+                  'air_pressure': "air pressure averaged over the sampling interval",
+                  'relative_humidity': "air relative humidity averaged over the sampling interval",
+                  'temperature': "air temperature averaged over the sampling interval"},
+    
+    "standard_name": {'time': "time", 'wind_speed': "wind_speed", 'wind_direction': "wind_from_direction",
+              'wind_speed_Max': "wind_speed", 'air_pressure': "air_pressure",
+              'relative_humidity': "relative_humidity", 'temperature': "air_temperature"},
+    
+    "valid_range": {"wind_speed": [np.float32(0.), np.float32(50.)], "wind_speed_Max": [np.float32(0.), np.float32(50.)],
+                    "wind_direction": [np.float32(0.), np.float32(360.)], "wind_direction_Std": [np.float32(0.), np.float32(360.)],
+                    "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)]},
+    
+    "coverage_content_type": {"time": "coordinate", "wind_speed": "physicalMeasurement", "wind_direction": "physicalMeasurement", "wind_direction_Std": "physicalMeasurement", "wind_speed_Max": "physicalMeasurement",
+                              "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
+
+
+    if ((station == "Gasoyane") & (from_time < datetime.datetime(2022,11,6, tzinfo=datetime.timezone.utc))):
+        data['wind_direction'] -= 65.
+    
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
@@ -686,10 +792,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     
     
     
-    global_attributes = {"location": lighthouses[station]["name"],
-        "latitude": lighthouses[station]["lat"],
-        "longitude": lighthouses[station]["lon"],
-        "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} at {lighthouses[station]['name']} in Isfjorden, Svalbard.",
+    global_attributes = {"location": station_metadata["name"],
+        "latitude": station_metadata["lat"],
+        "longitude": station_metadata["lon"],
+        "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} at {station_metadata['name']} in Isfjorden, Svalbard.",
         "summary": "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. The raw data is only filtered for obviously wrong values, otherwise the data is made available as is.",
         "keywords": "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
             GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
@@ -697,10 +803,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
         "keywords_vocabulary": 'GCMDSK: GCMD Science Keywords, GCMDLOC: GCMD Locations',
         "data_type": "netCDF-4",
         "standard_name_vocabulary": "CF Standard Name Table v80",
-        "geospatial_lat_min": lighthouses[station]["lat"],
-        "geospatial_lat_max": lighthouses[station]["lat"],
-        "geospatial_lon_min": lighthouses[station]["lon"],
-        "geospatial_lon_max": lighthouses[station]["lon"],
+        "geospatial_lat_min": station_metadata["lat"],
+        "geospatial_lat_max": station_metadata["lat"],
+        "geospatial_lon_min": station_metadata["lon"],
+        "geospatial_lon_max": station_metadata["lon"],
         "area": "Svalbard, Isfjorden",
         "time_coverage_start": start_data_coverage,
         "time_coverage_end": end_data_coverage,
@@ -748,12 +854,11 @@ def restructure_lighthouse_AWS(from_time, to_time, station="1885", resolution="1
     shutil.copyfile(outfile_sensor_nc, backup_sensor_nc)
     
     
-    if station in assignment_sensor_location.keys():
-        ds.to_netcdf(outfile_location_nc, unlimited_dims=["time"], encoding=myencoding)
-        
-        if os.path.isfile(backup_location_nc):
-            os.remove(backup_location_nc)
-        shutil.copyfile(outfile_location_nc, backup_location_nc)
+    ds.to_netcdf(outfile_location_nc, unlimited_dims=["time"], encoding=myencoding)
+    
+    if os.path.isfile(backup_location_nc):
+        os.remove(backup_location_nc)
+    shutil.copyfile(outfile_location_nc, backup_location_nc)
 
 
     return time_avail[-1]

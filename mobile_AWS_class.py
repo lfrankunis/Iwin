@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 class mobile_AWS():
 
-    def __init__(self,  station=1883,                        # station number: 1883 or 1872 or 1924
+    def __init__(self,  station="MSBard",                        # station number: 1883 or 1872 or 1924
                         resolution="1min",                # temporal resolution of the data
                         starttime="202104090800",         # INPUT Define start- and end-points in time for retrieving the data
                         endtime="202104091800",           # Format: YYYYmmddHHMM
@@ -91,12 +91,27 @@ class mobile_AWS():
                 data['local_time'] = np.array([datetime.datetime.fromtimestamp(int(i)) for i in f.variables['time'][:]], dtype=datetime.datetime)
 
         elif self.file_type == 'raw':
-            data_file = '{a}mobile_AWS_{s}/mobile_AWS_{s}_Table_{r}.dat'.format(a=self.path, s=self.station, r=self.resolution)
-            print('reading {a}'.format(a=os.path.basename(data_file)))
+            
+            with open("./config_data_files.yaml", "r", encoding='utf-8') as f:
+                data_infiles = yaml.safe_load(f)
 
-            col_names = pd.read_csv(data_file, header=1, sep=",", nrows=1).to_dict('records')[0]
+            infiles_station = data_infiles["mobile_stations"][self.station]
+            for d, f in infiles_station.items():
+                d1 = datetime.datetime.strptime(str(d)[:8], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+                d2 = datetime.datetime.strptime(str(d)[8:], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+                if ((day >= d1) & (day <= d2)):
+                    infile = f
+                    
+            replace_settings = {"path": self.path, "resolution": self.resolution}
+            for placeholder, value in replace_settings.items():
+                infile = infile.replace(placeholder, value)
+            
+            
+            print(f'reading {infile}')
 
-            with open(data_file, 'r') as f:
+            col_names = pd.read_csv(infile, header=1, sep=",", nrows=1).to_dict('records')[0]
+
+            with open(infile, 'r') as f:
                 q = deque(f, 5000)
                 
             df_data = pd.read_csv(StringIO(''.join(q)), header=0, skiprows=4, sep=",", na_values="NAN", names=list(col_names.keys()))

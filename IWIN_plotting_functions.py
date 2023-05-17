@@ -175,9 +175,9 @@ def plot_boat_on_map(ax_map, sc_map, boat, variable="temperature", position_swit
 
 def combined_legend_positions(ax_map, boat, boat_names):
     
-    markers = {1883: "X", 1872: "*", 1924: "P"}
-    colors = {1883: "m", 1872: "g", 1924: "purple"}
-    sizes = {1883: 150, 1872: 200, 1924: 150}
+    markers = {"MSBard": "X", "MSPolargirl": "*", "MSBillefjord": "P", "MSBerg": "X"}
+    colors = {"MSBard": "m", "MSPolargirl": "g", "MSBillefjord": "purple", "MSBerg": "m"}
+    sizes = {"MSBard": 150, "MSPolargirl": 200, "MSBillefjord": 150, "MSBerg": 150}
     
     i = list(boat.keys())[0]
     ind = np.where((boat[i].data['time'] >= boat[i].data['time'][-1]-datetime.timedelta(hours=3)))[0]
@@ -201,7 +201,7 @@ def combined_legend_positions(ax_map, boat, boat_names):
         lc = boat[i].data["local_time"][-1].strftime("%H:%M")
         text_legend = mpl.lines.Line2D([],[], marker="None", linestyle="None", color=colors[i], label=f"(upd. {lc} [local time])")
     
-        ship_legend = mpl.lines.Line2D([],[], marker=markers[i], markersize=sizes[i]/10., linestyle="None", color=colors[i], label=boat_names[i])
+        ship_legend = mpl.lines.Line2D([],[], marker=markers[i], markersize=sizes[i]/10., linestyle="None", color=colors[i], label=boat_names[i]["name"])
         
         handles.append(ship_legend)
         handles.append(text_legend)

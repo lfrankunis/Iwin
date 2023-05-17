@@ -1,0 +1,12 @@
+mobile_stations:
+#  - MSBard
+#  - MSBerg
+  - MSBillefjord
+#  - MSPolargirl
+#  - RVHannaResvoll
+lighthouse_stations:
+  - Narveneset
+  - Bohemanneset
+  - Daudmannsodden
+  - Gasoyane
+#  - KappThordsen
