@@ -3,7 +3,7 @@ mobile_stations:
     20210505_20211021: path/mobile_AWS_MSBard/mobile_AWS_MSBard_Table_resolution_v1_2021.dat
     20220530_20221027: path/mobile_AWS_MSBard/mobile_AWS_MSBard_Table_resolution_v2_2022.dat
   MSBerg:
-    20230517_20231201: path/mobile_AWS_MSBard/mobile_AWS_MSBard_Table_resolution_v3_2023_1.dat
+    20230517_20231201: path/mobile_AWS_MSBerg/mobile_AWS_MSBerg_Table_resolution_v3_2023_1.dat
   MSBard2:
     20220831_20221027: path/mobile_AWS_MSBard2/mobile_AWS_MSBard2_Table_resolution_v2_2022.dat
   MSBillefjord:

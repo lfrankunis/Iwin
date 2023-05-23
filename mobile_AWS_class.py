@@ -119,53 +119,88 @@ class mobile_AWS():
             # transfer timestamps into Python datetime objects
             df_data["time"] = pd.to_datetime(df_data["TIMESTAMP"]).dt.to_pydatetime()
 
-            # extract lat, lon and lat from GPS Location
-            latitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
-            longitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
-            altitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
-            for c, gps in enumerate(df_data["GPS_location"]):
-                if type(gps) == float:
-                    latitude[c] = np.nan
-                    longitude[c] = np.nan
-                    altitude[c] = np.nan
-                else:
-                    latitude[c] = float(gps.split(":")[0])
-                    longitude[c] = float(gps.split(":")[1])
-                    altitude[c] = float(gps.split(":")[2])
+            if "v3" in infile:
+                df_data["GPRMC_speed_kn"] /= 1.94384
 
-                    if ((latitude[c] < 77.95926) or (latitude[c] > 78.85822) or (longitude[c] < 13.38286) or (longitude[c] > 17.46182)):
+                df_data["GPRMC_longitude"] /= 100.
+                df_data["GPRMC_longitude"] = (df_data["GPRMC_longitude"] // 1.) + (((df_data["GPRMC_longitude"] % 1.)*100.)/60.)
+                df_data["GPRMC_latitude"] /= 100.
+                df_data["GPRMC_latitude"] = (df_data["GPRMC_latitude"] // 1.) + (((df_data["GPRMC_latitude"] % 1.)*100.)/60.)
+
+                df_data[((df_data["GPRMC_longitude"] < 13.38286) | (df_data["GPRMC_longitude"] > 17.46182) | (df_data["GPRMC_latitude"] < 77.95926) | (df_data["GPRMC_latitude"] > 78.85822))] = np.nan
+
+                df_data.drop(columns=["GPS_heading", "GPS_speed"],inplace=True)
+                df_data = df_data.rename({"temperature": 'temperature',
+                                    "temperature_Avg": 'temperature_Avg',
+                                    "air_pressure_Avg": 'air_pressure',
+                                    "relative_humidity": 'relative_humidity',
+                                    "relative_humidity_Avg": 'relative_humidity_Avg',
+                                    "dewpoint_temperature_Avg": 'dewpoint',
+                                    "wind_speed_corrected_Avg": 'wind_speed',
+                                    "wind_speed_corrected": 'wind_speed_smp',
+                                    "wind_speed_corrected_Max": 'wind_speed_Max',
+                                    "wind_speed_raw_Avg": 'wind_speed_raw',
+                                    "wind_speed_raw": 'wind_speed_raw_Smp',
+                                    "wind_speed_raw_Max": 'wind_speed_max_raw',
+                                    "wind_direction_corrected_Avg": 'wind_direction',
+                                    "wind_direction_corrected": 'wind_direction_Smp',
+                                    "wind_direction_corrected_Std": 'wind_direction_std',
+                                    "wind_direction_raw_Avg": 'wind_direction_raw',
+                                    "wind_direction_raw": 'wind_direction_raw_Smp',
+                                    "wind_direction_raw_Std": 'wind_direction_std_raw',
+                                    "compass_heading": "compass_heading",
+                                    "GPRMC_speed_kn": "GPS_speed",
+                                    "HEHDT_heading": "GPS_heading",
+                                    "GPRMC_latitude": "latitude",
+                                    "GPRMC_longitude": "longitude"}, axis='columns')
+
+            else:
+                # extract lat, lon and lat from GPS Location
+                latitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
+                longitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
+                altitude = np.ones((len(df_data["TIMESTAMP"]))) * np.nan
+                for c, gps in enumerate(df_data["GPS_location"]):
+                    if type(gps) == float:
                         latitude[c] = np.nan
                         longitude[c] = np.nan
                         altitude[c] = np.nan
-
-            df_data['latitude'] = latitude
-            df_data['longitude'] = longitude
-            df_data['altitude'] = altitude
-
-            df_data = df_data.rename({"temperature": 'temperature',
-                                "temperature_Avg": 'temperature_Avg',
-                                "air_pressure_Avg": 'air_pressure',
-                                "relative_humidity": 'relative_humidity',
-                                "relative_humidity_Avg": 'relative_humidity_Avg',
-                                "dewpoint_temperature_Avg": 'dewpoint',
-                                "wind_speed_corrected_Avg": 'wind_speed',
-                                "wind_speed_corrected": 'wind_speed_smp',
-                                "wind_speed_corrected_Max": 'wind_speed_Max',
-                                "wind_speed_raw_Avg": 'wind_speed_raw',
-                                "wind_speed_raw": 'wind_speed_raw_Smp',
-                                "wind_speed_raw_Max": 'wind_speed_max_raw',
-                                "wind_direction_corrected_Avg": 'wind_direction',
-                                "wind_direction_corrected": 'wind_direction_Smp',
-                                "wind_direction_corrected_Std": 'wind_direction_std',
-                                "wind_direction_raw_Avg": 'wind_direction_raw',
-                                "wind_direction_raw": 'wind_direction_raw_Smp',
-                                "wind_direction_raw_Std": 'wind_direction_std_raw',
-                                "GPS_heading": "GPS_heading",
-                                "GSP_speed": "GPS_speed",
-                                "compass_heading": "compass_heading"}, axis='columns')
+                    else:
+                        latitude[c] = float(gps.split(":")[0])
+                        longitude[c] = float(gps.split(":")[1])
+                        altitude[c] = float(gps.split(":")[2])
+    
+                        if ((latitude[c] < 77.95926) or (latitude[c] > 78.85822) or (longitude[c] < 13.38286) or (longitude[c] > 17.46182)):
+                            latitude[c] = np.nan
+                            longitude[c] = np.nan
+                            altitude[c] = np.nan
+    
+                df_data['latitude'] = latitude
+                df_data['longitude'] = longitude
+                df_data['altitude'] = altitude
+    
+                df_data = df_data.rename({"temperature": 'temperature',
+                                    "temperature_Avg": 'temperature_Avg',
+                                    "air_pressure_Avg": 'air_pressure',
+                                    "relative_humidity": 'relative_humidity',
+                                    "relative_humidity_Avg": 'relative_humidity_Avg',
+                                    "dewpoint_temperature_Avg": 'dewpoint',
+                                    "wind_speed_corrected_Avg": 'wind_speed',
+                                    "wind_speed_corrected": 'wind_speed_smp',
+                                    "wind_speed_corrected_Max": 'wind_speed_Max',
+                                    "wind_speed_raw_Avg": 'wind_speed_raw',
+                                    "wind_speed_raw": 'wind_speed_raw_Smp',
+                                    "wind_speed_raw_Max": 'wind_speed_max_raw',
+                                    "wind_direction_corrected_Avg": 'wind_direction',
+                                    "wind_direction_corrected": 'wind_direction_Smp',
+                                    "wind_direction_corrected_Std": 'wind_direction_std',
+                                    "wind_direction_raw_Avg": 'wind_direction_raw',
+                                    "wind_direction_raw": 'wind_direction_raw_Smp',
+                                    "wind_direction_raw_Std": 'wind_direction_std_raw',
+                                    "GPS_heading": "GPS_heading",
+                                    "GSP_speed": "GPS_speed",
+                                    "compass_heading": "compass_heading"}, axis='columns')
 
             df_data = df_data.dropna()
-
             data_all = df_data.to_dict('list')
 
             for vari in self.variables:
@@ -268,40 +303,59 @@ class mobile_AWS():
     
     
     
-    def correct_winds(self, threshold=0.25):
+    def correct_winds(self, threshold=0.25, sat_comp=False):
         """
         Method to correct the wind speed and correction for the motion of the boats.
         """
-        myProj = Proj("+proj=utm +zone=33 +north +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
-        x, y = myProj(self.data["longitude"], self.data["latitude"])
-        boat_u = np.gradient(x)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
-        boat_v = np.gradient(y)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
-        boat_speed = self.data["GPS_speed"] 
-        boat_heading = self.data["GPS_heading"]                                                                         #OR boat_heading = self.data["compass_heading"]
         
-        u = -np.abs(self.data["wind_speed"]) * np.sin(np.deg2rad(self.data["wind_direction"]))
-        v = -np.abs(self.data["wind_speed"]) * np.cos(np.deg2rad(self.data["wind_direction"]))
-        u_raw = -np.abs(self.data["wind_speed_raw"]) * np.sin(np.deg2rad(self.data["wind_direction_raw"]))
-        v_raw = -np.abs(self.data["wind_speed_raw"]) * np.cos(np.deg2rad(self.data["wind_direction_raw"]))
         
-        u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
-        v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
+        if sat_comp:
+            
+            u_raw = -np.abs(self.data["wind_speed_raw"]) * np.sin(np.deg2rad(self.data["wind_direction_raw"]))
+            v_raw = -np.abs(self.data["wind_speed_raw"]) * np.cos(np.deg2rad(self.data["wind_direction_raw"]))
+            u_georef = u_raw * np.cos(np.deg2rad(self.data["GPS_heading"])) + v_raw * np.sin(np.deg2rad(self.data["GPS_heading"]))
+            v_georef = -u_raw * np.sin(np.deg2rad(self.data["GPS_heading"])) + v_raw * np.cos(np.deg2rad(self.data["GPS_heading"]))
+
+            boat_dir = (self.data["GPS_heading"] + 180.) % 360.
+            boat_u = -np.abs(self.data["GPS_speed"]) * np.sin(np.deg2rad(boat_dir))
+            boat_v = -np.abs(self.data["GPS_speed"]) * np.cos(np.deg2rad(boat_dir))
+
+            u_true = u_georef + boat_u
+            v_true = v_georef + boat_v
+            
+        else:
         
-        u_shipcorrected = u_georef + boat_u
-        v_shipcorrected = v_georef + boat_v
-        
-        u_true = copy.deepcopy(u)
-        v_true = copy.deepcopy(v)
-        u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
-        v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
-        
+            myProj = Proj("+proj=utm +zone=33 +north +ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+            x, y = myProj(self.data["longitude"], self.data["latitude"])
+            boat_u = np.gradient(x)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
+            boat_v = np.gradient(y)/np.asarray(np.gradient(self.data["time"].astype("datetime64[s]")), dtype=float)
+            boat_speed = self.data["GPS_speed"] 
+            boat_heading = self.data["GPS_heading"]                                                                         #OR boat_heading = self.data["compass_heading"]
+            
+            u = -np.abs(self.data["wind_speed"]) * np.sin(np.deg2rad(self.data["wind_direction"]))
+            v = -np.abs(self.data["wind_speed"]) * np.cos(np.deg2rad(self.data["wind_direction"]))
+            u_raw = -np.abs(self.data["wind_speed_raw"]) * np.sin(np.deg2rad(self.data["wind_direction_raw"]))
+            v_raw = -np.abs(self.data["wind_speed_raw"]) * np.cos(np.deg2rad(self.data["wind_direction_raw"]))
+            
+            u_georef = u_raw * np.cos(np.deg2rad(boat_heading)) + v_raw * np.sin(np.deg2rad(boat_heading))
+            v_georef = -u_raw * np.sin(np.deg2rad(boat_heading)) + v_raw * np.cos(np.deg2rad(boat_heading))
+            
+            u_shipcorrected = u_georef + boat_u
+            v_shipcorrected = v_georef + boat_v
+            
+            u_true = copy.deepcopy(u)
+            v_true = copy.deepcopy(v)
+            u_true[boat_speed > threshold] = u_shipcorrected[boat_speed > threshold]
+            v_true[boat_speed > threshold] = v_shipcorrected[boat_speed > threshold]
+            
+            
+            
+            
         self.data["wind_speed"] = np.sqrt(u_true**2. + v_true**2.)
         self.data["wind_direction"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
         
         self.data["wind_speed"][~np.isfinite(self.data["wind_speed"])] = np.nan
         self.data["wind_direction"][~np.isfinite(self.data["wind_direction"])] = np.nan
-        # if self.station == 1924:
-        #     self.data["wind_direction"][boat_speed <= threshold] = np.nan
         
         return
 

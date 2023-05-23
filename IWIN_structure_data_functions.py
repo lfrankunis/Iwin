@@ -207,7 +207,51 @@ def correct_mobile_winds_v2(data):
 
 
 
+def correct_mobile_winds_v3(data):
+    
+    data["GPS_speed"] /= 1.94384
 
+    data["longitude"] /= 100.
+    data["longitude"] = (data["longitude"] // 1.) + (((data["longitude"] % 1.)*100.)/60.)
+    data["latitude"] /= 100.
+    data["latitude"] = (data["latitude"] // 1.) + (((data["latitude"] % 1.)*100.)/60.)
+
+    data[((data["longitude"] < 13.38286) | (data["longitude"] > 17.46182) | (data["latitude"] < 77.95926) | (data["latitude"] > 78.85822))] = np.nan
+
+
+    u_raw = -np.abs(data["wind_speed_raw"]) * np.sin(np.deg2rad(data["wind_direction_raw"]))
+    v_raw = -np.abs(data["wind_speed_raw"]) * np.cos(np.deg2rad(data["wind_direction_raw"]))
+    u_georef = u_raw * np.cos(np.deg2rad(data["GPS_heading"])) + v_raw * np.sin(np.deg2rad(data["GPS_heading"]))
+    v_georef = -u_raw * np.sin(np.deg2rad(data["GPS_heading"])) + v_raw * np.cos(np.deg2rad(data["GPS_heading"]))
+
+    boat_dir = (data["GPS_heading"] + 180.) % 360.
+    boat_u = -np.abs(data["GPS_speed"]) * np.sin(np.deg2rad(boat_dir))
+    boat_v = -np.abs(data["GPS_speed"]) * np.cos(np.deg2rad(boat_dir))
+
+    u_true = u_georef + boat_u
+    v_true = v_georef + boat_v
+
+    data["wind_speed_corrected"] = np.sqrt(u_true**2. + v_true**2.)
+    data["wind_direction_corrected"] = (np.rad2deg(np.arctan2(-u_true, -v_true)) + 360.) % 360.
+
+    data.loc[~np.isfinite(data["wind_speed_corrected"]), "wind_speed_corrected"] = np.nan
+    data.loc[~np.isfinite(data["wind_direction_corrected"]), "wind_direction_corrected"] = np.nan
+
+
+    u_raw = -np.abs(data["wind_speed_raw_Max"]) * np.sin(np.deg2rad(data["wind_direction_raw"]))
+    v_raw = -np.abs(data["wind_speed_raw_Max"]) * np.cos(np.deg2rad(data["wind_direction_raw"]))
+    u_georef = u_raw * np.cos(np.deg2rad(data["GPS_heading"])) + v_raw * np.sin(np.deg2rad(data["GPS_heading"]))
+    v_georef = -u_raw * np.sin(np.deg2rad(data["GPS_heading"])) + v_raw * np.cos(np.deg2rad(data["GPS_heading"]))
+
+
+    u_true = u_georef + boat_u
+    v_true = v_georef + boat_v
+
+    data["wind_speed_corrected_Max"] = np.sqrt(u_true**2. + v_true**2.)
+
+    data.loc[~np.isfinite(data["wind_speed_corrected_Max"]), "wind_speed_corrected_Max"] = np.nan
+
+    return data
 
 
 
@@ -373,9 +417,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         data.drop(columns=cols_to_drop, inplace=True)
         data.rename(new_names, axis=1, inplace=True)
         
-        
+
     elif "v3" in infile:
-        # has to be fixed once data is available
         new_names = {"TIMESTAMP": "time",
                      'wind_speed_raw_Avg': 'wind_speed_raw',
                      'wind_direction_raw_Avg': 'wind_direction_raw',
@@ -388,9 +431,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
                      'temperature': 'temperature',
                      'relative_humidity': 'relative_humidity',
                      'air_pressure_Avg': 'air_pressure',
-                     'GPS_location': 'GPS_location',
-                     "GPS_speed": "GPS_speed",
-                     "GPS_heading": "GPS_heading"}
+                     "GPRMC_speed_kn": "GPS_speed",
+                     "HEHDT_heading": "GPS_heading",
+                     "GPRMC_latitude": "latitude",
+                     "GPRMC_longitude": "longitude"}
         cols_to_drop = [i for i in list(data.columns) if i not in list(new_names.keys())]
         data.drop(columns=cols_to_drop, inplace=True)
         data.rename(new_names, axis=1, inplace=True)
@@ -457,7 +501,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     elif "v2" in infile:
         data = correct_mobile_winds_v2(data)
     elif "v3" in infile:
-        pass
+        data = correct_mobile_winds_v3(data)
 
     
     
@@ -479,7 +523,8 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     # determine exhaust plume flag
     exhaust_sectors = {"MS Polargirl": (215., 235.),
                        "MS Billefjord": (170., 190.),
-                       "MS Bard": (-3., -2.)}      # dummy for MS Bard
+                       "MS Bard": (-3., -2.),
+                       "MS Berg": (-3., -2.)}      # dummy for MS Bard
 
     data["exhaust_plume_influence"] = np.asarray(((data['wind_direction_raw'] < exhaust_sectors[station_metadata['name']][1]) & 
                                                   (data['wind_direction_raw'] > exhaust_sectors[station_metadata['name']][0])), dtype=int)

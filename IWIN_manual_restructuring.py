@@ -32,7 +32,7 @@ elif len(args.time) == 1:
 days_to_process = [i.strftime("%Y%m%d") for i in days]
 
 
-mobile_stations = [s for s in args.stations if s in ["MSBard", "MSBillefjord", "MSPolargirl", "RVHannaResvoll"]]
+mobile_stations = [s for s in args.stations if s in ["MSBard", "MSBerg", "MSBillefjord", "MSPolargirl", "RVHannaResvoll"]]
 lighthouse_stations = [s for s in args.stations if s in ["Narveneset", "Bohemanneset", "Daudmannsodden", "Gasoyane", "KappThordsen"]]
 
 

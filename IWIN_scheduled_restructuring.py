@@ -16,7 +16,7 @@ from IWIN_structure_data_functions import restructure_mobile_AWS, restructure_li
 
 def restructure_AWS(stat, res, latest_day, new_day):
     
-    mobile_stations = ["MSBard", "MSBillefjord", "MSPolargirl", "RVHannaResvoll"]
+    mobile_stations = ["MSBard", "MSBerg", "MSBillefjord", "MSPolargirl", "RVHannaResvoll"]
     lighthouse_stations = ["Narveneset", "Bohemanneset", "Daudmannsodden", "Gasoyane", "KappThordsen"]
     
     now = datetime.datetime.now()
