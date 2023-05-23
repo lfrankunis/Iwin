@@ -96,6 +96,8 @@ for b, b_data in boat_data.items():
     # e = 0.01*df["relative_humidity"]*(611.2 * np.exp((17.62*df["temperature"])/(243.12+df["temperature"])))
     # df['specific_humidity'] = 1000.*(0.622*e)/(100.*df["air_pressure"]-0.378*e)
     df["air_pressure"] += 18.*(1./8.)
+    df["air_pressure"][df["air_pressure"] < 950.] = np.nan
+
     boat_data[b] = df
     
     all_data[b] = df
