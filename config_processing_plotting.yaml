@@ -2,7 +2,7 @@ mobile_stations:
 #  - MSBard
   - MSBerg
   - MSBillefjord
-#  - MSPolargirl
+  - MSPolargirl
 #  - RVHannaResvoll
 lighthouse_stations:
   - Narveneset

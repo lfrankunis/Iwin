@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 class mobile_AWS():
 
-    def __init__(self,  station="MSBard",                        # station number: 1883 or 1872 or 1924
+    def __init__(self,  station="MSBerg",                        # station number: 1883 or 1872 or 1924
                         resolution="1min",                # temporal resolution of the data
                         starttime="202104090800",         # INPUT Define start- and end-points in time for retrieving the data
                         endtime="202104091800",           # Format: YYYYmmddHHMM
@@ -128,8 +128,7 @@ class mobile_AWS():
                 df_data["GPRMC_latitude"] = (df_data["GPRMC_latitude"] // 1.) + (((df_data["GPRMC_latitude"] % 1.)*100.)/60.)
 
                 df_data[((df_data["GPRMC_longitude"] < 13.38286) | (df_data["GPRMC_longitude"] > 17.46182) | (df_data["GPRMC_latitude"] < 77.95926) | (df_data["GPRMC_latitude"] > 78.85822))] = np.nan
-
-                df_data.drop(columns=["GPS_heading", "GPS_speed"],inplace=True)
+                df_data.drop(columns=["GPS_heading", "GPS_speed", "GPS_location", "wind_speed_corrected_Avg", "wind_speed_corrected", "wind_speed_corrected_Max"],inplace=True)
                 df_data = df_data.rename({"temperature": 'temperature',
                                     "temperature_Avg": 'temperature_Avg',
                                     "air_pressure_Avg": 'air_pressure',
@@ -153,6 +152,9 @@ class mobile_AWS():
                                     "HEHDT_heading": "GPS_heading",
                                     "GPRMC_latitude": "latitude",
                                     "GPRMC_longitude": "longitude"}, axis='columns')
+                
+                df_data["wind_speed"] = df_data["wind_speed_raw"]
+                df_data["wind_direction"] = df_data["wind_direction_raw"]
 
             else:
                 # extract lat, lon and lat from GPS Location
@@ -200,16 +202,18 @@ class mobile_AWS():
                                     "GSP_speed": "GPS_speed",
                                     "compass_heading": "compass_heading"}, axis='columns')
 
-            df_data = df_data.dropna()
-            data_all = df_data.to_dict('list')
+        df_data = df_data.dropna()
+        
+        data_all = df_data.to_dict('list')
 
-            for vari in self.variables:
-                data[vari] = np.array(data_all[vari])
+        for vari in self.variables:
+            data[vari] = np.array(data_all[vari])
 
-            data['time'] = np.array(data_all['time'])
-            for i in range(len(data['time'])):
-                data['time'][i] = data['time'][i].replace(tzinfo=datetime.timezone.utc)
-            data['local_time'] = np.array([i.tz_convert("Europe/Berlin") for i in data["time"]])
+        data['time'] = np.array(data_all['time'])
+        for i in range(len(data['time'])):
+            data['time'][i] = data['time'][i].replace(tzinfo=datetime.timezone.utc)
+        data['local_time'] = np.array([i.tz_convert("Europe/Berlin") for i in data["time"]])
+
 
         return data
 

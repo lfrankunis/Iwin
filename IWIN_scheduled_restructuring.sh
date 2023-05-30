@@ -7,7 +7,7 @@ do
 		rsync -avh -t -O --delete /mnt/c/Data/sorted_by_location/lighthouse_AWS_${s}/${t} unismet@157.249.75.166:/data/unismet/iwin/Data_transfer_MET/lighthouse_AWS_${s}/
 	done
 done
-for s in MSBard MSPolargirl MSBillefjord
+for s in MSBerg MSPolargirl MSBillefjord
 do
 	for t in 20sec 1min 10min
 	do
