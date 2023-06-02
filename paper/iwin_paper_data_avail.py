@@ -20,7 +20,8 @@ from datetime import datetime, timedelta
 
 import xarray as xr
 
-aws_pos = ['mobile_AWS_MSBard', 
+aws_pos = ['mobile_AWS_MSBard',
+           'mobile_AWS_MSBerg',
            'mobile_AWS_MSBillefjord', 
            'mobile_AWS_MSPolargirl', 
            'lighthouse_AWS_Bohemanneset',
@@ -29,10 +30,15 @@ aws_pos = ['mobile_AWS_MSBard',
            'lighthouse_AWS_Narveneset']
 
 for i,aws in enumerate(aws_pos):
+    print(aws)
     ds = xr.open_dataset("https://thredds.met.no/thredds/dodsC/met.no/observations/unis/{aws}_1min".format(aws = aws))
     date = ds.time[:].dt.date
     locals()[aws] = np.unique(date)
    
+locals()["mobile_AWS_MSBerg"] = np.concatenate([locals()["mobile_AWS_MSBard"], locals()["mobile_AWS_MSBerg"]])
+aws_pos = aws_pos[1:]
+
+
 startdate = np.min(locals()[aws_pos[0]])
 enddate =  np.max(locals()[aws_pos[0]])
 
@@ -62,8 +68,6 @@ for k, aws in enumerate(aws_pos):
 
 mpl.rcdefaults()
 
-import matplotlib.pyplot as plt
-
 params = {'legend.fontsize': 'x-large',
                     'figure.figsize': (18, 9),
                     'font.family':'serif',
@@ -79,7 +83,7 @@ plt.rcParams.update(params)
 
   
 from matplotlib import colors
-short = ['MS BD', 'MS BF', 'MS PG','BHN','DMO', 'GO','NN']
+short = ['MS BD\nMS BG', 'MS BF', 'MS PG','BHN','DMO', 'GO','NN']
 cmap1 = colors.ListedColormap(['#FFFFFF','#03009E'])#(0.33725490196078434, 0.7058823529411765, 0.9137254901960784)])
 cmap2 = colors.ListedColormap(['#FFFFFF','#34AA00'])#(0.33725490196078434, 0.7058823529411765, 0.9137254901960784)])
 
@@ -109,7 +113,7 @@ for i, aws in enumerate(aws_pos):
         ax.pcolormesh(X,Y,Z, cmap = cmap1)
     else: 
         ax.pcolormesh(X,Y,Z, cmap = cmap2)
-    ax.set_ylabel(short[i],ha='left', y=0.4, fontsize = 16, rotation=0, labelpad=60)#loc="bottom", rotation="horizontal", fontsize=16, labelpad=40)
+    ax.set_ylabel(short[i],ha='right', va="center", y=0.5, fontsize = 16, rotation=0, labelpad=2)#loc="bottom", rotation="horizontal", fontsize=16, labelpad=40)
     ax.set(yticklabels=[])
     ax.set_yticks([])
     
@@ -121,6 +125,6 @@ ax.xaxis.set_major_formatter(DateFormatter('%b-%Y'))
 ax.xaxis.set_major_locator(plt.MaxNLocator(10))
 
 
-plt.savefig("iwin_paper_fig_08.pdf", dpi=300)
+plt.savefig("/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_08.pdf", dpi=300)
 
 

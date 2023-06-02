@@ -72,7 +72,7 @@ for m in met_stations:
     df["Time"] = df["Time(norwegian mean time)"] - pd.Timedelta("1h")
     df.set_index("Time", inplace=True)
     df.drop(["Time(norwegian mean time)"], axis=1, inplace=True)
-    df = df["2022-09-03":"2023-03-20"]
+    df = df["2022-09-03":"2023-05-30"]
     df.rename({'Air temperature': "temperature", 'Mean wind speed': "wind_speed", 'Relative air humidity': "relative_humidity",
            'Air pressure at station level': "air_pressure"}, axis=1, inplace=True)
     # e = 0.01*df["relative_humidity"]*(611.2 * np.exp((17.62*df["temperature"])/(243.12+df["temperature"])))
@@ -91,7 +91,7 @@ for s in lighthouses:
     with xr.open_dataset(f"{path_iwin_data}_{s}_1min") as ds:
         df = ds.to_dataframe()
         df.set_index(ds.time.values, inplace=True)
-        df = df["2022-09-03":"2023-03-20"]
+        df = df["2022-09-03":"2023-05-30"]
         # e = 0.01*df["relative_humidity"]*(611.2 * np.exp((17.62*df["temperature"])/(243.12+df["temperature"])))
         # df['specific_humidity'] = 1000.*(0.622*e)/(100.*df["air_pressure"]-0.378*e)
         # df.drop(["relative_humidity"], axis=1, inplace=True)
@@ -181,6 +181,55 @@ plt.savefig(f"{path_out}iwin_paper_fig_eval_lighthouses_errorstats.pdf", dpi=300
 
 
 plt.show()
+
+
+
+#%% histograms
+
+bins = {"temperature": np.arange(-25., 10.1, 5.), "wind_speed": np.arange(0., 30.1, 5.), "relative_humidity": np.arange(30., 100.1, 10.), "air_pressure": np.arange(960., 1040.1, 10.)}
+
+xlabels = {"temperature": "temperature [°C]", "wind_speed": "wind speed [m/s]", "relative_humidity": "rel. humidity [\%]", "air_pressure": "pressure [hPa]"}
+
+colors = ["b", "r", "g", "orange"]
+
+fig, axes = plt.subplots(2,2, sharey=True, figsize=latex_helpers.set_size(503.6, whr=0.6))
+ax = axes.flatten()
+for v, vari in enumerate(["temperature", "relative_humidity", "wind_speed", "air_pressure"]):
+    
+    ax[v].hist([lighthouse_data[s][vari] for s in lighthouse_data.keys()], bins=bins[vari], color=colors, label=list(lighthouse_data.keys()))
+    ax[v].set_xlabel(xlabels[vari])
+    ax[v].grid()
+    
+ax[0].legend(ncols=4, bbox_to_anchor=(2.3, 1.3))
+fig.subplots_adjust(hspace=0.35)
+plt.show()
+
+plt.savefig(f"{path_out}iwin_paper_fig_eval_lighthouses_histograms.pdf", dpi=300)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
