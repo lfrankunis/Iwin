@@ -34,11 +34,11 @@ mpl.rcParams.update({
     'font.family': 'serif',
     'text.usetex': True,
     'pgf.rcfonts': False,
-    "axes.labelsize": 10,
-    "font.size": 10,
-    "legend.fontsize": 10,
-    "xtick.labelsize": 10,
-    "ytick.labelsize": 10})
+    "axes.labelsize": 15,
+    "font.size": 15,
+    "legend.fontsize": 13,
+    "xtick.labelsize": 15,
+    "ytick.labelsize": 15})
 
 
 
@@ -88,6 +88,7 @@ for s in lighthouses.keys():
     with xr.open_dataset(f"{path_iwin_data}_{s}_1min") as ds:
         lighthouse_data[s] = ds.to_dataframe()
         lighthouse_data[s].set_index(ds.time.values, inplace=True)
+        lighthouse_data[s] = lighthouse_data[s][:"2023-05-30"]
 
 
 #%% plot map
@@ -96,7 +97,7 @@ for s in lighthouses.keys():
 for l, ldata in lighthouses.items():
     print(l)
 
-    fig, ax_main = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.6), subplot_kw={'projection': ccrs.Mercator()})
+    fig, ax_main = plt.subplots(1,1, figsize=latex_helpers.set_size(503.6, whr=0.7), subplot_kw={'projection': ccrs.Mercator()})
     ax_main.set_xticks(ldata["lonticks"], crs=ccrs.PlateCarree())
     ax_main.set_yticks(ldata["latticks"], crs=ccrs.PlateCarree())
     ax_main.xaxis.set_major_formatter(lon_formatter)
@@ -126,13 +127,13 @@ for l, ldata in lighthouses.items():
             handles.append(mpl.patches.Patch(color=colors[i], label=f'{int(ws)}-{int(wspeed_bins[i+1])} m/s'))
         else:
             handles.append(mpl.patches.Patch(color=colors[i], label=f'$>${int(ws)} m/s'))
-    ax_main.legend(handles=handles, ncols=len(wspeed_bins), loc="upper center", bbox_to_anchor=(0.5, 1.12), handlelength=1.)
+    ax_main.legend(handles=handles, ncols=3, loc="upper center", bbox_to_anchor=(0.5, 1.23), handlelength=1.)
     
     for k, spine in ax_main.spines.items():  #ax.spines is a dictionary
         spine.set_zorder(500)
     
     
-    inset_size = .5
+    inset_size = .7
     
     # the geographical coords where the polar origin will be placed
     lon0 = ldata["lon"]
@@ -163,7 +164,7 @@ for l, ldata in lighthouses.items():
     
     scale_bar(ax_main, (0.03, 0.03), 10, text_kwargs={"weight": "bold"}, zorder=400)
     
-    ax_main.text(0.72, 0.015, "© Norwegian Polar Institute", fontsize=7, weight='bold', transform=ax_main.transAxes, zorder=1000)
+    ax_main.text(0.7, 0.015, "© Norwegian Polar Institute", fontsize=8, weight='bold', transform=ax_main.transAxes, zorder=1000)
 
     
     plt.savefig(f"{path_out}_{lighthouses[l]['fig_name']}.pdf", dpi=300)

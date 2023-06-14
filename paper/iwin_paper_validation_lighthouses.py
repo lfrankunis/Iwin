@@ -128,6 +128,32 @@ biases.rename(station_labels, inplace=True)
 maes.rename(station_labels, inplace=True)
 
 
+#%% error statistics wrt MET ensemble mean
+
+biases_met = pd.DataFrame(index=list(all_data.keys()))
+maes_met = pd.DataFrame(index=list(all_data.keys()))
+
+for v, vari in enumerate(all_data["airport"].keys()):
+    df_met = pd.DataFrame(index=all_data["airport"].index)
+    for s, station in enumerate(met_data.keys()):
+        df_met[station] = met_data[station][vari]
+    df_met = df_met.mean(axis=1)
+    
+    df_lh = pd.DataFrame(index=all_data["airport"].index)
+    for s, station in enumerate(lighthouse_data.keys()):
+        df_lh[station] = lighthouse_data[station][vari] - df_met
+        
+    biases_met[vari] = df_lh.mean()
+    maes_met[vari] = abs(df_lh).mean()
+
+
+biases_met = biases_met.reindex(["Bohemanneset", "Narveneset", "Daudmannsodden", "Gasoyane"])
+maes_met =  maes_met.reindex(["Bohemanneset", "Narveneset", "Daudmannsodden", "Gasoyane"])
+
+biases_met.rename(station_labels, inplace=True)
+maes_met.rename(station_labels, inplace=True)
+
+
 #%% plots
 
 fig, ax = plt.subplots(4,1, sharex=True, figsize=latex_helpers.set_size(503.6, whr=0.9))
