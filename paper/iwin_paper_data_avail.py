@@ -125,6 +125,8 @@ ax.xaxis.set_major_formatter(DateFormatter('%b-%Y'))
 ax.xaxis.set_major_locator(plt.MaxNLocator(10))
 
 
+plt.show()
+
 plt.savefig("/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_08.pdf", dpi=300)
 
 

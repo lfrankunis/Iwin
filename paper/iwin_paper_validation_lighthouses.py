@@ -91,7 +91,7 @@ for s in lighthouses:
     with xr.open_dataset(f"{path_iwin_data}_{s}_1min") as ds:
         df = ds.to_dataframe()
         df.set_index(ds.time.values, inplace=True)
-        df = df["2022-09-03":"2023-05-30"]
+        df = df["2022-09-03":"2023-06-22"]
         # e = 0.01*df["relative_humidity"]*(611.2 * np.exp((17.62*df["temperature"])/(243.12+df["temperature"])))
         # df['specific_humidity'] = 1000.*(0.622*e)/(100.*df["air_pressure"]-0.378*e)
         # df.drop(["relative_humidity"], axis=1, inplace=True)

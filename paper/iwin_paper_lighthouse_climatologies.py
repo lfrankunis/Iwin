@@ -88,7 +88,7 @@ for s in lighthouses.keys():
     with xr.open_dataset(f"{path_iwin_data}_{s}_1min") as ds:
         lighthouse_data[s] = ds.to_dataframe()
         lighthouse_data[s].set_index(ds.time.values, inplace=True)
-        lighthouse_data[s] = lighthouse_data[s][:"2023-05-30"]
+        lighthouse_data[s] = lighthouse_data[s][:"2023-06-22"]
 
 
 #%% plot map
