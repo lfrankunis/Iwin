@@ -65,6 +65,8 @@ for day in days_to_process:
     for station in mobile_stations:
         if ((station == "MSBard") & (day in ["20210509", "20210510", "20210511", "20210622"])):
             continue
+        elif ((station == "MSPolargirl") & (day in ["20230605", "20230606", "20230607", "20230608", "20230609", "20230610", "20230611", "20230612", "20230613", "20230614", "20230615", "20230616", "20230617", "20230618"])):
+            continue
         for res in mobile_resolutions:
             restructure_mobile_AWS(from_time, to_time, station=station, resolution=res)
 

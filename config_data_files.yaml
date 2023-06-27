@@ -9,7 +9,7 @@ mobile_stations:
   MSBillefjord:
     20220320_20220516: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v1_2022.dat
     20220517_20220830: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2022.dat
-    20230322_20230517: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2023_1.dat
+    20230321_20230517: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2023_1.dat
     20230518_20231231: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2023_2.dat
   MSPolargirl:
     20210528_20211020: path/mobile_AWS_MSPolargirl/mobile_AWS_MSPolargirl_Table_resolution_v1_2021.dat

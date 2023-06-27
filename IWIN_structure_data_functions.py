@@ -273,7 +273,7 @@ def correct_mobile_winds_v3(data):
 
 
 
-def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min"):
+def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10min"):
     """
     Function to restructure the mobile AWS data into e.g. daily files
     Parameters
@@ -281,7 +281,7 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
     path : str
         string defining the path where to find the input data and save the output data
     station : str
-        string specifying the station ("1883" or "1872" or "1924")
+        string specifying the station (e.g. "MSBard")
     resolution : str
         string specifying the resolution of the data ("20sec", "1min", or "10min")
     from_time : datetime object
@@ -519,7 +519,10 @@ def restructure_mobile_AWS(from_time, to_time, station="1883", resolution="10min
         if vari in variable_attributes["valid_range"].keys():
             data.loc[data[vari]<variable_attributes["valid_range"][vari][0], vari] = np.nan
             data.loc[data[vari]>variable_attributes["valid_range"][vari][1], vari] = np.nan
-    
+
+    data.loc[pd.isna(data["wind_speed_corrected"]), "air_pressure"] = np.nan
+    data["air_pressure"].interpolate(method="linear", inplace=True)
+            
     # determine exhaust plume flag
     exhaust_sectors = {"MS Polargirl": (215., 235.),
                        "MS Billefjord": (170., 190.),
