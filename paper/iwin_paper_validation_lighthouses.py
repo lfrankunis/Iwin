@@ -72,7 +72,7 @@ for m in met_stations:
     df["Time"] = df["Time(norwegian mean time)"] - pd.Timedelta("1h")
     df.set_index("Time", inplace=True)
     df.drop(["Time(norwegian mean time)"], axis=1, inplace=True)
-    df = df["2022-09-03":"2023-05-30"]
+    df = df["2022-09-03":"2023-06-22"]
     df.rename({'Air temperature': "temperature", 'Mean wind speed': "wind_speed", 'Relative air humidity': "relative_humidity",
            'Air pressure at station level': "air_pressure"}, axis=1, inplace=True)
     # e = 0.01*df["relative_humidity"]*(611.2 * np.exp((17.62*df["temperature"])/(243.12+df["temperature"])))
@@ -172,13 +172,13 @@ for v, vari in enumerate(all_data["airport"].keys()):
     ax[v].grid()
     ax[v].set_ylabel(vari_labels[vari])
 
-plt.savefig(f"{path_out}iwin_paper_fig_eval_lighthouses_timeseries.pdf", dpi=300)
+plt.savefig(f"{path_out}iwin_paper_fig_10.pdf", dpi=300)
 
 
 
 
 
-#
+#%%
 
 fig, ax = plt.subplots(2,1, figsize=latex_helpers.set_size(503.6, whr=0.6), sharex=True)
 ax[0].axhline(0., color="k", ls="--")
@@ -203,7 +203,7 @@ ax[1].set_xticklabels(list(biases.index))
 for a in ax:
     a.grid()
     
-plt.savefig(f"{path_out}iwin_paper_fig_eval_lighthouses_errorstats.pdf", dpi=300)
+# plt.savefig(f"{path_out}iwin_paper_fig_eval_lighthouses_errorstats.pdf", dpi=300)
 
 
 plt.show()

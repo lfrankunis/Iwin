@@ -32,6 +32,7 @@ aws_pos = ['mobile_AWS_MSBard',
 for i,aws in enumerate(aws_pos):
     print(aws)
     ds = xr.open_dataset("https://thredds.met.no/thredds/dodsC/met.no/observations/unis/{aws}_1min".format(aws = aws))
+    ds = ds.sortby('time').sel(time=slice("2020-01-01","2023-06-22"))
     date = ds.time[:].dt.date
     locals()[aws] = np.unique(date)
    
@@ -83,7 +84,7 @@ plt.rcParams.update(params)
 
   
 from matplotlib import colors
-short = ['MS BD\nMS BG', 'MS BF', 'MS PG','BHN','DMO', 'GO','NN']
+short = ['MS BD\nMS BG', 'MS BF', 'MS PG','BHN','DMO', 'GØ','NN']
 cmap1 = colors.ListedColormap(['#FFFFFF','#03009E'])#(0.33725490196078434, 0.7058823529411765, 0.9137254901960784)])
 cmap2 = colors.ListedColormap(['#FFFFFF','#34AA00'])#(0.33725490196078434, 0.7058823529411765, 0.9137254901960784)])
 
@@ -127,6 +128,6 @@ ax.xaxis.set_major_locator(plt.MaxNLocator(10))
 
 plt.show()
 
-plt.savefig("/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_08.pdf", dpi=300)
+plt.savefig("/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_07.pdf", dpi=300)
 
 

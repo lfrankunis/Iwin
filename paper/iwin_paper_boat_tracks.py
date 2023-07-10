@@ -48,7 +48,7 @@ mpl.rcParams.update({
 
 path_iwin_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
-path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_09.pdf"
+path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_08.pdf"
 
 
 lat_lims = [78.0, 78.8]
@@ -71,12 +71,12 @@ dem = dem.where(dem > 0.)
 
 #%% read data
 
-mobile_stations = ["MSBard", "MSPolargirl", "MSBillefjord"]
+mobile_stations = ["MSBard", "MSBerg", "MSPolargirl", "MSBillefjord"]
 boat_data = {}
 for s in mobile_stations:
     print(s)
     with xr.open_dataset(f"{path_iwin_data}_{s}_1min") as ds:
-        boat_data[s] = ds.load()
+        boat_data[s] = ds.sel(time=slice("2020-01-01","2023-06-22")).load()
 
 
 for b, b_data in boat_data.items():

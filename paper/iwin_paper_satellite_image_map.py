@@ -305,5 +305,5 @@ ax_main.set_position(box)
 
 plt.show()
 
-fig.savefig(f"{path_iwin_data}iwin_paper_fig_10.pdf")   # save the figure to file
+fig.savefig(f"{path_iwin_data}iwin_paper_fig_13.pdf")   # save the figure to file
 plt.close(fig)    # close the figure window

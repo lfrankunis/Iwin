@@ -38,8 +38,12 @@ mpl.rcParams.update({
 #%% input
 
 path_boat_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/mobile_AWS"
+path_nn_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/lighthouse_AWS_Narveneset/1min/2022/09/lighthouse_AWS_Narveneset_Table_1min_20220920.nc"
+path_go_data = "https://thredds.met.no/thredds/dodsC/met.no/observations/unis/lighthouse_AWS_Gasoyane/1min/2022/09/lighthouse_AWS_Gasoyane_Table_1min_20220920.nc"
 path_map_data = "/Users/lukasf/OneDrive - Universitetssenteret på Svalbard AS/Svalbard_map_data/"
-path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_12.pdf"
+path_out = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_15.pdf"
+path_out_2 = "/Users/lukasf/Desktop/Iwin_paper_figures/iwin_paper_fig_16.pdf"
+
 
 day_str = "20220920"
 day = pd.to_datetime(day_str)
@@ -49,6 +53,10 @@ lon_lims = [13.5, 17.5]
 
 lat_lims_FF = [78.15, 78.25]
 lon_lims_FF = [15.0, 15.5]
+
+station_heights = {"airport": 28., "nedre_sassendalen": 13., "isfjord_radio": 7., "msbard": 25.,
+                   "Narveneset": 15., "Bohemanneset": 12., "Daudmannsodden": 39., "Gasoyane": 30.}
+
 
 
 #%% load map data
@@ -83,10 +91,31 @@ for b, b_data in boat_data.items():
     mask = ~((b_data["latitude"] > 78.65447) & (b_data["latitude"] < 78.65518) & (b_data["longitude"] > 16.37723) & (b_data["longitude"] < 16.38635))
     boat_data[b] = xr.where(mask, b_data, np.nan)
 
+    boat_data[b]["air_pressure"] += station_heights["msbard"]*(1./8.)
+
 
 boat_data_hr = boat_data["MSPolargirl"].sel(time =slice(pd.Timestamp("2022-09-20 12:30"), pd.Timestamp("2022-09-20 17:00")))
 
-    
+
+#%%
+print("NN")    
+with xr.open_dataset(path_nn_data) as ds:
+    narveneset_data = ds.sel(time=slice("2022-09-20 08:50:00", "2022-09-20 09:25:00")).load()
+
+print("GO")
+with xr.open_dataset(path_go_data) as ds:
+    gasoyane_data = ds.sel(time=slice("2022-09-20 11:00:00", "2022-09-20 11:20:00")).load()    
+
+narveneset_data["air_pressure"] += station_heights["Narveneset"]*(1./8.)
+gasoyane_data["air_pressure"] += station_heights["Gasoyane"]*(1./8.)
+
+
+#%%
+
+boat_data_nn = boat_data["MSBard"].sel(time=slice("2022-09-20 08:50:00", "2022-09-20 09:25:00"))
+boat_data_go = boat_data["MSBard"].sel(time=slice("2022-09-20 11:00:00", "2022-09-20 11:20:00"))
+
+       
 #%% plot
 
 vmin = 0.
@@ -147,6 +176,16 @@ for b, b_data in boat_data.items():
     
 cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
 cbar.ax.set_ylabel("Wind Speed [m s-1]")
+
+df = pd.DataFrame({'latitude': boat_data_nn["latitude"], 'longitude': boat_data_nn["longitude"], "color": boat_data_nn["wind_speed_corrected"]})
+gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=8, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
+
+df = pd.DataFrame({'latitude': boat_data_go["latitude"], 'longitude': boat_data_go["longitude"], "color": boat_data_go["wind_speed_corrected"]})
+gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=8, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
 
 
 b = "MSBard"
@@ -237,6 +276,61 @@ plt.show()
 
 
 
+
+
+#%% comparison with lighthouses
+
+vari_labels = {"temperature": "temperature [°C]", "wind_speed": "wind speed [m/s]", "air_pressure": "pressure [hPa]", "relative_humidity": "rel. hum. [\%]", "wind_direction": "wind direction [°]"}
+
+
+vari_names = {"temperature": "temperature", "wind_speed": "wind_speed_corrected", "air_pressure": "air_pressure", "relative_humidity": "relative_humidity", "wind_direction": "wind_direction_corrected"}
+
+
+plt.close("all")
+
+
+fig, ax = plt.subplots(5,2, sharex="col", sharey="row", figsize=latex_helpers.set_size(503.6, whr=0.9))
+for v, vari in enumerate(vari_labels.keys()):
+    if vari == "wind_direction":
+        boat_data_nn[vari_names[vari]].plot(ax=ax[v,0], color="r", ls=" ", marker=".", ms=1.5)
+        boat_data_go[vari_names[vari]].plot(ax=ax[v,1], color="r", ls=" ", marker=".", ms=1.5)
+        narveneset_data[vari].plot(ax=ax[v,0], color="deepskyblue", ls=" ", marker=".", ms=1.5)
+        gasoyane_data[vari].plot(ax=ax[v,1], color="b", ls=" ", marker=".", ms=1.5)
+    elif vari == "temperature":
+        lns1 = boat_data_nn[vari_names[vari]].plot(ax=ax[v,0], color="r", lw=1., label="MS Bard")
+        boat_data_go[vari_names[vari]].plot(ax=ax[v,1], color="r", lw=1.)
+        lns2 = narveneset_data[vari].plot(ax=ax[v,0], color="deepskyblue", lw=1., label="Narveneset")
+        lns3 = gasoyane_data[vari].plot(ax=ax[v,1], color="b", lw=1., label="Gåsøyane")
+    else:
+        boat_data_nn[vari_names[vari]].plot(ax=ax[v,0], color="r", lw=1.)
+        boat_data_go[vari_names[vari]].plot(ax=ax[v,1], color="r", lw=1.)
+        narveneset_data[vari].plot(ax=ax[v,0], color="deepskyblue", lw=1.)
+        gasoyane_data[vari].plot(ax=ax[v,1], color="b", lw=1.)
+    ax[v,0].set_xlabel(None)
+    ax[v,0].set_ylabel(vari_labels[vari])
+    ax[v,1].set_xlabel(None)
+    ax[v,1].set_ylabel(None)
+    
+    ax[v,0].axvspan(pd.Timestamp("2022-09-20 08:52:00"), pd.Timestamp("2022-09-20 09:20:00"), alpha=0.2, color='red')
+    ax[v,1].axvspan(pd.Timestamp("2022-09-20 11:07:00"), pd.Timestamp("2022-09-20 11:10:00"), alpha=0.2, color='red')
+    
+    
+ax[-1,0].set_yticks([0., 90., 180., 270., 360.])
+ax[-1,0].set_yticklabels(["N", "E", "S", "W", "N"])
+    
+for a in ax.flatten():
+    a.grid()
+    a.xaxis.set_major_formatter(mpl.dates.DateFormatter('%H:%M'))
+    for label in a.get_xticklabels(which='major'):
+        label.set(rotation=30, horizontalalignment='center')
+
+lns = lns2+lns1+lns3
+labs = [l.get_label() for l in lns]
+ax[0,0].legend(lns, labs, ncols=3, bbox_to_anchor=(1.1, 1.5), loc='upper center')
+
+
+
+plt.savefig(path_out_2, dpi=300)
 
 
 
