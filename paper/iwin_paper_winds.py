@@ -177,15 +177,15 @@ for b, b_data in boat_data.items():
 cbar = plt.colorbar(pic, ax=ax, orientation="vertical")
 cbar.ax.set_ylabel("Wind Speed [m s-1]")
 
-df = pd.DataFrame({'latitude': boat_data_nn["latitude"], 'longitude': boat_data_nn["longitude"], "color": boat_data_nn["wind_speed_corrected"]})
-gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
-pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=8, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
+# df = pd.DataFrame({'latitude': boat_data_nn["latitude"], 'longitude': boat_data_nn["longitude"], "color": boat_data_nn["wind_speed_corrected"]})
+# gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+# gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+# pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=8, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
 
-df = pd.DataFrame({'latitude': boat_data_go["latitude"], 'longitude': boat_data_go["longitude"], "color": boat_data_go["wind_speed_corrected"]})
-gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
-gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
-pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=8, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
+# df = pd.DataFrame({'latitude': boat_data_go["latitude"], 'longitude': boat_data_go["longitude"], "color": boat_data_go["wind_speed_corrected"]})
+# gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326")
+# gdf = gdf.to_crs(ccrs.Mercator().proj4_init)
+# pic = ax.scatter(x=gdf["longitude"], y=gdf["latitude"], c=gdf["color"], s=8, zorder=100, cmap=cmap, transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
 
 
 b = "MSBard"
