@@ -223,7 +223,7 @@ for v, vari in enumerate(vari_labels.keys()):
         narveneset_data[vari].plot(ax=ax[v,0], color="deepskyblue", ls=" ", marker=".", ms=1.5)
         gasoyane_data[vari].plot(ax=ax[v,1], color="b", ls=" ", marker=".", ms=1.5)
     elif vari == "temperature":
-        lns1 = boat_data_nn[vari_names[vari]].plot(ax=ax[v,0], color="r", lw=1., label="MS Bard")
+        lns1 = boat_data_nn[vari_names[vari]].plot(ax=ax[v,0], color="r", lw=1., label="MS Bard/Berg")
         boat_data_go[vari_names[vari]].plot(ax=ax[v,1], color="r", lw=1.)
         lns2 = narveneset_data[vari].plot(ax=ax[v,0], color="deepskyblue", lw=1., label="Narveneset")
         lns3 = gasoyane_data[vari].plot(ax=ax[v,1], color="b", lw=1., label="Gåsøyane")
