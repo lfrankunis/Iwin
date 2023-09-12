@@ -226,7 +226,6 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
                                                                                              c=lighthouse.data['wind_speed'][-1],
                                                                                              d=wdir_classes[lighthouse.data['wind_sector'][-1]][0])
 
-
     if lighthouse.station_name == "Bohemanneset":
         x_shift = -0.08
         y_shift = 0.02
@@ -236,7 +235,7 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
         ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
                         xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
     elif lighthouse.station_name == "Gasoyane":
-        x_shift = 0.08
+        x_shift = 0.1
         y_shift = 0.00
         if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
             x_shift = 0.2
@@ -244,8 +243,9 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
         ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="left", va="center",
                         xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
     elif lighthouse.station_name == "Narveneset":
-        x_shift = -0.35
-        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="center",
+        x_shift = -0.15
+        y_shift = 0.05
+        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
                         xytext=(lighthouse.longitude+x_shift, lighthouse.latitude), xycoords=transform, zorder=21)
     elif lighthouse.station_name == "Daudmannsodden":
         x_shift = -0.08
@@ -255,7 +255,14 @@ def plot_lighthouse_on_map(lighthouse, ax_map, sc_map):
             y_shift = 0.06
         ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
                         xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
-            
+    elif lighthouse.station_name == "Kapp Thordsen":
+        x_shift = -0.08
+        y_shift = 0.02
+        if wdir_classes[lighthouse.data['wind_sector'][-1]][0] in ["N", "NW", "W"]:
+            x_shift = -0.2
+            y_shift = 0.04
+        ax_map.annotate(data_str, xy=(lighthouse.longitude, lighthouse.latitude), bbox=props, ma='left', ha="right", va="bottom",
+                        xytext=(lighthouse.longitude+x_shift, lighthouse.latitude+y_shift), xycoords=transform, zorder=21)
             
 
     sc_map.add_grid_points_meteo_arrows([lighthouse.latitude], [lighthouse.longitude],
@@ -319,12 +326,12 @@ def plot_MET_station_on_map(station, data, ax_map, sc_map):
         ax_map.annotate(data_str, xy=(station_names[station]["lon"], station_names[station]["lat"]), bbox=props, ma='left', ha="left", va="top",
                         xytext=(station_names[station]["lon"]+x_shift, station_names[station]["lat"]+y_shift), xycoords=transform, zorder=21)
     elif station == "PYR":
-        x_shift = -0.08
-        y_shift = 0.02
-        if wdir_classes[data['wind_sector'].iloc[-1]][0] in ["N", "NW", "W"]:
-            x_shift = -0.3
-            y_shift = 0.06
-        ax_map.annotate(data_str, xy=(station_names[station]["lon"], station_names[station]["lat"]), bbox=props, ma='left', ha="right", va="bottom",
+        x_shift = 0.0
+        y_shift = 0.06
+        # if wdir_classes[data['wind_sector'].iloc[-1]][0] in ["N", "NW", "W"]:
+        #     x_shift = -0.3
+        #     y_shift = 0.06
+        ax_map.annotate(data_str, xy=(station_names[station]["lon"], station_names[station]["lat"]), bbox=props, ma='left', ha="left", va="bottom",
                         xytext=(station_names[station]["lon"]+x_shift, station_names[station]["lat"]+y_shift), xycoords=transform, zorder=21)
             
 

@@ -7,6 +7,6 @@ mobile_stations:
 lighthouse_stations:
   - Narveneset
   - Bohemanneset
-  - Daudmannsodden
+#  - Daudmannsodden
   - Gasoyane
-#  - KappThordsen
+  - KappThordsen

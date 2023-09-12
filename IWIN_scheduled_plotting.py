@@ -48,9 +48,8 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
     map_vari = "temperature"
     min_cbar_range = 3.
     
-    
-    
-    
+
+
     ####################################################################################
     ####################################################################################
     
@@ -110,7 +109,8 @@ def update_all_plots(boats_to_plot, lighthouses_to_plot, MET_stations_to_plot):
     
     # load MET station data
     
-    met_stations = download_MET_stations(update_time)
+    if len(MET_stations_to_plot) > 0:
+        met_stations = download_MET_stations(update_time)
     
     ####################################################################################
     ####################################################################################

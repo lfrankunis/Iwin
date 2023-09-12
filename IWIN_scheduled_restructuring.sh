@@ -1,6 +1,6 @@
 cd /mnt/c/Github/Iwin/
 python ./IWIN_scheduled_restructuring.py
-for s in Narveneset Bohemanneset Daudmannsodden Gasoyane
+for s in Narveneset Bohemanneset Daudmannsodden Gasoyane KappThordsen
 do
 	for t in 1min 10min
 	do

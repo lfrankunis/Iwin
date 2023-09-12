@@ -40,6 +40,6 @@ lighthouse_stations:
     lon: 16.20082
   KappThordsen:
     name: Kapp Thordsen
-    installation_date: 20230517
+    installation_date: 20230811
     lat: 78.45632
     lon: 15.46768
