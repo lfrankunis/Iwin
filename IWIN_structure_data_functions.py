@@ -509,6 +509,7 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
     data.set_index("time", inplace=True)
     
     data = data[~data.index.duplicated(keep='first')]
+    data.sort_index(inplace=True)
     
     start_data_coverage = datetime.datetime.fromtimestamp(data.index[0], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     end_data_coverage = datetime.datetime.fromtimestamp(data.index[-1], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -790,6 +791,10 @@ def restructure_lighthouse_AWS(from_time, to_time, station="Bohemanneset", resol
 
     if ((station == "Gasoyane") & (from_time < datetime.datetime(2022,11,6, tzinfo=datetime.timezone.utc))):
         data['wind_direction'] -= 65.
+        data["wind_direction"] = (data["wind_direction"] + 360.) % 360.
+        
+    if ((station == "KappThordsen") & (from_time > datetime.datetime(2023,9,12, tzinfo=datetime.timezone.utc))):
+        data['wind_direction'] = np.nan
     
 
     # transfer timestamps into Python datetime objects
@@ -798,6 +803,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="Bohemanneset", resol
     data.set_index("time", inplace=True)
     
     data = data[~data.index.duplicated(keep='first')]
+    data.sort_index(inplace=True)
     
     start_data_coverage = datetime.datetime.fromtimestamp(data.index[0], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     end_data_coverage = datetime.datetime.fromtimestamp(data.index[-1], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
