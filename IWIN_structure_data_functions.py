@@ -304,6 +304,7 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
     for d, f in infiles_station.items():
         d1 = datetime.datetime.strptime(str(d)[:8], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
         d2 = datetime.datetime.strptime(str(d)[8:], "%Y%m%d").replace(tzinfo=datetime.timezone.utc)
+        
         if ((from_time >= d1) & (from_time <= d2)):
             infile = f
             
@@ -407,9 +408,10 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
                      'wind_direction_corrected_Avg': 'wind_direction_corrected',
                      'wind_direction_corrected_Std': 'wind_direction_corrected_Std',
                      'wind_speed_corrected_Max': 'wind_speed_corrected_Max',
-                     'temperature': 'temperature',
-                     'relative_humidity': 'relative_humidity',
+                     'temperature_Avg': 'temperature',
+                     'relative_humidity_Avg': 'relative_humidity',
                      'air_pressure_Avg': 'air_pressure',
+                     'SST_Avg': "sea_surface_temperature",
                      'GPS_location': 'GPS_location',
                      "GPS_speed": "GPS_speed",
                      "GPS_heading": "GPS_heading"}
@@ -428,9 +430,11 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
                      'wind_direction_corrected_Avg': 'wind_direction_corrected',
                      'wind_direction_corrected_Std': 'wind_direction_corrected_Std',
                      'wind_speed_corrected_Max': 'wind_speed_corrected_Max',
-                     'temperature': 'temperature',
-                     'relative_humidity': 'relative_humidity',
+                     'temperature_Avg': 'temperature',
+                     'relative_humidity_Avg': 'relative_humidity',
                      'air_pressure_Avg': 'air_pressure',
+                     'SST_Avg': "sea_surface_temperature",
+                     "PAR_Avg": "photosynthetically_active_radiation",
                      "GPRMC_speed_kn": "GPS_speed",
                      "HEHDT_heading": "GPS_heading",
                      "GPRMC_latitude": "latitude",
@@ -444,8 +448,8 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
     "units": {'time': "seconds since 1970-01-01T00:00:00Z", 'wind_speed_raw': "m s-1",
               'wind_direction_raw': "degree", 'wind_direction_raw_Std': "degree", 'wind_speed_raw_Max': "m s-1",
               'wind_speed_corrected': "m s-1", 'wind_direction_corrected': "degree", 'wind_direction_corrected_Std': "degree",
-              'wind_speed_corrected_Max': "m s-1",
-              'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa",
+              'wind_speed_corrected_Max': "m s-1", "photosynthetically_active_radiation": "micromol m-2 s-1",
+              'temperature': "degree_C", 'relative_humidity': "percent", 'air_pressure': "hPa", "sea_surface_temperature": "degree_C",
               'GPS_heading': "degree", 'GPS_speed': "m s-1", 'latitude': "degree_N", 'longitude': "degree_E", 'height': "m"},
     
     "long_name" : {'time': "UTC time",
@@ -460,6 +464,8 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
                     'temperature': "air temperature averaged over the sampling interval",
                     'relative_humidity': "air relative humidity averaged over the sampling interval",
                     'air_pressure': "air pressure averaged over the sampling interval",
+                    "sea_surface_temperature:": "sea surface temperature averaged over the sampling interval",
+                    "photosynthetically_activate_radiation": "Photosynthetically active radiation averaged over the sampling interval",
                     'GPS_heading': "heading of the boat, retrieved from the GPS", 'GPS_speed': "speed of the boat, retrieved from the GPS",
                     'latitude': "latitude", 'longitude': "longitude", 'height': "height of the sensor over ground, retrieved from the GPS",
                     "exhaust_plume_influence": "flag indicating a possile contamination of the measurements by the exhaust plume"},
@@ -471,7 +477,10 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
                        'wind_direction_corrected': "wind_from_direction",
                        'temperature': "air_temperature",
                        'relative_humidity': 'relative_humidity',
-                       'air_pressure': "air_pressure", 'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
+                       'air_pressure': "air_pressure",
+                       "sea_surface_temperature": "sea_surface_skin_temperature",
+                       "photosynthetically_activate_radiation": "surface_downwelling_photosynthetic_photon_flux_in_air",
+                       'GPS_heading': "platform_azimuth_angle", 'GPS_speed': "platform_speed_wrt_ground",
                        'latitude': "latitude", 'longitude': "longitude", "height": "height",
                        "exhaust_plume_influence": "status_flag"},
     
@@ -480,6 +489,8 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
                     "wind_speed_corrected": [np.float32(0.), np.float32(50.)], "wind_speed_corrected_Max": [np.float32(0.), np.float32(50.)],
                     "wind_direction_corrected": [np.float32(0.), np.float32(360.)], "wind_direction_corrected_Std": [np.float32(0.), np.float32(360.)],
                     "temperature": [np.float32(-80.), np.float32(40.)], "relative_humidity": [np.float32(0.), np.float32(100.)], "air_pressure": [np.float32(800.), np.float32(1100.)],
+                    "sea_surface_temperature": [np.float32(-80.), np.float32(40.)],
+                    "photosynthetically_activate_radiation": [np.float32(0.), np.float32(1.e4)],
                     "latitude": [np.float32(77.), np.float32(80.)], "longitude": [np.float32(10.), np.float32(20.)]},
     
     "flag_values": {"exhaust_plume_influence": [np.int8(0), np.int8(1)]},
@@ -490,7 +501,8 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
     "coverage_content_type": {"time": "coordinate", 'GPS_heading': "physicalMeasurement", 'GPS_speed': "physicalMeasurement", 'latitude': "coordinate", 'longitude': "coordinate", 'height': "physicalMeasurement", "exhaust_plume_influence": "auxiliaryInformation",
                               "wind_speed_raw": "physicalMeasurement", "wind_direction_raw": "physicalMeasurement", "wind_direction_raw_Std": "physicalMeasurement", "wind_speed_raw_Max": "physicalMeasurement",
                               "wind_speed_corrected": "physicalMeasurement", "wind_direction_corrected": "physicalMeasurement", "wind_direction_corrected_Std": "physicalMeasurement", "wind_speed_corrected_Max": "physicalMeasurement",
-                              "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement"}}
+                              "air_pressure": "physicalMeasurement", "relative_humidity": "physicalMeasurement", "temperature": "physicalMeasurement", "sea_surface_temperature": "physicalMeasurement",
+                              "photosynthetically_activate_radiation": "physicalMeasurement"}}
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]
@@ -504,8 +516,6 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
         data = correct_mobile_winds_v3(data)
 
     
-    
-    
     data.set_index("time", inplace=True)
     
     data = data[~data.index.duplicated(keep='first')]
@@ -514,6 +524,11 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
     start_data_coverage = datetime.datetime.fromtimestamp(data.index[0], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     end_data_coverage = datetime.datetime.fromtimestamp(data.index[-1], datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     
+    
+    # add dummy SST before sensors were added
+    if station in ["MSPolargirl"]:
+        if "sea_surface_temperature" not in data.columns:
+            data["sea_surface_temperature"] = np.nan
     
     # filter data for unphysical outliers
     for vari in data.columns:
@@ -562,13 +577,48 @@ def restructure_mobile_AWS(from_time, to_time, station="MSBard", resolution="10m
     # creator_mails = "lukasf@unis.no, mariusj@unis.no, teresav@met.no, florina.schalamon@uni-graz.at, agnes.stenlund@aces.su.se"
     # creator_urls = "https://orcid.org/0000-0003-1472-7967, https://orcid.org/0000-0002-4745-9009, https://orcid.org/0000-0002-6421-859X, https://orcid.org/0000-0002-2509-4133, https://orcid.org/0000-0003-4241-735X"
 
+
+    summary = "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction."
+    keywords = "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
+        GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
+        GCMDLOC: GEOGRAPHIC REGION > POLAR, GCMDLOC: CONTINENT > EUROPE > NORTHERN EUROPE > SCANDINAVIA > NORWAY"
+    if "sea_surface_temperature" in ds.variables:
+        if "photosynthetically_active_radiation" in ds.variables:
+            summary = summary + " Furthermore, it includes measurements of sea surface temperature and photosynthetically active radiation."
+            keywords = keywords + ""
+        else:
+            summary = summary + " Furthermore, it includes measurements of sea surface temperature."
+            keywords = keywords + ", GCMDSK: EARTH SCIENCE > OCEANS > OCEAN TEMPERATURE > SEA SURFACE TEMPERATURE > SEA SURFACE SKIN TEMPERATURE"
+        
+
+    
+    if station == "RVHannaResvoll":
+        summary = "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. \
+            Furthermore, it includes measurements of sea surface temperature and photosynthetically active radiation. \
+            The raw data is only filtered for obviously wrong GPS positions, otherwise the data is made available as is. Wind speed and wind direction are corrected for the horizontal movements of the boat using GPS data."
+        keywords = "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
+            GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
+            GCMDSK: EARTH SCIENCE > OCEANS > OCEAN TEMPERATURE > SEA SURFACE TEMPERATURE > SEA SURFACE SKIN TEMPERATURE, GCMDSK: EARTH SCIENCE > OCEANS > OCEAN OPTICS > PHOTOSYNTHETICALLY ACTIVE RADIATION, \
+            GCMDLOC: GEOGRAPHIC REGION > POLAR, GCMDLOC: CONTINENT > EUROPE > NORTHERN EUROPE > SCANDINAVIA > NORWAY"
+    elif station == "MSPolargirl":
+        summary = "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. \
+            In the beginning of the season 2024, an additional sea surface temperature sensor was added to the station and the respective data is available in the file. \
+            The raw data is only filtered for obviously wrong GPS positions, otherwise the data is made available as is. Wind speed and wind direction are corrected for the horizontal movements of the boat using GPS data."
+        keywords = "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
+            GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
+            GCMDSK: EARTH SCIENCE > OCEANS > OCEAN TEMPERATURE > SEA SURFACE TEMPERATURE > SEA SURFACE SKIN TEMPERATURE, \
+            GCMDLOC: GEOGRAPHIC REGION > POLAR, GCMDLOC: CONTINENT > EUROPE > NORTHERN EUROPE > SCANDINAVIA > NORWAY"
+    else:
+        summary = "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. \
+            The raw data is only filtered for obviously wrong GPS positions, otherwise the data is made available as is. Wind speed and wind direction are corrected for the horizontal movements of the boat using GPS data."
+        keywords = "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
+            GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
+            GCMDLOC: GEOGRAPHIC REGION > POLAR, GCMDLOC: CONTINENT > EUROPE > NORTHERN EUROPE > SCANDINAVIA > NORWAY"
     
     global_attributes = {"boat": station_metadata['name'],
         "title": f"Standard meteorological near-surface observations from {from_time.strftime('%Y-%m-%d')} measured onboard {station_metadata['name']} in Isfjorden, Svalbard.",
-        "summary": "The file contains time series of the standard meteorological near-surface parameters temperature, humidity, pressure, wind speed and wind direction. The raw data is only filtered for obviously wrong GPS positions, otherwise the data is made available as is. Wind speed and wind direction are corrected for the horizontal movements of the boat using GPS data.",
-        "keywords": "GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE > AIR TEMPERATURE, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY > RELATIVE HUMIDITY, \
-            GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND DIRECTION, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS > WIND SPEED, GCMDSK: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE, \
-            GCMDLOC: GEOGRAPHIC REGION > POLAR, GCMDLOC: CONTINENT > EUROPE > NORTHERN EUROPE > SCANDINAVIA > NORWAY",
+        "summary": summary,
+        "keywords": keywords,
         "keywords_vocabulary": 'GCMDSK: GCMD Science Keywords, GCMDLOC: GCMD Locations',
         "data_type": "netCDF-4",
         "standard_name_vocabulary": "CF Standard Name Table v80",
@@ -727,6 +777,7 @@ def restructure_lighthouse_AWS(from_time, to_time, station="Bohemanneset", resol
 
     col_names = pd.read_csv(infile, header=1, sep=",", nrows=1).to_dict('records')[0]
 
+    print(f"debut : infile = {infile}")
     time_avail = pd.to_datetime(pd.read_csv(infile, header=3, sep=",", usecols=[0], na_values="NAN").iloc[:,0]).dt.to_pydatetime()
     time_avail = np.asarray([d.replace(tzinfo=datetime.timezone.utc) for d in time_avail])
     ind = np.where((time_avail >= from_time) & (time_avail < to_time))[0]
@@ -793,9 +844,9 @@ def restructure_lighthouse_AWS(from_time, to_time, station="Bohemanneset", resol
         data['wind_direction'] -= 65.
         data["wind_direction"] = (data["wind_direction"] + 360.) % 360.
         
-    if ((station == "KappThordsen") & (from_time > datetime.datetime(2023,9,12, tzinfo=datetime.timezone.utc))):
-        data['wind_direction'] = np.nan
-    
+    if ((station == "KappThordsen") & (from_time > datetime.datetime(2023,9,12, tzinfo=datetime.timezone.utc)) & (to_time < datetime.datetime(2024,6,10, tzinfo=datetime.timezone.utc))):
+        data['wind_direction'] -= 120.
+        data["wind_direction"] = (data["wind_direction"] + 360.) % 360.
 
     # transfer timestamps into Python datetime objects
     data["time"] = [dt.replace(tzinfo=datetime.timezone.utc).timestamp() for dt in pd.to_datetime(data["time"]).dt.to_pydatetime()]

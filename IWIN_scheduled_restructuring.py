@@ -28,6 +28,7 @@ def restructure_AWS(stat, res, latest_day, new_day):
         latest_avail_time = restructure_mobile_AWS(midnight, now, station=str(stat), resolution=res)
     elif stat in lighthouse_stations:
         latest_avail_time = restructure_lighthouse_AWS(midnight, now, station=str(stat), resolution=res)
+        
 
     if ((latest_day != now.date()) & (latest_avail_time > midnight)):
         print("final restructure yesterday")
@@ -35,6 +36,7 @@ def restructure_AWS(stat, res, latest_day, new_day):
             restructure_mobile_AWS(midnight-datetime.timedelta(days=1), midnight, station=str(stat), resolution=res)
         elif stat in lighthouse_stations:
             restructure_lighthouse_AWS(midnight-datetime.timedelta(days=1), midnight, station=str(stat), resolution=res)
+
      
         new_day.put(now.date())
         

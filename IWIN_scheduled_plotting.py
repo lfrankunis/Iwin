@@ -205,7 +205,7 @@ if __name__ == '__main__':
     
     MET_switches = {"LYR": True,
                     "IR":  True,
-                    "PYR": True,
+                    "PYR": False,
                     "NS":  True}
     
     

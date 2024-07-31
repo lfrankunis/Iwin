@@ -114,7 +114,8 @@ def plot_boat_on_map(ax_map, sc_map, boat, variable="temperature", position_swit
     cbar_labels = {'temperature': 'Temperature [°C]',
               'relative_humidity': 'Relative Humidity [%]',
               'wind_speed': 'Wind Speed [m/s]',
-              'wind_direction': 'Wind Direction [°]'}
+              'wind_direction': 'Wind Direction [°]',
+              "SST": "Sea surface temperature [°C]"}
     
     sc_map.add_grid_points_scalar(boat.data['latitude'], boat.data['longitude'], boat.data[variable], fixed_cbar_range=fixed_cbar_range,
                                     cbar_switch=cbar_switch, cbar_label=cbar_labels[variable], cmap="RdYlBu_r", markersize=15, marker="o")

@@ -2,8 +2,9 @@ mobile_stations:
   MSBard:
     20210505_20211021: path/mobile_AWS_MSBard/mobile_AWS_MSBard_Table_resolution_v1_2021.dat
     20220530_20221027: path/mobile_AWS_MSBard/mobile_AWS_MSBard_Table_resolution_v2_2022.dat
+    20240501_20241231: path/mobile_AWS_MSBard/mobile_AWS_MSBard_Table_resolution_v3_2024_1.dat
   MSBerg:
-    20230517_20231201: path/mobile_AWS_MSBerg/mobile_AWS_MSBerg_Table_resolution_v3_2023_1.dat
+    20230517_20231231: path/mobile_AWS_MSBerg/mobile_AWS_MSBerg_Table_resolution_v3_2023_1.dat
   MSBard2:
     20220831_20221027: path/mobile_AWS_MSBard2/mobile_AWS_MSBard2_Table_resolution_v2_2022.dat
   MSBillefjord:
@@ -11,30 +12,38 @@ mobile_stations:
     20220517_20220830: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2022.dat
     20230321_20230517: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2023_1.dat
     20230518_20231231: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2023_2.dat
+    20240222_20241231: path/mobile_AWS_MSBillefjord/mobile_AWS_MSBillefjord_Table_resolution_v2_2024_1.dat
   MSPolargirl:
     20210528_20211020: path/mobile_AWS_MSPolargirl/mobile_AWS_MSPolargirl_Table_resolution_v1_2021.dat
     20220531_20221017: path/mobile_AWS_MSPolargirl/mobile_AWS_MSPolargirl_Table_resolution_v2_2022.dat
-    20230517_20231201: path/mobile_AWS_MSPolargirl/mobile_AWS_MSPolargirl_Table_resolution_v2_2023_1.dat
+    20230517_20231231: path/mobile_AWS_MSPolargirl/mobile_AWS_MSPolargirl_Table_resolution_v2_2023_1.dat
+    20240527_20241231: path/mobile_AWS_MSPolargirl/mobile_AWS_MSPolargirl_Table_resolution_v2_2024_1.dat
   RVHannaResvoll:
-    20230517_20231201: path/mobile_AWS_RVHannaResvoll/mobile_AWS_RVHannaResvoll_Table_resolution_v3_2023_1.dat
+    20240517_20241231: path/mobile_AWS_RVHannaResvoll/mobile_AWS_RVHannaResvoll_Table_resolution_v3_2024_1.dat
 lighthouse_stations:
   Narveneset:
     20220617_20221231: path/lighthouse_AWS_Narveneset/lighthouse_AWS_Narveneset_Table_resolution_v2_2022.dat
     20230101_20230517: path/lighthouse_AWS_Narveneset/lighthouse_AWS_Narveneset_Table_resolution_v2_2023_1.dat
-    20230518_20991231: path/lighthouse_AWS_Narveneset/lighthouse_AWS_Narveneset_Table_resolution_v2_2023_2.dat
+    20230518_20231231: path/lighthouse_AWS_Narveneset/lighthouse_AWS_Narveneset_Table_resolution_v2_2023_2.dat
+    20240101_20991231: path/lighthouse_AWS_Narveneset/lighthouse_AWS_Narveneset_Table_resolution_v2_2024_1.dat
   Bohemanneset:
     20210819_20211231: path/lighthouse_AWS_Bohemanneset/lighthouse_AWS_Bohemanneset_Table_resolution_v1_2021.dat
     20220101_20220507: path/lighthouse_AWS_Bohemanneset/lighthouse_AWS_Bohemanneset_Table_resolution_v1_2022.dat
     20220508_20221231: path/lighthouse_AWS_Bohemanneset/lighthouse_AWS_Bohemanneset_Table_resolution_v2_2022.dat
     20230101_20230517: path/lighthouse_AWS_Bohemanneset/lighthouse_AWS_Bohemanneset_Table_resolution_v2_2023_1.dat
-    20230518_20991231: path/lighthouse_AWS_Bohemanneset/lighthouse_AWS_Bohemanneset_Table_resolution_v2_2023_2.dat
+    20230518_20231231: path/lighthouse_AWS_Bohemanneset/lighthouse_AWS_Bohemanneset_Table_resolution_v2_2023_2.dat
+    20240101_20991231: path/lighthouse_AWS_Bohemanneset/lighthouse_AWS_Bohemanneset_Table_resolution_v2_2024_1.dat
   Daudmannsodden:
     20220708_20221231: path/lighthouse_AWS_Daudmannsodden/lighthouse_AWS_Daudmannsodden_Table_resolution_v2_2022.dat
     20230101_20230517: path/lighthouse_AWS_Daudmannsodden/lighthouse_AWS_Daudmannsodden_Table_resolution_v2_2023_1.dat
-    20230518_20991231: path/lighthouse_AWS_Daudmannsodden/lighthouse_AWS_Daudmannsodden_Table_resolution_v2_2023_2.dat
+    20230518_20230910: path/lighthouse_AWS_Daudmannsodden/lighthouse_AWS_Daudmannsodden_Table_resolution_v2_2023_2.dat
+    20240606_20991231: path/lighthouse_AWS_Daudmannsodden/lighthouse_AWS_Daudmannsodden_Table_resolution_v2_2024_1.dat
   Gasoyane:
     20220902_20221231: path/lighthouse_AWS_Gasoyane/lighthouse_AWS_Gasoyane_Table_resolution_v2_2022.dat
     20230101_20230517: path/lighthouse_AWS_Gasoyane/lighthouse_AWS_Gasoyane_Table_resolution_v2_2023_1.dat
-    20230518_20991231: path/lighthouse_AWS_Gasoyane/lighthouse_AWS_Gasoyane_Table_resolution_v2_2023_2.dat
+    20230518_20231231: path/lighthouse_AWS_Gasoyane/lighthouse_AWS_Gasoyane_Table_resolution_v2_2023_2.dat
+    20240101_20991231: path/lighthouse_AWS_Gasoyane/lighthouse_AWS_Gasoyane_Table_resolution_v2_2024_1.dat
   KappThordsen:
-    20230518_20991231: path/lighthouse_AWS_KappThordsen/lighthouse_AWS_KappThordsen_Table_resolution_v2_2023_1.dat
+    20230518_20231231: path/lighthouse_AWS_KappThordsen/lighthouse_AWS_KappThordsen_Table_resolution_v2_2023_1.dat
+    20240101_20240609: path/lighthouse_AWS_KappThordsen/lighthouse_AWS_KappThordsen_Table_resolution_v2_2024_1.dat
+    20240610_20991231: path/lighthouse_AWS_KappThordsen/lighthouse_AWS_KappThordsen_Table_resolution_v2_2024_2.dat
